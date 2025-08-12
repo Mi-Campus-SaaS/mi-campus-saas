@@ -12,7 +12,10 @@ export class AttendanceController {
 
   @Roles(UserRole.TEACHER)
   @Post('classes/:id/attendance')
-  submit(@Param('id') classId: string, @Body() body: { records: Array<{ studentId: string; present: boolean; date: string }> }) {
+  submit(
+    @Param('id') classId: string,
+    @Body() body: { records: Array<{ studentId: string; present: boolean; date: string }> },
+  ) {
     return this.attendanceService.submitForClass(classId, body.records || []);
   }
 
@@ -21,4 +24,3 @@ export class AttendanceController {
     return this.attendanceService.getForStudent(studentId);
   }
 }
-

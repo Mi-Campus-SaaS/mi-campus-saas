@@ -19,4 +19,3 @@ export class Attendance {
   @Column({ default: true })
   present!: boolean;
 }
-

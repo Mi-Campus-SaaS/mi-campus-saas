@@ -10,4 +10,3 @@ import { AnnouncementsController } from './announcements.controller';
   controllers: [AnnouncementsController],
 })
 export class AnnouncementsModule {}
-

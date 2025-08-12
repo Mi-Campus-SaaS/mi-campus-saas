@@ -26,4 +26,3 @@ export class User {
   @OneToOne(() => Teacher, (teacher) => teacher.user, { nullable: true })
   teacher?: Teacher | null;
 }
-

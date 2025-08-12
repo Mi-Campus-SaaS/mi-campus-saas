@@ -22,4 +22,3 @@ export class FeeInvoice {
   @OneToMany(() => Payment, (p) => p.invoice)
   payments!: Payment[];
 }
-

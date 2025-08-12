@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { calculateGpaFromGrades } from '../src/utils/gpa.util';
 
 describe('calculateGpaFromGrades', () => {

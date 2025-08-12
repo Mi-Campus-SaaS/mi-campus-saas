@@ -10,7 +10,10 @@ export class GradesService {
     private readonly gradesRepo: Repository<Grade>,
   ) {}
 
-  addForClass(classId: string, payload: Array<{ studentId: string; assignmentName: string; score: number; maxScore: number; date: string }>) {
+  addForClass(
+    classId: string,
+    payload: Array<{ studentId: string; assignmentName: string; score: number; maxScore: number; date: string }>,
+  ) {
     const grades = payload.map((g) =>
       this.gradesRepo.create({
         classEntity: { id: classId } as any,
@@ -32,4 +35,3 @@ export class GradesService {
     return Math.round(average * 4 * 100) / 100;
   }
 }
-

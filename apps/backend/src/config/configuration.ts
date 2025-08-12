@@ -33,4 +33,3 @@ export const loadConfiguration = (): AppConfig => ({
     from: process.env.SMTP_FROM || 'Mi Campus <noreply@micampus.local>',
   },
 });
-

@@ -11,4 +11,3 @@ import { FinanceController } from './finance.controller';
   controllers: [FinanceController],
 })
 export class FinanceModule {}
-

@@ -19,4 +19,3 @@ export class Announcement {
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 }
-

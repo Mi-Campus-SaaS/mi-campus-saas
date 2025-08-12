@@ -13,4 +13,3 @@ export const createTypeOrmConfig = (): TypeOrmModuleOptions => {
     logging: false,
   };
 };
-

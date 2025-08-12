@@ -22,4 +22,3 @@ export class MailService {
     return this.transporter.sendMail({ from, to, subject, text });
   }
 }
-

@@ -22,4 +22,3 @@ export class ClassesController {
     return this.classesService.assignTeacher(classId, teacherId);
   }
 }
-

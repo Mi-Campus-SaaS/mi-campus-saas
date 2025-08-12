@@ -23,4 +23,3 @@ export class ClassEntity {
   @OneToMany(() => ClassSession, (s) => s.classEntity)
   sessions!: ClassSession[];
 }
-

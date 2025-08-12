@@ -31,4 +31,3 @@ export class Student {
   @OneToMany(() => Attendance, (a) => a.student)
   attendanceRecords!: Attendance[];
 }
-

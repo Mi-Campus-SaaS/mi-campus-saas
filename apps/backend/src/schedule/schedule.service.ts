@@ -19,4 +19,3 @@ export class ScheduleService {
     return this.sessionsRepo.find();
   }
 }
-

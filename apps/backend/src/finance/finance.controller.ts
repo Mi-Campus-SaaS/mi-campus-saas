@@ -26,4 +26,3 @@ export class FinanceController {
     return this.financeService.recordPayment(body.invoiceId, body.amount, body.reference);
   }
 }
-

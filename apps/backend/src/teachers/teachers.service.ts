@@ -14,4 +14,3 @@ export class TeachersService {
     return this.teachersRepo.find();
   }
 }
-

@@ -17,4 +17,3 @@ export class ScheduleController {
     return this.scheduleService.forTeacher(id);
   }
 }
-

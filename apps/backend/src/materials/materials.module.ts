@@ -10,4 +10,3 @@ import { MaterialsService } from './materials.service';
   providers: [MaterialsService],
 })
 export class MaterialsModule {}
-

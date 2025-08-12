@@ -12,7 +12,13 @@ export class GradesController {
 
   @Roles(UserRole.TEACHER)
   @Post('classes/:id/grades')
-  add(@Param('id') classId: string, @Body() body: { grades: Array<{ studentId: string; assignmentName: string; score: number; maxScore: number; date: string }> }) {
+  add(
+    @Param('id') classId: string,
+    @Body()
+    body: {
+      grades: Array<{ studentId: string; assignmentName: string; score: number; maxScore: number; date: string }>;
+    },
+  ) {
     return this.gradesService.addForClass(classId, body.grades || []);
   }
 
@@ -21,4 +27,3 @@ export class GradesController {
     return this.gradesService.calculateStudentGpa(studentId);
   }
 }
-

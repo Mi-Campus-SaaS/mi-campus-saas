@@ -10,4 +10,3 @@ import { GradesController } from './grades.controller';
   controllers: [GradesController],
 })
 export class GradesModule {}
-

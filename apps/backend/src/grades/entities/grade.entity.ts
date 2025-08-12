@@ -25,4 +25,3 @@ export class Grade {
   @Column({ type: 'date' })
   date!: string;
 }
-

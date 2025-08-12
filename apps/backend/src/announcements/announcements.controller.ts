@@ -21,4 +21,3 @@ export class AnnouncementsController {
     return this.announcementsService.list();
   }
 }
-

@@ -11,4 +11,3 @@ import { TeachersController } from './teachers.controller';
   exports: [TypeOrmModule, TeachersService],
 })
 export class TeachersModule {}
-

@@ -18,4 +18,3 @@ export class Payment {
   @Column({ nullable: true })
   reference?: string;
 }
-

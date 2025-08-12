@@ -25,4 +25,3 @@ export class Material {
   @Column({ nullable: true })
   url?: string; // optional external link
 }
-

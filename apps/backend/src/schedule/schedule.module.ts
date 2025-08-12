@@ -11,4 +11,3 @@ import { ScheduleController } from './schedule.controller';
   controllers: [ScheduleController],
 })
 export class ScheduleModule {}
-

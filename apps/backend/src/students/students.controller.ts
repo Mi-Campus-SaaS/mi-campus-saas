@@ -21,4 +21,3 @@ export class StudentsController {
     return this.studentsService.create(body);
   }
 }
-

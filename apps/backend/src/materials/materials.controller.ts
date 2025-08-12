@@ -42,4 +42,3 @@ export class MaterialsController {
     return this.materialsService.saveUpload(classId, body.title, body.description, file);
   }
 }
-

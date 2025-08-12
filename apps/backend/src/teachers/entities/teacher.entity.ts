@@ -20,4 +20,3 @@ export class Teacher {
   @OneToMany(() => ClassEntity, (c) => c.teacher)
   classes!: ClassEntity[];
 }
-

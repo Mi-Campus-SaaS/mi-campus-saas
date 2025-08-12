@@ -16,4 +16,3 @@ export class Enrollment {
   @Column({ default: true })
   active!: boolean;
 }
-

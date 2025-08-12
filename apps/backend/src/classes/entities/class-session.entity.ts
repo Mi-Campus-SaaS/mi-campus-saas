@@ -18,4 +18,3 @@ export class ClassSession {
   @Column()
   endTime!: string; // HH:mm
 }
-

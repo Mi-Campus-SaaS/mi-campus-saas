@@ -18,4 +18,3 @@ export class UsersService {
     return this.usersRepo.findOne({ where: { username } });
   }
 }
-

@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -16,8 +16,7 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 import { FinanceModule } from './finance/finance.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { ClassesModule } from './classes/classes.module';
-import { I18nModule } from 'nestjs-i18n';
-import { AcceptLanguageResolver, QueryResolver, HeaderResolver } from 'nestjs-i18n';
+import { I18nModule, AcceptLanguageResolver, QueryResolver, HeaderResolver } from 'nestjs-i18n';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { LoggingMiddleware } from './common/logging.middleware';
@@ -52,6 +51,6 @@ import { LoggingMiddleware } from './common/logging.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingMiddleware).forRoutes('*');
+    consumer.apply(LoggingMiddleware).forRoutes({ path: '/*path', method: RequestMethod.ALL });
   }
 }

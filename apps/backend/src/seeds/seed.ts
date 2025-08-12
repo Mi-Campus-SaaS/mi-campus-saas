@@ -72,7 +72,12 @@ async function run() {
     role: UserRole.STUDENT,
   });
   await userRepo.save(studentUser);
-  const student = studentRepo.create({ firstName: 'Pedro', lastName: 'Pérez', enrollmentStatus: 'activo', user: studentUser });
+  const student = studentRepo.create({
+    firstName: 'Pedro',
+    lastName: 'Pérez',
+    enrollmentStatus: 'activo',
+    user: studentUser,
+  });
   await studentRepo.save(student);
 
   const class1 = classRepo.create({ subjectName: 'Matemática', gradeLevel: '5', teacher });
@@ -90,4 +95,3 @@ run().catch((e) => {
   console.error(e);
   process.exit(1);
 });
-

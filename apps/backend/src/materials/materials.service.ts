@@ -27,4 +27,3 @@ export class MaterialsService {
     return this.materialsRepo.save(entity);
   }
 }
-

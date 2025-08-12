@@ -13,4 +13,3 @@ import { Teacher } from '../teachers/entities/teacher.entity';
   exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}
-

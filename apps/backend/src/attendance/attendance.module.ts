@@ -12,4 +12,3 @@ import { ClassEntity } from '../classes/entities/class.entity';
   controllers: [AttendanceController],
 })
 export class AttendanceModule {}
-

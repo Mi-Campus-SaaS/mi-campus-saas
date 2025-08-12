@@ -19,4 +19,3 @@ export class AnnouncementsService {
     return this.announcementsRepo.find({ order: { createdAt: 'DESC' } });
   }
 }
-

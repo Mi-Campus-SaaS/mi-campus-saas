@@ -20,4 +20,3 @@ export class ClassesService {
     return this.classRepo.update({ id: classId }, { teacher: { id: teacherId } as any });
   }
 }
-
