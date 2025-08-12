@@ -1,0 +1,18 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../api/client';
+
+const FinancePage: React.FC = () => {
+  const { t } = useTranslation();
+  const { data } = useQuery({ queryKey: ['fees'], queryFn: async () => (await api.get('/fees?studentId=demo')).data });
+  return (
+    <div className="p-6">
+      <h1 className="text-xl font-semibold mb-4">{t('finance')}</h1>
+      <pre className="bg-gray-100 p-3 rounded text-sm">{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+
+export default FinancePage;
+

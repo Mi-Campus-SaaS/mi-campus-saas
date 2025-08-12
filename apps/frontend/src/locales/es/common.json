@@ -1,0 +1,21 @@
+{
+  "app_title": "Mi Campus",
+  "login": "Iniciar sesión",
+  "logout": "Cerrar sesión",
+  "dashboard": "Panel",
+  "students": "Estudiantes",
+  "teachers": "Docentes",
+  "classes": "Clases",
+  "schedule": "Horario",
+  "attendance": "Asistencias",
+  "grades": "Notas",
+  "materials": "Materiales",
+  "announcements": "Anuncios",
+  "finance": "Finanzas",
+  "fees": "Cuotas",
+  "payments": "Pagos",
+  "language": "Idioma",
+  "spanish": "Español",
+  "english": "Inglés"
+}
+

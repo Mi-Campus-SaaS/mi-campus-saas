@@ -1,0 +1,25 @@
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Student } from '../../students/entities/student.entity';
+import { Payment } from './payment.entity';
+
+@Entity()
+export class FeeInvoice {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Student)
+  student!: Student;
+
+  @Column('float')
+  amount!: number;
+
+  @Column({ type: 'date' })
+  dueDate!: string;
+
+  @Column({ default: 'pending' })
+  status!: 'pending' | 'paid' | 'overdue';
+
+  @OneToMany(() => Payment, (p) => p.invoice)
+  payments!: Payment[];
+}
+

@@ -1,0 +1,21 @@
+{
+  "app_title": "My Campus",
+  "login": "Login",
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "students": "Students",
+  "teachers": "Teachers",
+  "classes": "Classes",
+  "schedule": "Schedule",
+  "attendance": "Attendance",
+  "grades": "Grades",
+  "materials": "Materials",
+  "announcements": "Announcements",
+  "finance": "Finance",
+  "fees": "Fees",
+  "payments": "Payments",
+  "language": "Language",
+  "spanish": "Spanish",
+  "english": "English"
+}
+

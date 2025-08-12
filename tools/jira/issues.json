@@ -1,0 +1,150 @@
+[
+  {
+    "summary": "BE: Align e2e to health endpoint and expose /api/health",
+    "description": "Update e2e to target /api/health and ensure controller returns 200 with 'OK'. Acceptance: e2e green.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "testing", "stability"]
+  },
+  {
+    "summary": "BE: Request ID correlation in logging middleware",
+    "description": "Add request-scoped correlation id (header x-request-id fallback uuid). Log method, path, userId when available; redact secrets.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "logging", "observability"]
+  },
+  {
+    "summary": "BE: Add DTO validation to all controllers",
+    "description": "Introduce DTOs with class-validator for every controller input. Ensure ValidationPipe rejects unknown fields.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "validation", "quality"]
+  },
+  {
+    "summary": "BE: Audit and enforce role-based guards",
+    "description": "Review protected routes, add @Roles and RolesGuard. Add unit tests for guard behavior.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "security", "rbac"]
+  },
+  {
+    "summary": "BE: Refresh token rotation and blacklist",
+    "description": "Implement secure refresh flow: rotate tokens, store hashed refresh tokens, blacklist on logout.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "security", "auth"]
+  },
+  {
+    "summary": "BE: Centralized error filter mapping domain errors",
+    "description": "Create HttpExceptionFilter to map domain errors to HTTP with stable codes. Ensure consistent error shape.",
+    "priority": "Medium",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "error-handling"]
+  },
+  {
+    "summary": "BE: Unit tests for users/auth/grades services",
+    "description": "Add unit tests for UsersService, AuthService, extend gpa.util tests for edge cases.",
+    "priority": "Medium",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "testing"]
+  },
+  {
+    "summary": "BE: Rate limit auth endpoints",
+    "description": "Add @nestjs/throttler for /auth/login and /auth/refresh with sensible defaults (e.g., 5/min).",
+    "priority": "Low",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "security", "rate-limit"]
+  },
+  {
+    "summary": "BE: Seed scripts for core modules",
+    "description": "Add deterministic seed data for users, students, teachers, classes; document usage.",
+    "priority": "Medium",
+    "issueType": "Task",
+    "labels": ["backend", "m1", "devex"]
+  },
+  {
+    "summary": "DevEx: CI pipelines for lint and tests (FE/BE)",
+    "description": "GitHub Actions: run yarn lint and yarn test for apps/frontend and apps/backend on PRs.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["devex", "m1", "ci"]
+  },
+  {
+    "summary": "DevEx: Pre-commit hooks for lint-staged",
+    "description": "Configure lint-staged with ESLint/Prettier for both apps; add Husky hooks.",
+    "priority": "Medium",
+    "issueType": "Task",
+    "labels": ["devex", "m1", "quality"]
+  },
+  {
+    "summary": "Docs: Update README for env and local dev",
+    "description": "Document environment variables, dev scripts, database info, test commands.",
+    "priority": "Low",
+    "issueType": "Task",
+    "labels": ["docs", "m1"]
+  },
+  {
+    "summary": "FE: Centralize React Query defaults and error toasts",
+    "description": "Create a single QueryClient with sane defaults; add global error handler → toast notifications.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["frontend", "m1", "ux", "react-query"]
+  },
+  {
+    "summary": "FE: Auth auto-refresh and 401 handling",
+    "description": "Implement token refresh on 401 with retry; logout and redirect on refresh failure.",
+    "priority": "High",
+    "issueType": "Task",
+    "labels": ["frontend", "m1", "security", "auth"]
+  },
+  {
+    "summary": "FE: Route guards by role",
+    "description": "Ensure pages are wrapped with RequireRole; centralize route config.",
+    "priority": "Medium",
+    "issueType": "Task",
+    "labels": ["frontend", "m1", "rbac"]
+  },
+  {
+    "summary": "FE: Loading skeletons and unified spinners",
+    "description": "Add skeletons for Dashboard, Students, Finance; unify loading components.",
+    "priority": "Medium",
+    "issueType": "Task",
+    "labels": ["frontend", "m1", "ux"]
+  },
+  {
+    "summary": "FE: Accessibility pass on navigation",
+    "description": "Ensure keyboard navigation, ARIA roles, focus management in NavBar and dialogs.",
+    "priority": "Low",
+    "issueType": "Task",
+    "labels": ["frontend", "m1", "a11y"]
+  },
+
+  {"summary": "BE: Announcements CRUD with scheduling", "description": "CRUD with publishAt, audience filters, ownership checks.", "priority": "High", "issueType": "Task", "labels": ["backend", "m2", "announcements"]},
+  {"summary": "BE: Materials upload validation and storage", "description": "Validate mime/size, store safely, return metadata.", "priority": "High", "issueType": "Task", "labels": ["backend", "m2", "materials"]},
+  {"summary": "BE: Finance - payment create/list", "description": "Create payments with idempotency; list with filters.", "priority": "High", "issueType": "Task", "labels": ["backend", "m2", "finance"]},
+  {"summary": "BE: GPA snapshot endpoint", "description": "Compute and persist GPA snapshot per student.", "priority": "Medium", "issueType": "Task", "labels": ["backend", "m2", "grades"]},
+  {"summary": "BE: Attendance endpoints", "description": "Mark and list attendance by class session.", "priority": "Medium", "issueType": "Task", "labels": ["backend", "m2", "attendance"]},
+  {"summary": "BE: Indexes and unique constraints", "description": "Add DB indexes on email, enrollments; unique constraints.", "priority": "Medium", "issueType": "Task", "labels": ["backend", "m2", "database"]},
+  {"summary": "BE: Pagination and filtering DTOs", "description": "Standardize list endpoints; add page/limit/sort params.", "priority": "Low", "issueType": "Task", "labels": ["backend", "m2", "api"]},
+  {"summary": "FE: Announcements UI (CRUD, filters)", "description": "Build announcements page with status and scheduling.", "priority": "High", "issueType": "Task", "labels": ["frontend", "m2", "announcements"]},
+  {"summary": "FE: Materials upload UI", "description": "Drag-drop, preview, progress, cancel.", "priority": "High", "issueType": "Task", "labels": ["frontend", "m2", "materials"]},
+  {"summary": "FE: Finance page create/list", "description": "Create payment form, list with filters, optimistic updates.", "priority": "High", "issueType": "Task", "labels": ["frontend", "m2", "finance"]},
+  {"summary": "FE: Students GPA column and sorting", "description": "Display GPA and enable sort.", "priority": "Medium", "issueType": "Task", "labels": ["frontend", "m2", "students"]},
+  {"summary": "FE: Attendance UI", "description": "Mark attendance in bulk; confirm and undo.", "priority": "Medium", "issueType": "Task", "labels": ["frontend", "m2", "attendance"]},
+  {"summary": "FE: Error boundaries and retry hints", "description": "Wrap key routes with error boundaries; actionable errors.", "priority": "Low", "issueType": "Task", "labels": ["frontend", "m2", "ux"]},
+  {"summary": "Security: Helmet and security headers", "description": "Enable helmet; review CSP and CORS allowlist.", "priority": "High", "issueType": "Task", "labels": ["backend", "m2", "security"]},
+
+  {"summary": "BE: Cache read-heavy endpoints", "description": "Add cache for classes/schedules with invalidation on writes.", "priority": "Medium", "issueType": "Task", "labels": ["backend", "m3", "performance"]},
+  {"summary": "BE: Validation error i18n messages", "description": "Translate validation errors using src/i18n.", "priority": "Medium", "issueType": "Task", "labels": ["backend", "m3", "i18n"]},
+  {"summary": "BE: Extend rate limiting to sensitive endpoints", "description": "Configure limits for materials and finance routes.", "priority": "Low", "issueType": "Task", "labels": ["backend", "m3", "security"]},
+  {"summary": "FE: UI/UX refresh with dark mode", "description": "Consistent spacing, typography, theme toggle.", "priority": "High", "issueType": "Task", "labels": ["frontend", "m3", "ui"]},
+  {"summary": "FE: Table virtualization for large lists", "description": "Virtualize Students and Classes tables.", "priority": "High", "issueType": "Task", "labels": ["frontend", "m3", "performance"]},
+  {"summary": "FE: i18n completeness (en/es)", "description": "Ensure all strings keyed; add lint check.", "priority": "Medium", "issueType": "Task", "labels": ["frontend", "m3", "i18n"]},
+  {"summary": "FE: Form schemas and inline validation", "description": "Mirror backend DTOs with Zod/Yup; inline errors.", "priority": "Medium", "issueType": "Task", "labels": ["frontend", "m3", "forms"]},
+  {"summary": "FE: NotificationsBell wired to announcements", "description": "Show unread badge; poll or SSE (phase 1).", "priority": "Low", "issueType": "Task", "labels": ["frontend", "m3", "notifications"]},
+  {"summary": "QA: Playwright e2e for happy paths", "description": "Login, create announcement, upload material, record payment.", "priority": "High", "issueType": "Task", "labels": ["qa", "m3", "e2e"]},
+  {"summary": "QA: Performance budget and bundle alerts", "description": "Set budgets in CI; alert on regressions.", "priority": "Medium", "issueType": "Task", "labels": ["qa", "m3", "performance"]},
+  {"summary": "QA: Visual regression tests for key pages", "description": "Add screenshots and thresholds for Dashboard/Students.", "priority": "Low", "issueType": "Task", "labels": ["qa", "m3", "visual-tests"]}
+]
+
+

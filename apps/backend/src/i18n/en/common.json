@@ -1,0 +1,8 @@
+{
+  "validation_error": "Validation error",
+  "unauthorized": "Unauthorized",
+  "forbidden": "Forbidden",
+  "welcome_email_subject": "Welcome to Mi Campus",
+  "welcome_email_body": "Hello {{name}}, welcome to Mi Campus."
+}
+
