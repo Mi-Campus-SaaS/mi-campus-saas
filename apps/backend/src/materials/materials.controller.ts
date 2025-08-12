@@ -1,10 +1,21 @@
-import { Body, Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { MaterialsService } from './materials.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { UploadMaterialDto } from './dto/upload-material.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('classes/:id/materials')
@@ -12,7 +23,7 @@ export class MaterialsController {
   constructor(private readonly materialsService: MaterialsService) {}
 
   @Get()
-  list(@Param('id') classId: string) {
+  list(@Param('id', ParseUUIDPipe) classId: string) {
     return this.materialsService.listForClass(classId);
   }
 
@@ -35,9 +46,9 @@ export class MaterialsController {
     }),
   )
   upload(
-    @Param('id') classId: string,
+    @Param('id', ParseUUIDPipe) classId: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { title: string; description?: string },
+    @Body() body: UploadMaterialDto,
   ) {
     return this.materialsService.saveUpload(classId, body.title, body.description, file);
   }

@@ -4,6 +4,8 @@ import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
 import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../common/roles.enum';
+import { CreateAnnouncementDto } from './dto/create-announcement.dto';
+import { ClassEntity } from '../classes/entities/class.entity';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('announcements')
@@ -12,8 +14,11 @@ export class AnnouncementsController {
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Post()
-  create(@Body() body: any) {
-    return this.announcementsService.create(body);
+  create(@Body() body: CreateAnnouncementDto) {
+    return this.announcementsService.create({
+      content: body.content,
+      classEntity: body.classId ? ({ id: body.classId } as unknown as ClassEntity) : undefined,
+    });
   }
 
   @Get()

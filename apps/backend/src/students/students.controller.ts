@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../common/roles.enum';
 import { RolesGuard } from '../common/roles.guard';
+import { CreateStudentDto } from './dto/create-student.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('students')
@@ -17,7 +18,7 @@ export class StudentsController {
 
   @Roles(UserRole.ADMIN)
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateStudentDto) {
     return this.studentsService.create(body);
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 
@@ -8,12 +8,12 @@ export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
   @Get('student/:id')
-  student(@Param('id') id: string) {
+  student(@Param('id', ParseUUIDPipe) id: string) {
     return this.scheduleService.forStudent(id);
   }
 
   @Get('teacher/:id')
-  teacher(@Param('id') id: string) {
+  teacher(@Param('id', ParseUUIDPipe) id: string) {
     return this.scheduleService.forTeacher(id);
   }
 }
