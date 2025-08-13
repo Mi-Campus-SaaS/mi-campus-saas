@@ -20,12 +20,18 @@ export const queryClient = new QueryClient({
       },
       throwOnError: false,
       onError: (error) => {
-        toast.error(getErrorMessage(error))
+        const message = getErrorMessage(error)
+        const lower = message.toLowerCase()
+        if (lower.includes('unauthorized') || lower.includes('forbidden')) return
+        toast.error(message)
       },
     },
     mutations: {
       onError: (error) => {
-        toast.error(getErrorMessage(error))
+        const message = getErrorMessage(error)
+        const lower = message.toLowerCase()
+        if (lower.includes('unauthorized') || lower.includes('forbidden')) return
+        toast.error(message)
       },
     },
   },

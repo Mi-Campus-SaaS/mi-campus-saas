@@ -8,14 +8,14 @@ export type AuthContextType = {
   user?: User | null
   token?: string | null
   login: (username: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 export const defaultAuthContext: AuthContextType = {
   user: null,
   token: null,
   login: async () => {},
-  logout: () => {},
+  logout: async () => {},
 }
 
 export const AuthContext = createContext<AuthContextType>(defaultAuthContext)

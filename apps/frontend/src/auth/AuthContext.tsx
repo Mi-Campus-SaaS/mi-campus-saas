@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { api, setAuthToken } from '../api/client';
+import { api, setAuthToken, getStoredAuth, setAuthTokens, clearStoredAuth, setLogoutHandler } from '../api/client';
 import { AuthContext, type User } from './context';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -7,28 +7,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('auth');
+    const saved = getStoredAuth();
     if (saved) {
-      const { token: t, user: u } = JSON.parse(saved);
+      const u = (saved.user || null) as User | null;
       setUser(u);
-      setToken(t);
-      setAuthToken(t);
+      setToken(saved.access_token);
+      setAuthToken(saved.access_token);
     }
+    const doLocalLogout = () => {
+      setUser(null);
+      setToken(null);
+    };
+    setLogoutHandler(doLocalLogout);
   }, []);
 
   const login = async (username: string, password: string) => {
-    const res = await api.post('/auth/login', { username, password });
+    const res = await api.post<{ access_token: string; refresh_token: string; user: User }>('/auth/login', {
+      username,
+      password,
+    });
     setUser(res.data.user);
     setToken(res.data.access_token);
-    setAuthToken(res.data.access_token);
-    localStorage.setItem('auth', JSON.stringify(res.data));
+    setAuthTokens({ accessToken: res.data.access_token, refreshToken: res.data.refresh_token, user: res.data.user });
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const saved = getStoredAuth();
+    try {
+      if (saved?.refresh_token) {
+        await api.post('/auth/logout', { refresh_token: saved.refresh_token });
+      }
+    } catch {
+      // ignore network/logout errors
+    }
+    clearStoredAuth();
     setUser(null);
     setToken(null);
-    setAuthToken(undefined);
-    localStorage.removeItem('auth');
   };
 
   const value = useMemo(() => ({ user, token, login, logout }), [user, token]);
