@@ -52,6 +52,18 @@ export class MaterialsController {
           cb(null, `${unique}.${ext}`);
         },
       }),
+      fileFilter: (req, file, cb) => {
+        const allowed = (process.env.ALLOWED_MATERIAL_MIME || 'application/pdf,image/png,image/jpeg,application/zip')
+          .split(',')
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean);
+        const isAllowed = allowed.includes(file.mimetype.toLowerCase());
+        if (!isAllowed) return cb(new Error('Invalid file type'));
+        cb(null, true);
+      },
+      limits: {
+        fileSize: parseInt(process.env.MAX_MATERIAL_SIZE_BYTES || String(10 * 1024 * 1024), 10),
+      },
     }),
   )
   upload(

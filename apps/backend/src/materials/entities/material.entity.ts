@@ -24,4 +24,16 @@ export class Material {
 
   @Column({ nullable: true })
   url?: string; // optional external link
+
+  @Column({ nullable: true })
+  originalName?: string;
+
+  @Column({ nullable: true })
+  mimeType?: string;
+
+  @Column({ type: 'int', nullable: true })
+  size?: number;
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt!: Date;
 }

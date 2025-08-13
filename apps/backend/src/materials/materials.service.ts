@@ -24,6 +24,9 @@ export class MaterialsService {
       title,
       description,
       filePath: relativePath,
+      originalName: file.originalname,
+      mimeType: file.mimetype,
+      size: file.size,
     });
     return this.materialsRepo.save(entity);
   }
