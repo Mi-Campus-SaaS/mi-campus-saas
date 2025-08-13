@@ -23,4 +23,3 @@ Default users
 - admin/admin123 (admin)
 - prof.juana/teacher123 (teacher)
 - alumno.pedro/student123 (student)
-

@@ -44,91 +44,59 @@ function codeFromStatus(status: number): string {
   }
 }
 
+function parseResponseMessage(response: unknown, fallback: string): { message: string; details?: unknown } {
+  if (typeof response === 'string') return { message: response };
+  if (response && typeof response === 'object') {
+    const raw = (response as { message?: unknown }).message;
+    if (Array.isArray(raw))
+      return { message: raw.filter((v) => typeof v === 'string').join(', ') || fallback, details: raw };
+    if (typeof raw === 'string') return { message: raw };
+  }
+  return { message: fallback };
+}
+
+function fromHttpException(
+  ex: HttpException,
+  code: string,
+  fallback: string,
+): { status: number; body: StandardErrorBody } {
+  const status = ex.getStatus();
+  const { message } = parseResponseMessage(ex.getResponse() as unknown, fallback);
+  return { status, body: { code, message } };
+}
+
+function fromGenericHttp(ex: HttpException): { status: number; body: StandardErrorBody } {
+  const status = ex.getStatus();
+  const { message } = parseResponseMessage(ex.getResponse() as unknown, ex.message || 'Error');
+  return { status, body: { code: codeFromStatus(status), message } };
+}
+
+function fromDbError(ex: unknown): { status: number; body: StandardErrorBody } {
+  return {
+    status: 400,
+    body: {
+      code: 'database_error',
+      message: 'Database error',
+      details: { code: (ex as { code?: string }).code },
+    },
+  };
+}
+
 export function buildStandardError(exception: unknown): { status: number; body: StandardErrorBody } {
-  // Validation / bad request with array messages
   if (exception instanceof BadRequestException) {
     const status = exception.getStatus();
-    const response = exception.getResponse() as unknown;
-    let message = 'Bad request';
-    let details: unknown;
-    if (typeof response === 'string') {
-      message = response;
-    } else if (response && typeof response === 'object') {
-      const msg = (response as { message?: unknown }).message;
-      if (Array.isArray(msg)) {
-        details = msg;
-        message = msg.filter((v) => typeof v === 'string').join(', ') || 'Bad request';
-      } else if (typeof msg === 'string') {
-        message = msg;
-      }
-    }
+    const { message, details } = parseResponseMessage(exception.getResponse() as unknown, 'Bad request');
     return { status, body: { code: 'validation_error', message, details } };
   }
-
-  // Authentication / authorization
-  if (exception instanceof UnauthorizedException) {
-    const status = exception.getStatus();
-    const response = exception.getResponse() as unknown;
-    const message =
-      typeof response === 'string' ? response : (response as { message?: string }).message || 'Unauthorized';
-    return { status, body: { code: 'unauthorized', message } };
-  }
-  if (exception instanceof ForbiddenException) {
-    const status = exception.getStatus();
-    const response = exception.getResponse() as unknown;
-    const message = typeof response === 'string' ? response : (response as { message?: string }).message || 'Forbidden';
-    return { status, body: { code: 'forbidden', message } };
-  }
-
-  // Conflict / payload / unprocessable
-  if (exception instanceof ConflictException) {
-    const status = exception.getStatus();
-    const response = exception.getResponse() as unknown;
-    const message = typeof response === 'string' ? response : (response as { message?: string }).message || 'Conflict';
-    return { status, body: { code: 'conflict', message } };
-  }
-  if (exception instanceof PayloadTooLargeException) {
-    const status = exception.getStatus();
-    const response = exception.getResponse() as unknown;
-    const message =
-      typeof response === 'string' ? response : (response as { message?: string }).message || 'Payload too large';
-    return { status, body: { code: 'payload_too_large', message } };
-  }
-  if (exception instanceof UnprocessableEntityException) {
-    const status = exception.getStatus();
-    const response = exception.getResponse() as unknown;
-    const message =
-      typeof response === 'string' ? response : (response as { message?: string }).message || 'Unprocessable entity';
-    return { status, body: { code: 'unprocessable_entity', message } };
-  }
-
-  // Generic HTTP exception
-  if (exception instanceof HttpException) {
-    const status = exception.getStatus();
-    const resp = exception.getResponse() as unknown;
-    let message = exception.message || 'Error';
-    if (typeof resp === 'string') message = resp;
-    else if (resp && typeof resp === 'object') {
-      const maybeMsg = (resp as { message?: unknown }).message;
-      if (typeof maybeMsg === 'string') message = maybeMsg;
-      else if (Array.isArray(maybeMsg)) message = maybeMsg.join(', ');
-    }
-    return { status, body: { code: codeFromStatus(status), message } };
-  }
-
-  // Database failures
-  if (exception instanceof QueryFailedError) {
-    return {
-      status: 400,
-      body: {
-        code: 'database_error',
-        message: 'Database error',
-        details: { code: (exception as unknown as { code?: string }).code },
-      },
-    };
-  }
-
-  // Unknown error
+  if (exception instanceof UnauthorizedException) return fromHttpException(exception, 'unauthorized', 'Unauthorized');
+  if (exception instanceof ForbiddenException) return fromHttpException(exception, 'forbidden', 'Forbidden');
+  if (exception instanceof ConflictException) return fromHttpException(exception, 'conflict', 'Conflict');
+  if (exception instanceof PayloadTooLargeException)
+    return fromHttpException(exception, 'payload_too_large', 'Payload too large');
+  if (exception instanceof UnprocessableEntityException)
+    return fromHttpException(exception, 'unprocessable_entity', 'Unprocessable entity');
+  if (exception instanceof HttpException) return fromGenericHttp(exception);
+  if (exception instanceof QueryFailedError) return fromDbError(exception as unknown);
   const message = exception instanceof Error ? exception.message : 'Internal server error';
   return { status: 500, body: { code: 'internal_error', message } };
 }
