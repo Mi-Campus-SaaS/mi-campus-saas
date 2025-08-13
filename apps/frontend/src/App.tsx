@@ -19,12 +19,18 @@ const LocaleWrapper: React.FC = () => {
       <Routes>
         <Route index element={<Dashboard />} />
         <Route path="login" element={<LoginPage />} />
-        <Route element={<RequireRole roles={["admin", "teacher", "parent", "student"]} />}> 
-          <Route path="students" element={<StudentsPage />} />
-          <Route path="schedule" element={<SchedulePage />} />
+        {/* public */}
+        {/* protected by role */}
+        <Route element={<RequireRole roles={["admin", "teacher", "parent", "student"]} />}>
           <Route path="announcements" element={<AnnouncementsPage />} />
-          <Route path="finance" element={<FinancePage />} />
+          <Route path="schedule" element={<SchedulePage />} />
+        </Route>
+        <Route element={<RequireRole roles={["admin", "teacher"]} />}>
+          <Route path="students" element={<StudentsPage />} />
           <Route path="classes/:classId/materials" element={<MaterialsPage />} />
+        </Route>
+        <Route element={<RequireRole roles={["admin", "parent"]} />}>
+          <Route path="finance" element={<FinancePage />} />
         </Route>
       </Routes>
     </div>
