@@ -13,9 +13,27 @@
     "build": "yarn --cwd apps/frontend build && yarn --cwd apps/backend build",
     "test": "yarn --cwd apps/backend test",
     "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint",
-    "format": "yarn --cwd apps/backend format"
+    "format": "yarn --cwd apps/backend format",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^9.0.1",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.8",
+    "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "apps/frontend/**/*.{ts,tsx,js,jsx}": [
+      "yarn --cwd apps/frontend eslint --fix",
+      "git add"
+    ],
+    "apps/backend/**/*.{ts}": [
+      "yarn --cwd apps/backend eslint --fix",
+      "git add"
+    ],
+    "**/*.{json,md,css,scss,html,mdx}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }
