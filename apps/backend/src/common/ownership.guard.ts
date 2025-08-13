@@ -22,8 +22,13 @@ export class OwnershipGuard implements CanActivate {
     const check = this.getOwnershipCheck(context);
     if (!check) return true;
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user as { role?: UserRole; userId?: string } | undefined;
+    const request = context.switchToHttp().getRequest<{
+      user?: { role?: UserRole; userId?: string };
+      params?: Record<string, string>;
+      query?: Record<string, string>;
+      body?: Record<string, unknown>;
+    }>();
+    const user = request.user;
     if (!user?.role) return false;
     if (user.role === UserRole.ADMIN) return true;
 
@@ -38,7 +43,10 @@ export class OwnershipGuard implements CanActivate {
     return this.reflector.getAllAndOverride<OwnershipCheck>(OWNERSHIP_KEY, [context.getHandler(), context.getClass()]);
   }
 
-  private extractTargetId(check: OwnershipCheck, request: any): string | undefined {
+  private extractTargetId(
+    check: OwnershipCheck,
+    request: { params?: Record<string, string>; query?: Record<string, string>; body?: Record<string, unknown> },
+  ): string | undefined {
     switch (check.type) {
       case 'studentParam':
         return request.params?.[check.key];
@@ -49,7 +57,7 @@ export class OwnershipGuard implements CanActivate {
       case 'teacherParam':
         return request.params?.[check.key];
       case 'invoiceIdBody':
-        return request.body?.[check.key];
+        return typeof request.body?.[check.key] === 'string' ? (request.body?.[check.key] as string) : undefined;
       default:
         return undefined;
     }
