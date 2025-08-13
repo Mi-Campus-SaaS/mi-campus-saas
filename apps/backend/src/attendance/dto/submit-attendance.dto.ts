@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsUUID, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsOptional, IsUUID, ValidateNested } from 'class-validator';
 
 class AttendanceRecordDto {
   @IsUUID()
@@ -10,6 +10,10 @@ class AttendanceRecordDto {
 
   @IsDateString()
   date!: string;
+
+  @IsOptional()
+  @IsUUID()
+  sessionId?: string;
 }
 
 export class SubmitAttendanceDto {
