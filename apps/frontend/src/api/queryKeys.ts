@@ -55,7 +55,7 @@ export const queryKeys = {
 
   announcements: {
     all: ['announcements'] as const,
-    list: (params: { page: number }) => ['announcements', 'list', normalizeParams(params)] as const,
+    list: (params: { page: number; publishedOnly?: boolean; classId?: string } ) => ['announcements', 'list', normalizeParams(params)] as const,
     detail: (id: string) => ['announcements', 'detail', id] as const,
   },
 

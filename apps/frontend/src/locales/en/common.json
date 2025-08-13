@@ -16,6 +16,13 @@
   "payments": "Payments",
   "language": "Language",
   "spanish": "Spanish",
-  "english": "English"
+  "english": "English",
+  "search": "Search",
+  "show_scheduled": "Show scheduled",
+  "content": "Content",
+  "publish_at": "Publish at",
+  "create": "Create",
+  "edit": "Edit",
+  "delete": "Delete"
 }
 

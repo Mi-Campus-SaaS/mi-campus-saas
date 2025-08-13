@@ -16,6 +16,13 @@
   "payments": "Pagos",
   "language": "Idioma",
   "spanish": "Español",
-  "english": "Inglés"
+  "english": "Inglés",
+  "search": "Buscar",
+  "show_scheduled": "Mostrar programados",
+  "content": "Contenido",
+  "publish_at": "Publicar el",
+  "create": "Crear",
+  "edit": "Editar",
+  "delete": "Eliminar"
 }
 
