@@ -1,15 +1,159 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../api/client';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createFee, listFees, listPayments, recordPayment, type FeeInvoice, type Payment } from '../api/finance';
+import { listStudents } from '../api/students';
+import { queryClient } from '../queryClient';
 
 const FinancePage: React.FC = () => {
   const { t } = useTranslation();
-  const { data } = useQuery({ queryKey: ['fees'], queryFn: async () => (await api.get('/fees?studentId=demo')).data });
+  const [studentId, setStudentId] = useState('');
+  const studentsQ = useQuery({ queryKey: ['students'], queryFn: listStudents, staleTime: 60_000 });
+  const [studentSearch, setStudentSearch] = useState('');
+  const [showStudentList, setShowStudentList] = useState(false);
+  const filteredStudents = useMemo(() => {
+    const q = studentSearch.toLowerCase();
+    return (studentsQ.data || []).filter((s) =>
+      s.firstName.toLowerCase().includes(q) || s.lastName.toLowerCase().includes(q) || s.id.toLowerCase().includes(q),
+    ).slice(0, 10);
+  }, [studentsQ.data, studentSearch]);
+  const feesQ = useQuery({ queryKey: ['fees', studentId], queryFn: () => listFees(studentId), enabled: !!studentId });
+  const paymentsQ = useQuery({ queryKey: ['payments', studentId], queryFn: () => listPayments(studentId), enabled: !!studentId });
+
+  const [amount, setAmount] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const canCreate = useMemo(() => Number(amount) > 0 && !!studentId && !!dueDate, [amount, studentId, dueDate]);
+  const createMut = useMutation({
+    mutationFn: () => createFee({ studentId, amount: Number(amount), dueDate, status: 'unpaid' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fees', studentId] });
+      setAmount('');
+      setDueDate('');
+    },
+  });
+
+  const [payInvoiceId, setPayInvoiceId] = useState('');
+  const [payAmount, setPayAmount] = useState('');
+  const [reference, setReference] = useState('');
+  const canPay = useMemo(() => Number(payAmount) > 0 && !!payInvoiceId, [payAmount, payInvoiceId]);
+  const payMut = useMutation({
+    mutationFn: () => recordPayment({ invoiceId: payInvoiceId, amount: Number(payAmount), reference: reference || undefined }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fees', studentId] });
+      queryClient.invalidateQueries({ queryKey: ['payments', studentId] });
+      setPayInvoiceId('');
+      setPayAmount('');
+      setReference('');
+    },
+  });
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">{t('finance')}</h1>
-      <pre className="bg-gray-100 p-3 rounded text-sm">{JSON.stringify(data, null, 2)}</pre>
+    <div className="p-6 space-y-6">
+      <h1 className="text-xl font-semibold">{t('finance')}</h1>
+
+      <div className="flex items-end gap-3 relative max-w-lg">
+        <div className="w-full">
+          <label htmlFor="studentSearch" className="block text-sm mb-1">Student</label>
+          <input
+            id="studentSearch"
+            className="border rounded p-2 w-full"
+            value={studentSearch}
+            onChange={(e) => { setStudentSearch(e.target.value); setShowStudentList(true); }}
+            onFocus={() => setShowStudentList(true)}
+            placeholder="Search student..."
+            aria-label="Search student"
+          />
+          {showStudentList && filteredStudents.length > 0 && (
+            <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-64 overflow-auto">
+              {filteredStudents.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                    onClick={() => { setStudentId(s.id); setStudentSearch(`${s.firstName} ${s.lastName}`); setShowStudentList(false); }}
+                  >
+                    {s.firstName} {s.lastName} — <span className="text-xs text-gray-500">{s.id}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="font-semibold mb-2">Fees</h2>
+          <form
+            className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              createMut.mutate();
+            }}
+          >
+            <div>
+              <label htmlFor="feeAmount" className="block text-sm mb-1">Amount</label>
+              <input id="feeAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" aria-label="Amount" />
+            </div>
+            <div>
+              <label htmlFor="feeDue" className="block text-sm mb-1">Due date</label>
+              <input id="feeDue" className="border rounded p-2 w-full" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} aria-label="Due date" />
+            </div>
+            <div>
+              <button disabled={!canCreate || createMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Create fee</button>
+            </div>
+          </form>
+
+          <ul className="space-y-2">
+            {feesQ.data?.map((f: FeeInvoice) => (
+              <li key={f.id} className="border rounded p-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium">${'{'}f.amount{'}'} ({'{'}f.status{'}'})</div>
+                  <div className="text-sm text-gray-600">Due: {new Date(f.dueDate).toLocaleDateString()}</div>
+                </div>
+                <div className="text-xs text-gray-500">{f.id}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2 className="font-semibold mb-2">Payments</h2>
+          <form
+            className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end mb-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              payMut.mutate();
+            }}
+          >
+            <div className="md:col-span-2">
+              <label htmlFor="invoiceId" className="block text-sm mb-1">Invoice ID</label>
+              <input id="invoiceId" className="border rounded p-2 w-full" value={payInvoiceId} onChange={(e) => setPayInvoiceId(e.target.value)} placeholder="Invoice ID" aria-label="Invoice ID" />
+            </div>
+            <div>
+              <label htmlFor="payAmount" className="block text-sm mb-1">Amount</label>
+              <input id="payAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Amount" aria-label="Amount" />
+            </div>
+            <div>
+              <label htmlFor="payRef" className="block text-sm mb-1">Reference</label>
+              <input id="payRef" className="border rounded p-2 w-full" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Reference" aria-label="Reference" />
+            </div>
+            <div>
+              <button disabled={!canPay || payMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Record payment</button>
+            </div>
+          </form>
+
+          <ul className="space-y-2">
+            {paymentsQ.data?.map((p: Payment) => (
+              <li key={p.id} className="border rounded p-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium">${'{'}p.amount{'}'}</div>
+                  <div className="text-sm text-gray-600">{new Date(p.paidAt).toLocaleString()}</div>
+                </div>
+                <div className="text-xs text-gray-500">{p.reference}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
