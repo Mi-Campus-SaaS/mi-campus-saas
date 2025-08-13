@@ -42,4 +42,11 @@ export class FinanceController {
   pay(@Body() body: RecordPaymentDto) {
     return this.financeService.recordPayment(body.invoiceId, body.amount, body.reference);
   }
+
+  @Roles(UserRole.ADMIN, UserRole.PARENT)
+  @Get('payments')
+  @Ownership({ type: 'studentQuery', key: 'studentId' })
+  listPayments(@Query('studentId') studentId: string) {
+    return this.financeService.listPaymentsForStudent(studentId);
+  }
 }

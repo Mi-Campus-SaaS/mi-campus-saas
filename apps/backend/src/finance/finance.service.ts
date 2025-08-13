@@ -28,4 +28,11 @@ export class FinanceService {
       return res;
     });
   }
+
+  async listPaymentsForStudent(studentId: string) {
+    const invoices = await this.feeRepo.find({ where: { student: { id: studentId } as unknown as Student } });
+    const ids = invoices.map((i) => i.id);
+    if (ids.length === 0) return [] as Payment[];
+    return this.paymentRepo.find({ where: { invoice: { id: ids as unknown as string } as unknown as FeeInvoice } });
+  }
 }
