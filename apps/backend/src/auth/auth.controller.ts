@@ -17,7 +17,6 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @Throttle({
     default: {
       limit: AUTH_LIMIT,
@@ -30,7 +29,6 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(200)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @Throttle({
     default: {
       limit: AUTH_LIMIT,

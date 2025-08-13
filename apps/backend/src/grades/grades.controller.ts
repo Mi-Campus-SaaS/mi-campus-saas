@@ -26,4 +26,18 @@ export class GradesController {
   gpa(@Param('id', ParseUUIDPipe) studentId: string) {
     return this.gradesService.calculateStudentGpa(studentId);
   }
+
+  @Post('students/:id/gpa/snapshots')
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Ownership({ type: 'studentParam', key: 'id' })
+  createSnapshot(@Param('id', ParseUUIDPipe) studentId: string) {
+    return this.gradesService.snapshotStudentGpa(studentId);
+  }
+
+  @Get('students/:id/gpa/snapshots')
+  @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.PARENT, UserRole.STUDENT)
+  @Ownership({ type: 'studentParam', key: 'id' })
+  listSnapshots(@Param('id', ParseUUIDPipe) studentId: string) {
+    return this.gradesService.listStudentSnapshots(studentId);
+  }
 }

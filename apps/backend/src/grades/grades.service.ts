@@ -4,12 +4,16 @@ import { Repository } from 'typeorm';
 import { Grade } from './entities/grade.entity';
 import { ClassEntity } from '../classes/entities/class.entity';
 import { Student } from '../students/entities/student.entity';
+import { GpaSnapshot } from './entities/gpa-snapshot.entity';
+import { calculateGpaFromGrades } from '../utils/gpa.util';
 
 @Injectable()
 export class GradesService {
   constructor(
     @InjectRepository(Grade)
     private readonly gradesRepo: Repository<Grade>,
+    @InjectRepository(GpaSnapshot)
+    private readonly snapshotsRepo: Repository<GpaSnapshot>,
   ) {}
 
   addForClass(
@@ -31,9 +35,23 @@ export class GradesService {
 
   async calculateStudentGpa(studentId: string) {
     const list = await this.gradesRepo.find({ where: { student: { id: studentId } as unknown as Student } });
-    if (list.length === 0) return 0;
-    const average = list.reduce((sum, g) => sum + g.score / g.maxScore, 0) / list.length;
-    // Simple scale 0-4
-    return Math.round(average * 4 * 100) / 100;
+    return calculateGpaFromGrades(list.map((g) => ({ score: g.score, maxScore: g.maxScore })));
+  }
+
+  async snapshotStudentGpa(studentId: string) {
+    const gpa = await this.calculateStudentGpa(studentId);
+    const snapshot = this.snapshotsRepo.create({
+      student: { id: studentId } as unknown as Student,
+      gpa,
+      computedAt: new Date(),
+    });
+    return this.snapshotsRepo.save(snapshot);
+  }
+
+  listStudentSnapshots(studentId: string) {
+    return this.snapshotsRepo.find({
+      where: { student: { id: studentId } as unknown as Student },
+      order: { computedAt: 'DESC' },
+    });
   }
 }
