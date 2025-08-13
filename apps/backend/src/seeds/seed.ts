@@ -47,45 +47,76 @@ async function run() {
   const sessionRepo = AppDataSource.getRepository(ClassSession);
   const enrollRepo = AppDataSource.getRepository(Enrollment);
 
-  const admin = userRepo.create({
-    username: 'admin',
-    displayName: 'Administrador',
-    passwordHash: await bcrypt.hash('admin123', 10),
-    role: UserRole.ADMIN,
-  });
-  await userRepo.save(admin);
+  // Idempotent upserts by unique fields
+  const existingAdmin = await userRepo.findOne({ where: { username: 'admin' } });
+  const admin =
+    existingAdmin ??
+    userRepo.create({
+      username: 'admin',
+      displayName: 'Administrador',
+      passwordHash: await bcrypt.hash('admin123', 10),
+      role: UserRole.ADMIN,
+    });
+  if (!existingAdmin) await userRepo.save(admin);
 
-  const teacherUser = userRepo.create({
-    username: 'prof.juana',
-    displayName: 'Prof. Juana',
-    passwordHash: await bcrypt.hash('teacher123', 10),
-    role: UserRole.TEACHER,
-  });
-  await userRepo.save(teacherUser);
-  const teacher = teacherRepo.create({ firstName: 'Juana', lastName: 'García', user: teacherUser });
-  await teacherRepo.save(teacher);
+  let teacherUser = await userRepo.findOne({ where: { username: 'prof.juana' } });
+  if (!teacherUser) {
+    teacherUser = userRepo.create({
+      username: 'prof.juana',
+      displayName: 'Prof. Juana',
+      passwordHash: await bcrypt.hash('teacher123', 10),
+      role: UserRole.TEACHER,
+    });
+    await userRepo.save(teacherUser);
+  }
+  let teacher = await teacherRepo.findOne({ where: { user: { id: teacherUser.id } } });
+  if (!teacher) {
+    teacher = teacherRepo.create({ firstName: 'Juana', lastName: 'García', user: teacherUser });
+    await teacherRepo.save(teacher);
+  }
 
-  const studentUser = userRepo.create({
-    username: 'alumno.pedro',
-    displayName: 'Pedro',
-    passwordHash: await bcrypt.hash('student123', 10),
-    role: UserRole.STUDENT,
-  });
-  await userRepo.save(studentUser);
-  const student = studentRepo.create({
-    firstName: 'Pedro',
-    lastName: 'Pérez',
-    enrollmentStatus: 'activo',
-    user: studentUser,
-  });
-  await studentRepo.save(student);
+  let studentUser = await userRepo.findOne({ where: { username: 'alumno.pedro' } });
+  if (!studentUser) {
+    studentUser = userRepo.create({
+      username: 'alumno.pedro',
+      displayName: 'Pedro',
+      passwordHash: await bcrypt.hash('student123', 10),
+      role: UserRole.STUDENT,
+    });
+    await userRepo.save(studentUser);
+  }
+  let student = await studentRepo.findOne({ where: { user: { id: studentUser.id } } });
+  if (!student) {
+    student = studentRepo.create({
+      firstName: 'Pedro',
+      lastName: 'Pérez',
+      enrollmentStatus: 'activo',
+      user: studentUser,
+    });
+    await studentRepo.save(student);
+  }
 
-  const class1 = classRepo.create({ subjectName: 'Matemática', gradeLevel: '5', teacher });
-  await classRepo.save(class1);
-  const session = sessionRepo.create({ classEntity: class1, dayOfWeek: 1, startTime: '09:00', endTime: '10:00' });
-  await sessionRepo.save(session);
-  const enr = enrollRepo.create({ student, classEntity: class1, active: true });
-  await enrollRepo.save(enr);
+  let class1 = await classRepo.findOne({
+    where: { subjectName: 'Matemática', gradeLevel: '5', teacher: { id: teacher.id } },
+  });
+  if (!class1) {
+    class1 = classRepo.create({ subjectName: 'Matemática', gradeLevel: '5', teacher });
+    await classRepo.save(class1);
+  }
+  const existingSession = await sessionRepo.findOne({
+    where: { classEntity: { id: class1.id }, dayOfWeek: 1, startTime: '09:00', endTime: '10:00' },
+  });
+  if (!existingSession) {
+    const session = sessionRepo.create({ classEntity: class1, dayOfWeek: 1, startTime: '09:00', endTime: '10:00' });
+    await sessionRepo.save(session);
+  }
+  const existingEnrollment = await enrollRepo.findOne({
+    where: { student: { id: student.id }, classEntity: { id: class1.id } },
+  });
+  if (!existingEnrollment) {
+    const enr = enrollRepo.create({ student, classEntity: class1, active: true });
+    await enrollRepo.save(enr);
+  }
 
   console.log('Seed data created');
   await AppDataSource.destroy();

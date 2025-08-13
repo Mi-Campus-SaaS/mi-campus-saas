@@ -11,7 +11,7 @@ Backend setup
 
 - Copy `apps/backend/.env.example` to `apps/backend/.env`
 - yarn dev:backend
-- Seed data: `yarn --cwd apps/backend seed:dev` (creates admin/teacher/student users)
+- Seed data: `yarn --cwd apps/backend seed:dev` (creates deterministic admin/teacher/student, a class, a session, and an enrollment)
 
 Frontend setup
 
