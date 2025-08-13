@@ -15,21 +15,21 @@ const NavBar: React.FC = () => {
 
   return (
     <nav className="flex items-center justify-between p-3 border-b" aria-label="Main">
-      <div className="flex items-center gap-4" role="menubar" aria-label="Primary">
-        <Link role="menuitem" to={`/${locale}`}>{t('app_title')}</Link>
-        <Link role="menuitem" to={`/${locale}/students`}>{t('students')}</Link>
-        <Link role="menuitem" to={`/${locale}/schedule`}>{t('schedule')}</Link>
-        <Link role="menuitem" to={`/${locale}/announcements`}>{t('announcements')}</Link>
-        <Link role="menuitem" to={`/${locale}/finance`}>{t('finance')}</Link>
-      </div>
+      <ul className="flex items-center gap-4">
+        <li><Link to={`/${locale}`}>{t('app_title')}</Link></li>
+        <li><Link to={`/${locale}/students`}>{t('students')}</Link></li>
+        <li><Link to={`/${locale}/schedule`}>{t('schedule')}</Link></li>
+        <li><Link to={`/${locale}/announcements`}>{t('announcements')}</Link></li>
+        <li><Link to={`/${locale}/finance`}>{t('finance')}</Link></li>
+      </ul>
       <div className="flex items-center gap-3">
         <NotificationsBell count={3} />
-        <button className="px-2" onClick={() => changeLang('es')} aria-label="Switch to Spanish" title={t('spanish') as string}>{t('spanish')}</button>
-        <button className="px-2" onClick={() => changeLang('en')} aria-label="Switch to English" title={t('english') as string}>{t('english')}</button>
+        <button className="px-2" onClick={() => changeLang('es')} aria-label="Switch to Spanish" title={t('spanish') || 'Spanish'}>{t('spanish')}</button>
+        <button className="px-2" onClick={() => changeLang('en')} aria-label="Switch to English" title={t('english') || 'English'}>{t('english')}</button>
         {user ? (
-          <button className="bg-gray-200 px-3 py-1 rounded" onClick={logout} aria-label={t('logout') as string}>{t('logout')}</button>
+          <button className="bg-gray-200 px-3 py-1 rounded" onClick={logout} aria-label={t('logout') || 'Logout'}>{t('logout')}</button>
         ) : (
-          <Link className="bg-blue-600 text-white px-3 py-1 rounded" to={`/${locale}/login`} aria-label={t('login') as string}>{t('login')}</Link>
+          <Link className="bg-blue-600 text-white px-3 py-1 rounded" to={`/${locale}/login`} aria-label={t('login') || 'Login'}>{t('login')}</Link>
         )}
       </div>
     </nav>

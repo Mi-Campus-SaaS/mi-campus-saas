@@ -66,7 +66,7 @@ const FinancePage: React.FC = () => {
           {showStudentList && (studentsQ.isLoading || filteredStudents.length > 0) && (
             <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-64 overflow-auto">
               {studentsQ.isLoading ? (
-                <li className="px-3 py-2"><Skeleton width={180} height={14} /></li>
+                <li className="px-3 py-2"><Skeleton className="w-44 h-3" /></li>
               ) : (
                 filteredStudents.map((s) => (
                   <li key={s.id}>
@@ -110,10 +110,10 @@ const FinancePage: React.FC = () => {
 
           {feesQ.isLoading ? (
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="border rounded p-3">
-                  <Skeleton width={160} height={14} />
-                  <Skeleton width={120} height={12} className="mt-2" />
+              {['a','b','c'].map((k) => (
+                <div key={`fees-sk-${k}`} className="border rounded p-3">
+                  <Skeleton className="w-40 h-3" />
+                  <Skeleton className="w-32 h-3 mt-2" />
                 </div>
               ))}
             </div>
@@ -159,10 +159,10 @@ const FinancePage: React.FC = () => {
 
           {paymentsQ.isLoading ? (
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="border rounded p-3">
-                  <Skeleton width={120} height={14} />
-                  <Skeleton width={160} height={12} className="mt-2" />
+              {['a','b','c'].map((k) => (
+                <div key={`pay-sk-${k}`} className="border rounded p-3">
+                  <Skeleton className="w-30 h-3" />
+                  <Skeleton className="w-40 h-3 mt-2" />
                 </div>
               ))}
             </div>

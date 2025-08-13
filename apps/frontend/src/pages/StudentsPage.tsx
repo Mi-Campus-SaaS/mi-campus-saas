@@ -15,15 +15,17 @@ const StudentsPage: React.FC = () => {
       return res.data;
     },
   });
+  const studentSkeletonKeys = React.useMemo(() => Array.from({ length: 6 }, (_, i) => `stud-sk-${i}`), []);
+
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold mb-4">{t('students')}</h1>
       {isLoading ? (
         <div className="space-y-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="border p-3 rounded">
-              <Skeleton width={200} height={14} />
-              <Skeleton width={140} height={12} className="mt-2" />
+          {studentSkeletonKeys.map((key) => (
+            <div key={key} className="border p-3 rounded">
+              <Skeleton className="w-48 h-3" />
+              <Skeleton className="w-36 h-3 mt-2" />
             </div>
           ))}
         </div>
