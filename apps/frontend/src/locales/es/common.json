@@ -24,5 +24,10 @@
   "create": "Crear",
   "edit": "Editar",
   "delete": "Eliminar"
+  ,"title": "Título",
+  "description": "Descripción",
+  "file": "Archivo",
+  "upload": "Subir",
+  "download": "Descargar"
 }
 

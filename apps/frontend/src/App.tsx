@@ -8,6 +8,7 @@ import FinancePage from './pages/FinancePage';
 import NavBar from './components/NavBar';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import { RequireRole } from './auth/RequireRole';
+import MaterialsPage from './pages/MaterialsPage';
 
 const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
@@ -23,6 +24,7 @@ const LocaleWrapper: React.FC = () => {
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="announcements" element={<AnnouncementsPage />} />
           <Route path="finance" element={<FinancePage />} />
+          <Route path="classes/:classId/materials" element={<MaterialsPage />} />
         </Route>
       </Routes>
     </div>
