@@ -28,6 +28,15 @@
   "description": "Descripción",
   "file": "Archivo",
   "upload": "Subir",
-  "download": "Descargar"
+  "download": "Descargar",
+  "student": "Estudiante",
+  "search_student": "Buscar estudiante...",
+  "amount": "Monto",
+  "due_date": "Fecha de vencimiento",
+  "create_fee": "Crear cuota",
+  "invoice_id": "ID de factura",
+  "reference": "Referencia",
+  "record_payment": "Registrar pago",
+  "due": "Vence"
 }
 

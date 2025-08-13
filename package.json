@@ -12,7 +12,8 @@
     "dev:backend": "yarn --cwd apps/backend start:dev",
     "build": "yarn --cwd apps/frontend build && yarn --cwd apps/backend build",
     "test": "yarn --cwd apps/backend test",
-    "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint"
+    "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint",
+    "format": "yarn --cwd apps/backend format"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

@@ -24,7 +24,7 @@ const FinancePage: React.FC = () => {
   const [dueDate, setDueDate] = useState('');
   const canCreate = useMemo(() => Number(amount) > 0 && !!studentId && !!dueDate, [amount, studentId, dueDate]);
   const createMut = useMutation({
-    mutationFn: () => createFee({ studentId, amount: Number(amount), dueDate, status: 'unpaid' }),
+    mutationFn: () => createFee({ studentId, amount: Number(amount), dueDate, status: 'pending' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fees', studentId] });
       setAmount('');
@@ -52,15 +52,15 @@ const FinancePage: React.FC = () => {
 
       <div className="flex items-end gap-3 relative max-w-lg">
         <div className="w-full">
-          <label htmlFor="studentSearch" className="block text-sm mb-1">Student</label>
+          <label htmlFor="studentSearch" className="block text-sm mb-1">{t('student')}</label>
           <input
             id="studentSearch"
             className="border rounded p-2 w-full"
             value={studentSearch}
             onChange={(e) => { setStudentSearch(e.target.value); setShowStudentList(true); }}
             onFocus={() => setShowStudentList(true)}
-            placeholder="Search student..."
-            aria-label="Search student"
+            placeholder={t('search_student') || 'Search student...'}
+            aria-label={t('search_student') || 'Search student'}
           />
           {showStudentList && filteredStudents.length > 0 && (
             <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-64 overflow-auto">
@@ -82,7 +82,7 @@ const FinancePage: React.FC = () => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <h2 className="font-semibold mb-2">Fees</h2>
+          <h2 className="font-semibold mb-2">{t('fees')}</h2>
           <form
             className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-3"
             onSubmit={(e) => {
@@ -91,15 +91,15 @@ const FinancePage: React.FC = () => {
             }}
           >
             <div>
-              <label htmlFor="feeAmount" className="block text-sm mb-1">Amount</label>
+              <label htmlFor="feeAmount" className="block text-sm mb-1">{t('amount')}</label>
               <input id="feeAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" aria-label="Amount" />
             </div>
             <div>
-              <label htmlFor="feeDue" className="block text-sm mb-1">Due date</label>
+              <label htmlFor="feeDue" className="block text-sm mb-1">{t('due_date')}</label>
               <input id="feeDue" className="border rounded p-2 w-full" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} aria-label="Due date" />
             </div>
             <div>
-              <button disabled={!canCreate || createMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Create fee</button>
+              <button disabled={!canCreate || createMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{t('create_fee')}</button>
             </div>
           </form>
 
@@ -107,8 +107,8 @@ const FinancePage: React.FC = () => {
             {feesQ.data?.map((f: FeeInvoice) => (
               <li key={f.id} className="border rounded p-3 flex items-center justify-between">
                 <div>
-                  <div className="font-medium">${'{'}f.amount{'}'} ({'{'}f.status{'}'})</div>
-                  <div className="text-sm text-gray-600">Due: {new Date(f.dueDate).toLocaleDateString()}</div>
+                  <div className="font-medium">${f.amount.toFixed(2)} ({f.status})</div>
+                  <div className="text-sm text-gray-600">{t('due')}: {new Date(f.dueDate).toLocaleDateString()}</div>
                 </div>
                 <div className="text-xs text-gray-500">{f.id}</div>
               </li>
@@ -116,7 +116,7 @@ const FinancePage: React.FC = () => {
           </ul>
         </div>
         <div>
-          <h2 className="font-semibold mb-2">Payments</h2>
+          <h2 className="font-semibold mb-2">{t('payments')}</h2>
           <form
             className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end mb-3"
             onSubmit={(e) => {
@@ -125,19 +125,19 @@ const FinancePage: React.FC = () => {
             }}
           >
             <div className="md:col-span-2">
-              <label htmlFor="invoiceId" className="block text-sm mb-1">Invoice ID</label>
+              <label htmlFor="invoiceId" className="block text-sm mb-1">{t('invoice_id')}</label>
               <input id="invoiceId" className="border rounded p-2 w-full" value={payInvoiceId} onChange={(e) => setPayInvoiceId(e.target.value)} placeholder="Invoice ID" aria-label="Invoice ID" />
             </div>
             <div>
-              <label htmlFor="payAmount" className="block text-sm mb-1">Amount</label>
+              <label htmlFor="payAmount" className="block text-sm mb-1">{t('amount')}</label>
               <input id="payAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Amount" aria-label="Amount" />
             </div>
             <div>
-              <label htmlFor="payRef" className="block text-sm mb-1">Reference</label>
+              <label htmlFor="payRef" className="block text-sm mb-1">{t('reference')}</label>
               <input id="payRef" className="border rounded p-2 w-full" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Reference" aria-label="Reference" />
             </div>
             <div>
-              <button disabled={!canPay || payMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Record payment</button>
+              <button disabled={!canPay || payMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{t('record_payment')}</button>
             </div>
           </form>
 
@@ -145,7 +145,7 @@ const FinancePage: React.FC = () => {
             {paymentsQ.data?.map((p: Payment) => (
               <li key={p.id} className="border rounded p-3 flex items-center justify-between">
                 <div>
-                  <div className="font-medium">${'{'}p.amount{'}'}</div>
+                  <div className="font-medium">${p.amount.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">{new Date(p.paidAt).toLocaleString()}</div>
                 </div>
                 <div className="text-xs text-gray-500">{p.reference}</div>

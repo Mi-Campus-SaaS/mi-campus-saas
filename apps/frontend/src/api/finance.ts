@@ -4,7 +4,7 @@ export type FeeInvoice = {
   id: string
   amount: number
   dueDate: string | Date
-  status: 'paid' | 'unpaid'
+  status: 'pending' | 'paid' | 'overdue'
 }
 
 export type Payment = {
@@ -25,7 +25,7 @@ export async function listPayments(studentId: string): Promise<Payment[]> {
   return res.data
 }
 
-export async function createFee(input: { studentId: string; amount: number; dueDate: string; status: 'paid' | 'unpaid' }): Promise<FeeInvoice> {
+export async function createFee(input: { studentId: string; amount: number; dueDate: string; status: 'pending' | 'paid' | 'overdue' }): Promise<FeeInvoice> {
   const res = await api.post<FeeInvoice>(`/fees`, input)
   return res.data
 }

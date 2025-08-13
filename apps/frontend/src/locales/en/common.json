@@ -28,6 +28,15 @@
   "description": "Description",
   "file": "File",
   "upload": "Upload",
-  "download": "Download"
+  "download": "Download",
+  "student": "Student",
+  "search_student": "Search student...",
+  "amount": "Amount",
+  "due_date": "Due date",
+  "create_fee": "Create fee",
+  "invoice_id": "Invoice ID",
+  "reference": "Reference",
+  "record_payment": "Record payment",
+  "due": "Due"
 }
 

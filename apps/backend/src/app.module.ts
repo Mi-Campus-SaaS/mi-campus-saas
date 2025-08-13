@@ -21,10 +21,21 @@ import { I18nModule, AcceptLanguageResolver, QueryResolver, HeaderResolver } fro
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { LoggingMiddleware } from './common/logging.middleware';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [loadConfiguration] }),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: Number.parseInt(process.env.THROTTLE_TTL_SECONDS ?? '60', 10),
+          limit: Number.parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
+        },
+      ],
+    }),
     TypeOrmModule.forRootAsync({ useFactory: createTypeOrmConfig }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
@@ -49,7 +60,7 @@ import { LoggingMiddleware } from './common/logging.middleware';
     ParentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

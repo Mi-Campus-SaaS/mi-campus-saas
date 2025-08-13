@@ -6,7 +6,8 @@
     "resolvePackageJsonExports": false,
     "types": ["jest", "node"],
     "outDir": "./dist-test",
-    "sourceMap": true
+    "sourceMap": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules", "dist"]

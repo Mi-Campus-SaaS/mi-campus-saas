@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsNumber, IsPositive, IsUUID } from 'class-validator';
+import { IsDateString, IsIn, IsNumber, IsPositive, IsUUID } from 'class-validator';
 
 export class CreateFeeDto {
   @IsUUID()
@@ -11,7 +11,6 @@ export class CreateFeeDto {
   @IsDateString()
   dueDate!: string;
 
-  @IsEnum(['pending', 'paid', 'overdue'])
-  // keep as union literal in entity but validate as enum options
+  @IsIn(['pending', 'paid', 'overdue'])
   status!: 'pending' | 'paid' | 'overdue';
 }
