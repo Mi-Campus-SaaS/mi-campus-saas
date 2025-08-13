@@ -1,15 +1,16 @@
 import { IsDateString, IsOptional, IsString, Length, IsUUID } from 'class-validator';
 
-export class CreateAnnouncementDto {
+export class UpdateAnnouncementDto {
+  @IsOptional()
   @IsString()
   @Length(1, 1000)
-  content!: string;
+  content?: string;
 
   @IsOptional()
   @IsUUID()
-  classId?: string; // if provided, targets a class; otherwise global
+  classId?: string;
 
   @IsOptional()
   @IsDateString()
-  publishAt?: string; // ISO timestamp; defaults to now
+  publishAt?: string;
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { ClassEntity } from '../../classes/entities/class.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
 
@@ -18,4 +18,14 @@ export class Announcement {
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
+
+  // When the announcement becomes visible
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  publishAt!: Date;
+
+  @UpdateDateColumn({ type: 'datetime', nullable: true })
+  updatedAt?: Date | null;
+
+  @DeleteDateColumn({ type: 'datetime', nullable: true })
+  deletedAt?: Date | null;
 }
