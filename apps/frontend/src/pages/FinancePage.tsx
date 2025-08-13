@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFee, listFees, listPayments, recordPayment, type FeeInvoice, type Payment } from '../api/finance';
 import { listStudents } from '../api/students';
 import { queryClient } from '../queryClient';
+import { Skeleton } from '../components/Skeleton';
 
 const FinancePage: React.FC = () => {
   const { t } = useTranslation();
@@ -62,19 +63,23 @@ const FinancePage: React.FC = () => {
             placeholder={t('search_student') || 'Search student...'}
             aria-label={t('search_student') || 'Search student'}
           />
-          {showStudentList && filteredStudents.length > 0 && (
+          {showStudentList && (studentsQ.isLoading || filteredStudents.length > 0) && (
             <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-64 overflow-auto">
-              {filteredStudents.map((s) => (
-                <li key={s.id}>
-                  <button
-                    type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-gray-50"
-                    onClick={() => { setStudentId(s.id); setStudentSearch(`${s.firstName} ${s.lastName}`); setShowStudentList(false); }}
-                  >
-                    {s.firstName} {s.lastName} — <span className="text-xs text-gray-500">{s.id}</span>
-                  </button>
-                </li>
-              ))}
+              {studentsQ.isLoading ? (
+                <li className="px-3 py-2"><Skeleton width={180} height={14} /></li>
+              ) : (
+                filteredStudents.map((s) => (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                      onClick={() => { setStudentId(s.id); setStudentSearch(`${s.firstName} ${s.lastName}`); setShowStudentList(false); }}
+                    >
+                      {s.firstName} {s.lastName} — <span className="text-xs text-gray-500">{s.id}</span>
+                    </button>
+                  </li>
+                ))
+              )}
             </ul>
           )}
         </div>
@@ -103,6 +108,16 @@ const FinancePage: React.FC = () => {
             </div>
           </form>
 
+          {feesQ.isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="border rounded p-3">
+                  <Skeleton width={160} height={14} />
+                  <Skeleton width={120} height={12} className="mt-2" />
+                </div>
+              ))}
+            </div>
+          ) : (
           <ul className="space-y-2">
             {feesQ.data?.map((f: FeeInvoice) => (
               <li key={f.id} className="border rounded p-3 flex items-center justify-between">
@@ -114,6 +129,7 @@ const FinancePage: React.FC = () => {
               </li>
             ))}
           </ul>
+          )}
         </div>
         <div>
           <h2 className="font-semibold mb-2">{t('payments')}</h2>
@@ -141,6 +157,16 @@ const FinancePage: React.FC = () => {
             </div>
           </form>
 
+          {paymentsQ.isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="border rounded p-3">
+                  <Skeleton width={120} height={14} />
+                  <Skeleton width={160} height={12} className="mt-2" />
+                </div>
+              ))}
+            </div>
+          ) : (
           <ul className="space-y-2">
             {paymentsQ.data?.map((p: Payment) => (
               <li key={p.id} className="border rounded p-3 flex items-center justify-between">
@@ -152,6 +178,7 @@ const FinancePage: React.FC = () => {
               </li>
             ))}
           </ul>
+          )}
         </div>
       </div>
     </div>
