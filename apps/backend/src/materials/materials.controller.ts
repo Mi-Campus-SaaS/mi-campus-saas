@@ -58,8 +58,8 @@ export class MaterialsController {
           .map((s) => s.trim().toLowerCase())
           .filter(Boolean);
         const isAllowed = allowed.includes(file.mimetype.toLowerCase());
-        if (!isAllowed) return cb(new Error('Invalid file type'));
-        cb(null, true);
+        if (!isAllowed) return cb(new Error('Invalid file type'), false);
+        return cb(null, true);
       },
       limits: {
         fileSize: parseInt(process.env.MAX_MATERIAL_SIZE_BYTES || String(10 * 1024 * 1024), 10),
