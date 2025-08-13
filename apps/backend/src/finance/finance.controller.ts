@@ -7,14 +7,19 @@ import { UserRole } from '../common/roles.enum';
 import { CreateFeeDto } from './dto/create-fee.dto';
 import { RecordPaymentDto } from './dto/record-payment.dto';
 import { FeeInvoice } from './entities/fee.entity';
+import { Student } from '../students/entities/student.entity';
 import { ListFeesQueryDto } from './dto/list-fees.query.dto';
+import { OwnershipGuard } from '../common/ownership.guard';
+import { Ownership } from '../common/ownership.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, OwnershipGuard)
 @Controller()
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
+  @Roles(UserRole.ADMIN, UserRole.PARENT)
   @Get('fees')
+  @Ownership({ type: 'studentQuery', key: 'studentId' })
   list(@Query() query: ListFeesQueryDto) {
     return this.financeService.listFees(query.studentId);
   }
@@ -23,7 +28,7 @@ export class FinanceController {
   @Post('fees')
   create(@Body() body: CreateFeeDto) {
     const dto: Partial<FeeInvoice> = {
-      student: { id: body.studentId } as any,
+      student: { id: body.studentId } as unknown as Student,
       amount: body.amount,
       dueDate: body.dueDate,
       status: body.status,
@@ -31,7 +36,9 @@ export class FinanceController {
     return this.financeService.createFee(dto);
   }
 
+  @Roles(UserRole.ADMIN, UserRole.PARENT)
   @Post('payments')
+  @Ownership({ type: 'invoiceIdBody', key: 'invoiceId' })
   pay(@Body() body: RecordPaymentDto) {
     return this.financeService.recordPayment(body.invoiceId, body.amount, body.reference);
   }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FeeInvoice } from './entities/fee.entity';
 import { Payment } from './entities/payment.entity';
+import { Student } from '../students/entities/student.entity';
 
 @Injectable()
 export class FinanceService {
@@ -12,7 +13,7 @@ export class FinanceService {
   ) {}
 
   listFees(studentId: string) {
-    return this.feeRepo.find({ where: { student: { id: studentId } as any } });
+    return this.feeRepo.find({ where: { student: { id: studentId } as unknown as Student } });
   }
 
   createFee(data: Partial<FeeInvoice>) {
@@ -21,7 +22,7 @@ export class FinanceService {
   }
 
   recordPayment(invoiceId: string, amount: number, reference?: string) {
-    const p = this.paymentRepo.create({ invoice: { id: invoiceId } as any, amount, reference });
+    const p = this.paymentRepo.create({ invoice: { id: invoiceId } as unknown as FeeInvoice, amount, reference });
     return this.paymentRepo.save(p).then(async (res) => {
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
       return res;

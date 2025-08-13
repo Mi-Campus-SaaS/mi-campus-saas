@@ -11,22 +11,31 @@ import {
 } from '@nestjs/common';
 import { MaterialsService } from './materials.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
+import { RolesGuard } from '../common/roles.guard';
+import { Roles } from '../common/roles.decorator';
+import { UserRole } from '../common/roles.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { UploadMaterialDto } from './dto/upload-material.dto';
+import { OwnershipGuard } from '../common/ownership.guard';
+import { Ownership } from '../common/ownership.decorator';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, OwnershipGuard)
 @Controller('classes/:id/materials')
 export class MaterialsController {
   constructor(private readonly materialsService: MaterialsService) {}
 
+  @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
+  @Ownership({ type: 'classParam', key: 'id' })
   @Get()
   list(@Param('id', ParseUUIDPipe) classId: string) {
     return this.materialsService.listForClass(classId);
   }
 
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Ownership({ type: 'classParam', key: 'id' })
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {

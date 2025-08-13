@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Grade } from './entities/grade.entity';
+import { ClassEntity } from '../classes/entities/class.entity';
+import { Student } from '../students/entities/student.entity';
 
 @Injectable()
 export class GradesService {
@@ -16,8 +18,8 @@ export class GradesService {
   ) {
     const grades = payload.map((g) =>
       this.gradesRepo.create({
-        classEntity: { id: classId } as any,
-        student: { id: g.studentId } as any,
+        classEntity: { id: classId } as unknown as ClassEntity,
+        student: { id: g.studentId } as unknown as Student,
         assignmentName: g.assignmentName,
         score: g.score,
         maxScore: g.maxScore,
@@ -28,7 +30,7 @@ export class GradesService {
   }
 
   async calculateStudentGpa(studentId: string) {
-    const list = await this.gradesRepo.find({ where: { student: { id: studentId } as any } });
+    const list = await this.gradesRepo.find({ where: { student: { id: studentId } as unknown as Student } });
     if (list.length === 0) return 0;
     const average = list.reduce((sum, g) => sum + g.score / g.maxScore, 0) / list.length;
     // Simple scale 0-4

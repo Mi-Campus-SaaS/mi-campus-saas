@@ -16,6 +16,7 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 import { FinanceModule } from './finance/finance.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { ClassesModule } from './classes/classes.module';
+import { ParentsModule } from './parents/parents.module';
 import { I18nModule, AcceptLanguageResolver, QueryResolver, HeaderResolver } from 'nestjs-i18n';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -45,6 +46,7 @@ import { LoggingMiddleware } from './common/logging.middleware';
     FinanceModule,
     ScheduleModule,
     ClassesModule,
+    ParentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

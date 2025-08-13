@@ -10,12 +10,12 @@ export class ScheduleService {
     private readonly sessionsRepo: Repository<ClassSession>,
   ) {}
 
-  forStudent(studentId: string) {
+  forStudent(_studentId: string) {
     // Simplified: return all sessions for now
     return this.sessionsRepo.find();
   }
 
-  forTeacher(teacherId: string) {
+  forTeacher(_teacherId: string) {
     return this.sessionsRepo.find();
   }
 }

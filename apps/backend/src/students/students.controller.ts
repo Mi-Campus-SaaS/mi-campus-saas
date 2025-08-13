@@ -11,6 +11,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Get()
   findAll() {
     return this.studentsService.findAll();

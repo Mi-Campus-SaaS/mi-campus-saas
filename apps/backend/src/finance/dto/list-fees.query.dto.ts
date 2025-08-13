@@ -4,5 +4,3 @@ export class ListFeesQueryDto {
   @IsUUID()
   studentId!: string;
 }
-
-

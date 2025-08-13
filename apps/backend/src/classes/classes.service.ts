@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClassEntity } from './entities/class.entity';
 import { Enrollment } from './entities/enrollment.entity';
+import { Teacher } from '../teachers/entities/teacher.entity';
 
 @Injectable()
 export class ClassesService {
@@ -17,6 +18,6 @@ export class ClassesService {
   }
 
   assignTeacher(classId: string, teacherId: string) {
-    return this.classRepo.update({ id: classId }, { teacher: { id: teacherId } as any });
+    return this.classRepo.update({ id: classId }, { teacher: { id: teacherId } as unknown as Teacher });
   }
 }

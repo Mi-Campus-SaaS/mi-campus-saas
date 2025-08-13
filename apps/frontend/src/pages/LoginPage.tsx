@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { useTranslation } from 'react-i18next';
 
 const LoginPage: React.FC = () => {

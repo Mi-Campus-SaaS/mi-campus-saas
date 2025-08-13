@@ -1,18 +1,6 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { api, setAuthToken } from '../api/client';
-
-export type Role = 'student' | 'parent' | 'teacher' | 'admin';
-
-type User = { id: string; username: string; role: Role; displayName: string };
-
-type AuthContextType = {
-  user?: User | null;
-  token?: string | null;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
-};
-
-const AuthContext = createContext<AuthContextType>({} as any);
+import { AuthContext, type User } from './context';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -46,6 +34,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = useMemo(() => ({ user, token, login, logout }), [user, token]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-export const useAuth = () => useContext(AuthContext);
 

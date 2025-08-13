@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 
 export const RequireRole: React.FC<{ roles?: Array<'student' | 'parent' | 'teacher' | 'admin'> }> = ({ roles }) => {
   const { user } = useAuth();

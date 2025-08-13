@@ -3,9 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Grade } from './entities/grade.entity';
 import { GradesService } from './grades.service';
 import { GradesController } from './grades.controller';
+import { CommonModule } from '../common/common.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Grade])],
+  imports: [TypeOrmModule.forFeature([Grade]), CommonModule],
   providers: [GradesService],
   controllers: [GradesController],
 })
