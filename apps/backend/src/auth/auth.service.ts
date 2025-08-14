@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, Optional } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { AuditLogger } from '../common/audit.logger';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
+    @Optional() private readonly audit?: AuditLogger,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<User | null> {
@@ -72,6 +74,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException();
     const accessToken = await this.generateAccessToken(user);
     const { token: refreshToken } = await this.issueRefreshToken(user, ip);
+    this.audit?.log({ type: 'auth.login', userId: user.id, ip: ip ?? undefined });
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -106,10 +109,12 @@ export class AuthService {
     token.replacedByTokenId = newId;
     await this.refreshTokenRepo.save(token);
 
-    return {
+    const result = {
       access_token: accessToken,
       refresh_token: newRefresh,
     };
+    this.audit?.log({ type: 'auth.refresh', userId: user.id, ip: ip ?? undefined });
+    return result;
   }
 
   async revoke(tokenString: string, ip?: string | null): Promise<void> {
@@ -124,5 +129,6 @@ export class AuthService {
     token.revokedReason = 'logout';
     token.revokedByIp = ip ?? null;
     await this.refreshTokenRepo.save(token);
+    this.audit?.log({ type: 'auth.logout', userId: token.user?.id, ip: ip ?? undefined });
   }
 }

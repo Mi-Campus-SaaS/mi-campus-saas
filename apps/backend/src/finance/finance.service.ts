@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { FeeInvoice } from './entities/fee.entity';
 import { Payment } from './entities/payment.entity';
 import { Student } from '../students/entities/student.entity';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
+import { AuditLogger } from '../common/audit.logger';
 
 @Injectable()
 export class FinanceService {
   constructor(
     @InjectRepository(FeeInvoice) private readonly feeRepo: Repository<FeeInvoice>,
     @InjectRepository(Payment) private readonly paymentRepo: Repository<Payment>,
+    private readonly audit: AuditLogger,
   ) {}
 
   async listFees(studentId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<FeeInvoice>> {
@@ -18,8 +20,7 @@ export class FinanceService {
     const limit = query?.limit ?? 20;
     const where = {
       student: { id: studentId } as unknown as Student,
-      ...(query?.q ? { status: Like(`%${query.q}%`) } : {}),
-    } as any;
+    } as const;
     const [rows, total] = await this.feeRepo.findAndCount({
       where,
       order: { dueDate: (query?.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
@@ -31,13 +32,23 @@ export class FinanceService {
 
   createFee(data: Partial<FeeInvoice>) {
     const f = this.feeRepo.create(data);
-    return this.feeRepo.save(f);
+    return this.feeRepo.save(f).then((saved) => {
+      this.audit.log({
+        type: 'finance.create_fee',
+        // actorId omitted without request context; could be added via interceptor
+        studentId: (saved.student as unknown as Student).id,
+        amount: saved.amount,
+        dueDate: String(saved.dueDate),
+      });
+      return saved;
+    });
   }
 
   recordPayment(invoiceId: string, amount: number, reference?: string) {
     const p = this.paymentRepo.create({ invoice: { id: invoiceId } as unknown as FeeInvoice, amount, reference });
     return this.paymentRepo.save(p).then(async (res) => {
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
+      this.audit.log({ type: 'finance.record_payment', invoiceId, amount });
       return res;
     });
   }
