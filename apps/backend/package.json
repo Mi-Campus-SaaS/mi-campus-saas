@@ -21,8 +21,8 @@
     "seed:dev": "ts-node -r tsconfig-paths/register src/seeds/seed.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "yarn typeorm -d ormconfig.ts migration:generate src/database/migrations/auto",
-    "migration:run": "yarn typeorm migration:run",
-    "migration:revert": "yarn typeorm migration:revert"
+    "migration:run": "yarn typeorm -d ormconfig.ts migration:run",
+    "migration:revert": "yarn typeorm -d ormconfig.ts migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
