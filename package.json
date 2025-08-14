@@ -13,7 +13,7 @@
     "build": "yarn --cwd apps/frontend build && yarn --cwd apps/backend build",
     "test": "yarn --cwd apps/backend test",
     "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint",
-    "format": "yarn --cwd apps/backend format",
+    "format": "yarn --cwd apps/frontend format && yarn --cwd apps/backend format",
     "prepare": "husky"
   },
   "devDependencies": {

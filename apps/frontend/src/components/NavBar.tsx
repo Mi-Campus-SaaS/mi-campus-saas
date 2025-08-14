@@ -52,12 +52,36 @@ const NavBar: React.FC = () => {
   return (
     <nav className="flex items-center justify-between p-3 border-b border-base navbar backdrop-blur" aria-label="Main">
       <ul className="flex items-center gap-4">
-        <li><Link className="font-semibold" to={`/${locale}`}>{t('app_title')}</Link></li>
-        <li><Link className="hover:underline" to={`/${locale}/students`}>{t('students')}</Link></li>
-        <li><Link className="hover:underline" to={`/${locale}/classes`}>{t('classes')}</Link></li>
-        <li><Link className="hover:underline" to={`/${locale}/schedule`}>{t('schedule')}</Link></li>
-        <li><Link className="hover:underline" to={`/${locale}/announcements`}>{t('announcements')}</Link></li>
-        <li><Link className="hover:underline" to={`/${locale}/finance`}>{t('finance')}</Link></li>
+        <li>
+          <Link className="font-semibold" to={`/${locale}`}>
+            {t('app_title')}
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:underline" to={`/${locale}/students`}>
+            {t('students')}
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:underline" to={`/${locale}/classes`}>
+            {t('classes')}
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:underline" to={`/${locale}/schedule`}>
+            {t('schedule')}
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:underline" to={`/${locale}/announcements`}>
+            {t('announcements')}
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:underline" to={`/${locale}/finance`}>
+            {t('finance')}
+          </Link>
+        </li>
       </ul>
       <div className="flex items-center gap-3">
         <NotificationsBell count={3} />
@@ -70,12 +94,38 @@ const NavBar: React.FC = () => {
           {isDark ? <Sun size={16} aria-hidden /> : <Moon size={16} aria-hidden />}
           <span className="text-xs">{themeLabel}</span>
         </button>
-        <button className="px-2" onClick={() => changeLang('es')} aria-label={t('switch_to_spanish')} title={t('spanish')}>{t('spanish')}</button>
-        <button className="px-2" onClick={() => changeLang('en')} aria-label={t('switch_to_english')} title={t('english')}>{t('english')}</button>
+        <button
+          className="px-2"
+          onClick={() => changeLang('es')}
+          aria-label={t('switch_to_spanish')}
+          title={t('spanish')}
+        >
+          {t('spanish')}
+        </button>
+        <button
+          className="px-2"
+          onClick={() => changeLang('en')}
+          aria-label={t('switch_to_english')}
+          title={t('english')}
+        >
+          {t('english')}
+        </button>
         {user ? (
-          <button className="px-3 py-1 rounded border border-base hover-surface" onClick={logout} aria-label={t('logout')}>{t('logout')}</button>
+          <button
+            className="px-3 py-1 rounded border border-base hover-surface"
+            onClick={logout}
+            aria-label={t('logout')}
+          >
+            {t('logout')}
+          </button>
         ) : (
-          <Link className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500" to={`/${locale}/login`} aria-label={t('login')}>{t('login')}</Link>
+          <Link
+            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
+            to={`/${locale}/login`}
+            aria-label={t('login')}
+          >
+            {t('login')}
+          </Link>
         )}
       </div>
     </nav>
@@ -83,4 +133,3 @@ const NavBar: React.FC = () => {
 };
 
 export default NavBar;
-

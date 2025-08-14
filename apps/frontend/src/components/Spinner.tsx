@@ -1,19 +1,19 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type SpinnerProps = {
-  size?: 'sm' | 'md' | 'lg'
-  className?: string
-}
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+};
 
 const sizeToClasses: Record<NonNullable<SpinnerProps['size']>, string> = {
   sm: 'w-4 h-4 border-2',
   md: 'w-6 h-6 border-2',
   lg: 'w-8 h-8 border-4',
-}
+};
 
 const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   return (
     <output
       className={[
@@ -25,9 +25,7 @@ const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className }) => {
         .join(' ')}
       aria-label={t('loading')}
     />
-  )
-}
+  );
+};
 
-export default Spinner
-
-
+export default Spinner;

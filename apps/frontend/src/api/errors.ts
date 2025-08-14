@@ -1,28 +1,26 @@
-import { isAxiosError } from 'axios'
+import { isAxiosError } from 'axios';
 
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError(error)) {
-    const responseData: unknown = error.response?.data
+    const responseData: unknown = error.response?.data;
 
     if (typeof responseData === 'object' && responseData !== null) {
-      const messageValue = (responseData as { message?: unknown }).message
+      const messageValue = (responseData as { message?: unknown }).message;
 
       if (typeof messageValue === 'string') {
-        return messageValue
+        return messageValue;
       }
       if (Array.isArray(messageValue)) {
-        return messageValue.filter((v) => typeof v === 'string').join(', ')
+        return messageValue.filter((v) => typeof v === 'string').join(', ');
       }
     }
 
-    return error.message
+    return error.message;
   }
 
   if (error instanceof Error) {
-    return error.message
+    return error.message;
   }
 
-  return 'Unexpected error occurred'
+  return 'Unexpected error occurred';
 }
-
-

@@ -9,4 +9,3 @@ export const RequireRole: React.FC<{ roles?: Array<'student' | 'parent' | 'teach
   if (roles && !roles.includes(user.role)) return <Navigate to={`/${locale}`} replace />;
   return <Outlet />;
 };
-

@@ -1,13 +1,13 @@
-import { api } from './client'
+import { api } from './client';
 
 export type AttendanceRecordInput = {
-  studentId: string
-  present: boolean
-  date: string
-}
+  studentId: string;
+  present: boolean;
+  date: string;
+};
 
 export async function submitClassAttendance(classId: string, records: AttendanceRecordInput[]): Promise<void> {
-  await api.post(`/classes/${classId}/attendance`, { records })
+  await api.post(`/classes/${classId}/attendance`, { records });
 }
 
 export async function submitSessionAttendance(
@@ -15,7 +15,5 @@ export async function submitSessionAttendance(
   sessionId: string,
   records: AttendanceRecordInput[],
 ): Promise<void> {
-  await api.post(`/classes/${classId}/sessions/${sessionId}/attendance`, { records })
+  await api.post(`/classes/${classId}/sessions/${sessionId}/attendance`, { records });
 }
-
-

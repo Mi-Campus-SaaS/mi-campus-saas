@@ -18,4 +18,3 @@ const NotificationsBell: React.FC<{ count?: number }> = ({ count = 0 }) => {
 };
 
 export default NotificationsBell;
-

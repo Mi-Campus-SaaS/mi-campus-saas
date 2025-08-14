@@ -13,15 +13,7 @@ const StudentsPage: React.FC = () => {
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: queryKeys.students.list({ page: 1, sortBy, sortDir }),
     queryFn: async ({ pageParam = 1 }) => listStudents({ page: Number(pageParam), limit: 50, sortBy, sortDir }),
     getNextPageParam: (lastPage) => {
@@ -48,7 +40,9 @@ const StudentsPage: React.FC = () => {
       {isError && (
         <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-between">
           <span className="text-sm">{t('error_loading')}</span>
-          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry')}</button>
+          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>
+            {t('retry')}
+          </button>
         </div>
       )}
       {isLoading ? (
@@ -61,46 +55,67 @@ const StudentsPage: React.FC = () => {
           ))}
         </div>
       ) : (
-      <div>
-        <div className="mb-3 flex items-center gap-2">
-          <label className="text-sm">{t('sortBy')}</label>
-          <select aria-label={t('sortBy')} className="border rounded px-2 py-1" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}>
-            <option value="lastName">{t('lastName')}</option>
-            <option value="gpa">{t('gpa')}</option>
-          </select>
-          <select aria-label={t('sortDirection')} className="border rounded px-2 py-1" value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}>
-            <option value="asc">{t('ascending')}</option>
-            <option value="desc">{t('descending')}</option>
-          </select>
-        </div>
-        <div ref={containerRef} className="relative border rounded vh-600 overflow-auto">
-          {/* Remaining inline height/var needed for performance */}
-          <div className="vlist-outer" style={{ height: rowVirtualizer.getTotalSize() } as React.CSSProperties}>
-            {rowVirtualizer.getVirtualItems().map((vi) => {
-              if (vi.index > flatRows.length - 1) {
-                // loader row
-                if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+        <div>
+          <div className="mb-3 flex items-center gap-2">
+            <label className="text-sm">{t('sortBy')}</label>
+            <select
+              aria-label={t('sortBy')}
+              className="border rounded px-2 py-1"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}
+            >
+              <option value="lastName">{t('lastName')}</option>
+              <option value="gpa">{t('gpa')}</option>
+            </select>
+            <select
+              aria-label={t('sortDirection')}
+              className="border rounded px-2 py-1"
+              value={sortDir}
+              onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
+            >
+              <option value="asc">{t('ascending')}</option>
+              <option value="desc">{t('descending')}</option>
+            </select>
+          </div>
+          <div ref={containerRef} className="relative border rounded vh-600 overflow-auto">
+            {/* Remaining inline height/var needed for performance */}
+            <div className="vlist-outer" style={{ height: rowVirtualizer.getTotalSize() } as React.CSSProperties}>
+              {rowVirtualizer.getVirtualItems().map((vi) => {
+                if (vi.index > flatRows.length - 1) {
+                  // loader row
+                  if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+                  return (
+                    <div
+                      key={vi.key}
+                      className="p-3 flex items-center justify-center vlist-abs vlist-item"
+                      style={{ ['--y']: `${vi.start}px` } as YStyle}
+                    >
+                      <Skeleton className="w-32 h-4" />
+                    </div>
+                  );
+                }
+                const s = flatRows[vi.index] as Student & { gpa?: number };
                 return (
-                  <div key={vi.key} className="p-3 flex items-center justify-center vlist-abs vlist-item" style={{ ['--y']: `${vi.start}px` } as YStyle}>
-                    <Skeleton className="w-32 h-4" />
+                  <div
+                    key={vi.key}
+                    className="card p-3 flex justify-between m-2 vlist-abs-narrow vlist-item"
+                    style={{ ['--y']: `${vi.start}px` } as YStyle}
+                  >
+                    <span>
+                      {s.firstName} {s.lastName}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {t('gpa')}: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}
+                    </span>
                   </div>
-                )
-              }
-              const s = flatRows[vi.index] as Student & { gpa?: number }
-              return (
-                <div key={vi.key} className="card p-3 flex justify-between m-2 vlist-abs-narrow vlist-item" style={{ ['--y']: `${vi.start}px` } as YStyle}>
-                  <span>{s.firstName} {s.lastName}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('gpa')}: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}</span>
-                </div>
-              )
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
       )}
     </div>
   );
 };
 
 export default StudentsPage;
-

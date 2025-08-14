@@ -20,25 +20,25 @@ const LocaleWrapper: React.FC = () => {
     <div className="min-h-screen">
       <NavBar />
       <ErrorBoundary>
-      <Routes>
-        <Route index element={<Dashboard />} />
-        <Route path="login" element={<LoginPage />} />
-        {/* public */}
-        {/* protected by role */}
-        <Route element={<RequireRole roles={["admin", "teacher", "parent", "student"]} />}>
-          <Route path="announcements" element={<AnnouncementsPage />} />
-          <Route path="schedule" element={<SchedulePage />} />
-        </Route>
-        <Route element={<RequireRole roles={["admin", "teacher"]} />}>
-          <Route path="students" element={<StudentsPage />} />
-          <Route path="classes" element={<ClassesPage />} />
-          <Route path="classes/:classId/materials" element={<MaterialsPage />} />
-          <Route path="classes/:classId/sessions/:sessionId/attendance" element={<AttendancePage />} />
-        </Route>
-        <Route element={<RequireRole roles={["admin", "parent"]} />}>
-          <Route path="finance" element={<FinancePage />} />
-        </Route>
-      </Routes>
+        <Routes>
+          <Route index element={<Dashboard />} />
+          <Route path="login" element={<LoginPage />} />
+          {/* public */}
+          {/* protected by role */}
+          <Route element={<RequireRole roles={['admin', 'teacher', 'parent', 'student']} />}>
+            <Route path="announcements" element={<AnnouncementsPage />} />
+            <Route path="schedule" element={<SchedulePage />} />
+          </Route>
+          <Route element={<RequireRole roles={['admin', 'teacher']} />}>
+            <Route path="students" element={<StudentsPage />} />
+            <Route path="classes" element={<ClassesPage />} />
+            <Route path="classes/:classId/materials" element={<MaterialsPage />} />
+            <Route path="classes/:classId/sessions/:sessionId/attendance" element={<AttendancePage />} />
+          </Route>
+          <Route element={<RequireRole roles={['admin', 'parent']} />}>
+            <Route path="finance" element={<FinancePage />} />
+          </Route>
+        </Routes>
       </ErrorBoundary>
     </div>
   );
