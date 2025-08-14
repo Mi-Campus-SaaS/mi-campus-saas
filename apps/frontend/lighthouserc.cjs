@@ -9,10 +9,12 @@ module.exports = {
       url: ['http://localhost:4173/es'],
       numberOfRuns: 1,
       settings: {
-        chromePath: puppeteer.executablePath(),
+        chromePath: process.env.CHROME_PATH || puppeteer.executablePath(),
         // Keep consistent desktop profile
         formFactor: 'desktop',
         screenEmulation: { mobile: false },
+        // GitHub Actions often needs these flags
+        chromeFlags: ['--no-sandbox', '--disable-setuid-sandbox', '--headless=new'],
       },
     },
     assert: {

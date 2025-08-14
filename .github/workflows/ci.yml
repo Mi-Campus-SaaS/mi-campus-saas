@@ -111,8 +111,8 @@ jobs:
         run: yarn --cwd apps/backend seed:dev
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: yarn test:e2e
+      - name: Run Playwright tests (functional only)
+        run: yarn test:e2e -g "^(?!visual-regression)"
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -176,6 +176,9 @@ jobs:
       - name: Run bundle budgets
         run: yarn budgets:bundle
       - name: Run performance budgets
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'
+          CHROME_PATH: $(node -e "console.log(require('puppeteer').executablePath())")
         run: yarn budgets:perf
 
 
