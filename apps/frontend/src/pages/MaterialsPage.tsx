@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { listClassMaterials, uploadClassMaterial, type ClassMaterial } from '../api/materials'
 import { queryClient } from '../queryClient'
 import { useAuth } from '../auth/useAuth'
+import { uploadMaterialSchema } from '../validation/schemas'
 
 const MaterialsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -20,6 +21,7 @@ const MaterialsPage: React.FC = () => {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [errors, setErrors] = useState<{ title?: string; description?: string; file?: string }>({})
 
   const canUpload = useMemo(() => Boolean(title.trim() && file), [title, file])
 
@@ -38,6 +40,18 @@ const MaterialsPage: React.FC = () => {
           className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end"
           onSubmit={(e) => {
             e.preventDefault()
+            const parsed = uploadMaterialSchema.safeParse({ title, description: description || undefined, file })
+            if (!parsed.success) {
+              const errs: { title?: string; description?: string; file?: string } = {}
+              for (const issue of parsed.error.issues) {
+                if (issue.path[0] === 'title') errs.title = t(issue.message)
+                if (issue.path[0] === 'description') errs.description = t(issue.message)
+                if (issue.path[0] === 'file') errs.file = t(issue.message)
+              }
+              setErrors(errs)
+              return
+            }
+            setErrors({})
             if (!file) return
             uploadMut.mutate({ title: title.trim(), description: description || undefined, file })
             setTitle('')
@@ -55,6 +69,7 @@ const MaterialsPage: React.FC = () => {
               aria-label={t('title')}
               required
             />
+            {errors.title && <div className="text-xs text-red-600">{errors.title}</div>}
           </div>
           <div>
             <label className="block text-sm mb-1">{t('description')}</label>
@@ -65,6 +80,7 @@ const MaterialsPage: React.FC = () => {
               placeholder={t('description')}
               aria-label={t('description')}
             />
+            {errors.description && <div className="text-xs text-red-600">{errors.description}</div>}
           </div>
           <div>
             <label className="block text-sm mb-1">{t('file')}</label>
@@ -75,6 +91,7 @@ const MaterialsPage: React.FC = () => {
               aria-label={t('file')}
               required
             />
+            {errors.file && <div className="text-xs text-red-600">{errors.file}</div>}
           </div>
           <div>
             <button disabled={!canUpload || uploadMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">
