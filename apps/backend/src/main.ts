@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import helmet from 'helmet';
 
@@ -58,7 +59,20 @@ async function bootstrap() {
     credentials: true,
   });
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      exceptionFactory: (errors: import('class-validator').ValidationError[]) => {
+        const i18n = I18nContext.current();
+        const langMessage = i18n?.t('validation.required') ?? 'Validation error';
+        const details = errors.map(
+          (e) => `${e.property}: ${(e.constraints && Object.values(e.constraints).join(', ')) || 'invalid'}`,
+        );
+        return new BadRequestException({ message: langMessage, details });
+      },
+    }),
+  );
   app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
