@@ -44,6 +44,24 @@ jobs:
         run: corepack prepare yarn@1.22.22 --activate
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Prepare database (Postgres service)
+        uses: ikalnytskyi/action-setup-postgres@v7
+        with:
+          username: postgres
+          password: postgres
+          database: micampus
+          port: 5432
+      - name: Run migrations (Postgres)
+        env:
+          NODE_ENV: production
+          DB_TYPE: postgres
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: micampus
+        run: |
+          yarn --cwd apps/backend migration:run
       - name: Run backend unit tests
         run: yarn --cwd apps/backend test --ci --runInBand
 
