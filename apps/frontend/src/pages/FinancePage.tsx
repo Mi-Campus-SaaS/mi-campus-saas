@@ -109,6 +109,12 @@ const FinancePage: React.FC = () => {
             </div>
           </form>
 
+          {feesQ.isError && (
+            <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
+              <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
+              <button className="px-2 py-1 border rounded" onClick={() => feesQ.refetch()}>{t('retry') || 'Retry'}</button>
+            </div>
+          )}
           {feesQ.isLoading ? (
             <div className="space-y-3">
               {['a','b','c'].map((k) => (
@@ -158,6 +164,12 @@ const FinancePage: React.FC = () => {
             </div>
           </form>
 
+          {paymentsQ.isError && (
+            <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
+              <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
+              <button className="px-2 py-1 border rounded" onClick={() => paymentsQ.refetch()}>{t('retry') || 'Retry'}</button>
+            </div>
+          )}
           {paymentsQ.isLoading ? (
             <div className="space-y-3">
               {['a','b','c'].map((k) => (

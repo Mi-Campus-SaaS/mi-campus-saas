@@ -10,6 +10,7 @@ import AnnouncementsPage from './pages/AnnouncementsPage';
 import { RequireRole } from './auth/RequireRole';
 import MaterialsPage from './pages/MaterialsPage';
 import AttendancePage from './pages/AttendancePage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
@@ -17,6 +18,7 @@ const LocaleWrapper: React.FC = () => {
   return (
     <div>
       <NavBar />
+      <ErrorBoundary>
       <Routes>
         <Route index element={<Dashboard />} />
         <Route path="login" element={<LoginPage />} />
@@ -35,6 +37,7 @@ const LocaleWrapper: React.FC = () => {
           <Route path="finance" element={<FinancePage />} />
         </Route>
       </Routes>
+      </ErrorBoundary>
     </div>
   );
 };

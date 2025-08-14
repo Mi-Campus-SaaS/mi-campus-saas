@@ -12,16 +12,22 @@ const StudentsPage: React.FC = () => {
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
   const [page, setPage] = React.useState(1);
 
-  const { data, isLoading } = useQuery<Paginated<Student>>({
+  const { data, isLoading, isError, refetch } = useQuery<Paginated<Student>>({
     queryKey: queryKeys.students.list({ page, sortBy, sortDir }),
     queryFn: async () => listStudents({ page, sortBy, sortDir }),
-    placeholderData: (prev) => prev as Paginated<Student> | undefined,
+    placeholderData: (prev) => prev,
   });
   const studentSkeletonKeys = React.useMemo(() => Array.from({ length: 6 }, (_, i) => `stud-sk-${i}`), []);
 
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold mb-4">{t('students')}</h1>
+      {isError && (
+        <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
+          <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
+          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry') || 'Retry'}</button>
+        </div>
+      )}
       {isLoading ? (
         <div className="space-y-3">
           {studentSkeletonKeys.map((key) => (

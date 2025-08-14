@@ -72,6 +72,12 @@ const AttendancePage: React.FC = () => {
         </button>
       </div>
 
+      {studentsQ.isError && (
+        <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
+          <span className="text-sm">Error loading students.</span>
+          <button className="px-2 py-1 border rounded" onClick={() => studentsQ.refetch()}>Retry</button>
+        </div>
+      )}
       <ul className="space-y-2">
         {(studentsQ.data?.data ?? []).map((s) => (
           <li key={s.id} className="border p-3 rounded flex items-center gap-3">

@@ -11,7 +11,7 @@ const MaterialsPage: React.FC = () => {
   const { user } = useAuth()
   const { classId = '' } = useParams()
 
-  const { data } = useQuery({
+  const { data, refetch, isError } = useQuery({
     queryKey: ['materials', 'class', classId],
     queryFn: () => listClassMaterials(classId),
     enabled: Boolean(classId),
@@ -82,6 +82,15 @@ const MaterialsPage: React.FC = () => {
             </button>
           </div>
         </form>
+      )}
+
+      {isError && (
+        <div className="mb-3 p-3 border rounded bg-red-50 text-red-900">
+          <div className="flex items-center justify-between">
+            <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
+            <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry') || 'Retry'}</button>
+          </div>
+        </div>
       )}
 
       <ul className="space-y-3">
