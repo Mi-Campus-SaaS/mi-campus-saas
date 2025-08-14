@@ -9,6 +9,7 @@ import { ClassEntity } from '../classes/entities/class.entity';
 import { ClassSession } from '../classes/entities/class-session.entity';
 import { Enrollment } from '../classes/entities/enrollment.entity';
 import { Grade } from '../grades/entities/grade.entity';
+import { GpaSnapshot } from '../grades/entities/gpa-snapshot.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
 import { Material } from '../materials/entities/material.entity';
 import { Announcement } from '../announcements/entities/announcement.entity';
@@ -29,6 +30,7 @@ const AppDataSource = new DataSource({
     ClassSession,
     Enrollment,
     Grade,
+    GpaSnapshot,
     Attendance,
     Material,
     Announcement,
