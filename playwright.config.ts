@@ -8,6 +8,9 @@ const config: PlaywrightTestConfig = {
     baseURL: 'http://localhost:5173',
     headless: true,
     trace: 'on-first-retry',
+    extraHTTPHeaders: {
+      Origin: 'http://localhost:5173',
+    },
   },
   webServer: {
     command: 'yarn dev',

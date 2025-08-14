@@ -1,11 +1,19 @@
 import { test, expect } from '@playwright/test'
 
+test('health check', async ({ page, request }) => {
+  await page.goto('/es')
+  const res = await request.get('/api/health')
+  expect(res.status()).toBe(200)
+  expect(await res.text()).toBe('OK')
+})
+
 test('login → create announcement → upload material → record payment', async ({ page }) => {
   // Login
   await page.goto('/es/login')
-  await page.getByLabel('Usuario').or(page.getByPlaceholder('Usuario')).fill('admin')
-  await page.getByLabel('Contraseña').or(page.getByPlaceholder('Contraseña')).fill('admin123')
+  await page.getByPlaceholder(/usuario|username/i).fill('admin')
+  await page.getByPlaceholder(/contraseña|password/i).fill('admin123')
   await page.getByRole('button', { name: /iniciar sesión|login/i }).click()
+  await expect(page.getByRole('button', { name: /cerrar sesión|logout/i })).toBeVisible({ timeout: 10000 })
 
   // Go to announcements and create one
   await page.getByRole('link', { name: /anuncios|announcements/i }).click()
