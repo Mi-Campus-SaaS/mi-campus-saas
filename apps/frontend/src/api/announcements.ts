@@ -10,7 +10,9 @@ export type CreateAnnouncementInput = {
 export type UpdateAnnouncementInput = Partial<CreateAnnouncementInput>;
 
 export async function listAnnouncements(): Promise<Announcement[]> {
-  const res = await api.get<Paginated<Announcement>>('/announcements');
+  const res = await api.get<Paginated<Announcement>>('/announcements', {
+    params: { page: 1, limit: 100, sortDir: 'desc' },
+  });
   return res.data.data;
 }
 

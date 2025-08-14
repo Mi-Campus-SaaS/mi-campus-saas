@@ -16,6 +16,8 @@ const AnnouncementsPage: React.FC = () => {
   const { data } = useQuery({
     queryKey: ['announcements'],
     queryFn: () => listAnnouncements(),
+    refetchOnMount: 'always',
+    staleTime: 0,
     select: (list: Announcement[]) => {
       const now = Date.now();
       const filtered = list.filter((a) => {
@@ -117,6 +119,7 @@ const AnnouncementsPage: React.FC = () => {
               className="border rounded p-2"
               value={newPublishAt}
               onChange={(e) => setNewPublishAt(e.target.value)}
+              placeholder={t('publish_at')}
               aria-label={t('publish_at')}
             />
             {errors.publishAt && <div className="text-xs text-red-600">{errors.publishAt}</div>}

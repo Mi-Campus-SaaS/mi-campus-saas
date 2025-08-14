@@ -3,15 +3,12 @@ import { api, setAuthToken, getStoredAuth, setAuthTokens, clearStoredAuth, setLo
 import { AuthContext, type User } from './context';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const saved = getStoredAuth();
+  const [user, setUser] = useState<User | null>((saved?.user as User) ?? null);
+  const [token, setToken] = useState<string | null>(saved?.access_token ?? null);
 
   useEffect(() => {
-    const saved = getStoredAuth();
-    if (saved) {
-      const u = (saved.user || null) as User | null;
-      setUser(u);
-      setToken(saved.access_token);
+    if (saved?.access_token) {
       setAuthToken(saved.access_token);
     }
     const doLocalLogout = () => {
@@ -19,6 +16,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(null);
     };
     setLogoutHandler(doLocalLogout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (username: string, password: string) => {
