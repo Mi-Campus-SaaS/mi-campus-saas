@@ -103,4 +103,61 @@ jobs:
           path: playwright-report
           if-no-files-found: ignore
 
+  visual:
+    name: Visual Regression (Playwright)
+    runs-on: ubuntu-latest
+    needs: [lint, test-backend, typecheck-frontend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Seed database
+        run: yarn --cwd apps/backend seed:dev
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run visual tests
+        run: yarn ci:visual
+      - name: Upload screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diffs
+          path: test-results
+          if-no-files-found: ignore
+
+  budgets:
+    name: Budgets (Bundle + Perf)
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck-frontend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run bundle budgets
+        run: yarn budgets:bundle
+      - name: Run performance budgets
+        run: yarn budgets:perf
+
 
