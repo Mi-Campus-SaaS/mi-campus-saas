@@ -35,19 +35,24 @@ export class AttendanceService {
     return list;
   }
 
-  async listBySession(sessionId: string, limit = 20, offset = 0) {
+  async getForStudentPaginated(studentId: string, page = 1, limit = 20) {
+    const [rows, total] = await this.attendanceRepo.findAndCount({
+      where: { student: { id: studentId } as unknown as Student },
+      order: { date: 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return { data: rows, total, page, limit };
+  }
+
+  async listBySession(sessionId: string, page = 1, limit = 20) {
     const [rows, total] = await this.attendanceRepo.findAndCount({
       where: { session: { id: sessionId } as unknown as ClassSession },
       order: { date: 'DESC' },
       take: limit,
-      skip: offset,
+      skip: (page - 1) * limit,
       relations: { student: true },
     });
-    return {
-      data: rows,
-      total,
-      limit,
-      offset,
-    };
+    return { data: rows, total, page, limit };
   }
 }

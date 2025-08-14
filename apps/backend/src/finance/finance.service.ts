@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { FeeInvoice } from './entities/fee.entity';
 import { Payment } from './entities/payment.entity';
 import { Student } from '../students/entities/student.entity';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class FinanceService {
@@ -12,8 +13,20 @@ export class FinanceService {
     @InjectRepository(Payment) private readonly paymentRepo: Repository<Payment>,
   ) {}
 
-  listFees(studentId: string) {
-    return this.feeRepo.find({ where: { student: { id: studentId } as unknown as Student } });
+  async listFees(studentId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<FeeInvoice>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 20;
+    const where = {
+      student: { id: studentId } as unknown as Student,
+      ...(query?.q ? { status: Like(`%${query.q}%`) } : {}),
+    } as any;
+    const [rows, total] = await this.feeRepo.findAndCount({
+      where,
+      order: { dueDate: (query?.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return { data: rows, total, page, limit };
   }
 
   createFee(data: Partial<FeeInvoice>) {

@@ -9,6 +9,7 @@ import { RecordPaymentDto } from './dto/record-payment.dto';
 import { FeeInvoice } from './entities/fee.entity';
 import { Student } from '../students/entities/student.entity';
 import { ListFeesQueryDto } from './dto/list-fees.query.dto';
+import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
 
@@ -20,8 +21,8 @@ export class FinanceController {
   @Roles(UserRole.ADMIN, UserRole.PARENT)
   @Get('fees')
   @Ownership({ type: 'studentQuery', key: 'studentId' })
-  list(@Query() query: ListFeesQueryDto) {
-    return this.financeService.listFees(query.studentId);
+  list(@Query() query: ListFeesQueryDto & PaginationQueryDto) {
+    return this.financeService.listFees(query.studentId, query);
   }
 
   @Roles(UserRole.ADMIN)

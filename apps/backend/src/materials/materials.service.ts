@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Material } from './entities/material.entity';
 import { join } from 'path';
 import { ClassEntity } from '../classes/entities/class.entity';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class MaterialsService {
@@ -12,8 +13,20 @@ export class MaterialsService {
     private readonly materialsRepo: Repository<Material>,
   ) {}
 
-  listForClass(classId: string) {
-    return this.materialsRepo.find({ where: { classEntity: { id: classId } as unknown as ClassEntity } });
+  async listForClass(classId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<Material>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 20;
+    const where = {
+      classEntity: { id: classId } as unknown as ClassEntity,
+      ...(query?.q ? { title: Like(`%${query.q}%`) } : {}),
+    } as any;
+    const [rows, total] = await this.materialsRepo.findAndCount({
+      where,
+      order: { createdAt: (query?.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return { data: rows, total, page, limit };
   }
 
   saveUpload(classId: string, title: string, description: string | undefined, file: Express.Multer.File) {

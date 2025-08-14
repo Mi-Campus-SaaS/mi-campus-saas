@@ -8,6 +8,7 @@ import { SubmitAttendanceDto } from './dto/submit-attendance.dto';
 import { Ownership } from '../common/ownership.decorator';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { ListSessionAttendanceDto } from './dto/list-session-attendance.dto';
+import { PaginationQueryDto } from '../common/dto/pagination.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard, OwnershipGuard)
 @Controller()
@@ -36,16 +37,17 @@ export class AttendanceController {
   @Get('students/:id/attendance')
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.PARENT, UserRole.STUDENT)
   @Ownership({ type: 'studentParam', key: 'id' })
-  list(@Param('id', ParseUUIDPipe) studentId: string) {
-    return this.attendanceService.getForStudent(studentId);
+  list(@Param('id', ParseUUIDPipe) studentId: string, @Query() query: PaginationQueryDto) {
+    return this.attendanceService.getForStudentPaginated(studentId, query.page ?? 1, query.limit ?? 20);
   }
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Ownership({ type: 'classParam', key: 'classId' })
   @Get('classes/:classId/sessions/:sessionId/attendance')
-  listBySession(@Param('sessionId', ParseUUIDPipe) sessionId: string, @Query() query: ListSessionAttendanceDto) {
-    const limit = query.limit ?? 20;
-    const offset = query.offset ?? 0;
-    return this.attendanceService.listBySession(sessionId, limit, offset);
+  listBySession(
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+    @Query() query: ListSessionAttendanceDto & PaginationQueryDto,
+  ) {
+    return this.attendanceService.listBySession(sessionId, query.page ?? 1, query.limit ?? 20);
   }
 }

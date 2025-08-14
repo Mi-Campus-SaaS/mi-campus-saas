@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class StudentsService {
@@ -10,8 +11,17 @@ export class StudentsService {
     private readonly studentsRepo: Repository<Student>,
   ) {}
 
-  findAll() {
-    return this.studentsRepo.find();
+  async findAll(query?: PaginationQueryDto): Promise<PaginatedResponse<Student>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 20;
+    const where = query?.q ? [{ firstName: Like(`%${query.q}%`) }, { lastName: Like(`%${query.q}%`) }] : ({} as any);
+    const [rows, total] = await this.studentsRepo.findAndCount({
+      where,
+      order: { lastName: (query?.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return { data: rows, total, page, limit };
   }
 
   create(data: Partial<Student>) {

@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../common/roles.enum';
 import { RolesGuard } from '../common/roles.guard';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { PaginationQueryDto } from '../common/dto/pagination.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('students')
@@ -13,8 +14,8 @@ export class StudentsController {
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Get()
-  findAll() {
-    return this.studentsService.findAll();
+  findAll(@Query() query: PaginationQueryDto) {
+    return this.studentsService.findAll(query);
   }
 
   @Roles(UserRole.ADMIN)

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Announcement } from './entities/announcement.entity';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class AnnouncementsService {
@@ -21,8 +22,17 @@ export class AnnouncementsService {
     return found;
   }
 
-  list() {
-    return this.announcementsRepo.find({ where: {}, order: { publishAt: 'DESC' } });
+  async list(query: PaginationQueryDto): Promise<PaginatedResponse<Announcement>> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const where = query.q ? { content: Like(`%${query.q}%`) } : {};
+    const [rows, total] = await this.announcementsRepo.findAndCount({
+      where,
+      order: { publishAt: (query.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return { data: rows, total, page, limit };
   }
 
   async update(id: string, data: Partial<Announcement>) {

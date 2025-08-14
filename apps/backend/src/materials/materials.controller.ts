@@ -8,6 +8,7 @@ import {
   UseGuards,
   UseInterceptors,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { MaterialsService } from './materials.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
@@ -19,6 +20,7 @@ import { diskStorage } from 'multer';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { UploadMaterialDto } from './dto/upload-material.dto';
+import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
 
@@ -30,8 +32,8 @@ export class MaterialsController {
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
   @Ownership({ type: 'classParam', key: 'id' })
   @Get()
-  list(@Param('id', ParseUUIDPipe) classId: string) {
-    return this.materialsService.listForClass(classId);
+  list(@Param('id', ParseUUIDPipe) classId: string, @Query() query: PaginationQueryDto) {
+    return this.materialsService.listForClass(classId, query);
   }
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER)

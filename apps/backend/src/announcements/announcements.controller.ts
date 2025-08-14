@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AnnouncementsService } from './announcements.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
@@ -24,8 +24,8 @@ export class AnnouncementsController {
   }
 
   @Get()
-  list() {
-    return this.announcementsService.list();
+  list(@Query() query: import('../common/dto/pagination.dto').PaginationQueryDto) {
+    return this.announcementsService.list(query);
   }
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
