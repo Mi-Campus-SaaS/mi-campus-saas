@@ -40,6 +40,10 @@ playwright-report/
 cypress/videos/
 cypress/screenshots/
 
+# --- Lighthouse CI ---
+.lighthouseci/
+apps/*/.lighthouseci/
+
 # --- Vite / Frontend ---
 .vite/
 apps/frontend/.vite/

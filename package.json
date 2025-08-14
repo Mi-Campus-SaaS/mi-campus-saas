@@ -15,13 +15,20 @@
     "test:e2e": "playwright test",
     "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint",
     "format": "yarn --cwd apps/frontend format && yarn --cwd apps/backend format",
+    "budgets:bundle": "yarn --cwd apps/frontend build && size-limit",
+    "budgets:perf": "yarn --cwd apps/frontend build && node tools/perf/lhci-run.cjs",
+    "ci:budgets": "yarn budgets:bundle && yarn budgets:perf",
     "prepare": "husky"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",
     "husky": "^9.0.0",
     "lint-staged": "^15.2.8",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "@lhci/cli": "^0.14.0",
+    "puppeteer": "^23.7.0",
+    "@size-limit/file": "^10.0.0",
+    "size-limit": "^10.0.0"
   },
   "lint-staged": {
     "apps/frontend/**/*.{ts,tsx,js,jsx}": [

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Initial JS (main chunk)",
+    "path": "apps/frontend/dist/assets/*.js",
+    "limit": "170 kB"
+  },
+  {
+    "name": "CSS",
+    "path": "apps/frontend/dist/assets/*.css",
+    "limit": "50 kB"
+  }
+]
