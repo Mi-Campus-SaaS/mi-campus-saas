@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 // Common validators
-const uuid = z.string().uuid({ message: 'validation.uuid' });
+const UUID_V1_TO_V5 = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+const uuid = z.string().regex(UUID_V1_TO_V5, { message: 'validation.uuid' });
 const isoDate = z.string().refine(
   (v) => {
     if (!v) return false;

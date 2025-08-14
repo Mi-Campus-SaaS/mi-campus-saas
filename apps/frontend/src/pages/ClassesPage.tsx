@@ -1,9 +1,10 @@
 import React from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { listClasses } from '../api/classes';
+import { listClasses, type ClassItem } from '../api/classes';
 import { Skeleton } from '../components/Skeleton';
 import { useTranslation } from 'react-i18next';
+import { Link, useParams } from 'react-router-dom';
 
 const ClassesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -20,7 +21,7 @@ const ClassesPage: React.FC = () => {
     staleTime: 30_000,
   });
 
-  const flatRows = React.useMemo(() => (data?.pages ?? []).flatMap((p) => p.data ?? []), [data]);
+  const flatRows = React.useMemo<ClassItem[]>(() => (data?.pages ?? []).flatMap((p) => p.data ?? []), [data]);
 
   const rowVirtualizer = useVirtualizer({
     count: hasNextPage ? flatRows.length + 1 : flatRows.length,
@@ -29,6 +30,7 @@ const ClassesPage: React.FC = () => {
     overscan: 10,
   });
   type CSSVarStyle = React.CSSProperties & { ['--y']?: string };
+  const { locale = 'es' } = useParams();
 
   if (isError) {
     return (
@@ -84,8 +86,18 @@ const ClassesPage: React.FC = () => {
                         {t('classes')} • {c.gradeLevel}
                       </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {c.teacher ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim() : t('unassigned')}
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {c.teacher
+                          ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim()
+                          : t('unassigned')}
+                      </div>
+                      <Link
+                        className="text-blue-600 dark:text-blue-400 underline text-sm"
+                        to={`/${locale}/classes/${c.id}/materials`}
+                      >
+                        {t('materials')}
+                      </Link>
                     </div>
                   </div>
                 </div>
