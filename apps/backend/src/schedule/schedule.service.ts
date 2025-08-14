@@ -2,20 +2,31 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClassSession } from '../classes/entities/class-session.entity';
+import { InMemoryCacheService } from '../common/cache.service';
 
 @Injectable()
 export class ScheduleService {
   constructor(
     @InjectRepository(ClassSession)
     private readonly sessionsRepo: Repository<ClassSession>,
+    private readonly cache: InMemoryCacheService,
   ) {}
 
-  forStudent(_studentId: string) {
-    // Simplified: return all sessions for now
-    return this.sessionsRepo.find();
+  async forStudent(studentId: string) {
+    const key = `schedule:student:${studentId}`;
+    const cached = this.cache.get<ClassSession[]>(key);
+    if (cached) return cached;
+    const data = await this.sessionsRepo.find();
+    this.cache.set(key, data, 30_000);
+    return data;
   }
 
-  forTeacher(_teacherId: string) {
-    return this.sessionsRepo.find();
+  async forTeacher(teacherId: string) {
+    const key = `schedule:teacher:${teacherId}`;
+    const cached = this.cache.get<ClassSession[]>(key);
+    if (cached) return cached;
+    const data = await this.sessionsRepo.find();
+    this.cache.set(key, data, 30_000);
+    return data;
   }
 }

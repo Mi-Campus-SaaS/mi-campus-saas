@@ -8,10 +8,11 @@ import { ClassEntity } from '../classes/entities/class.entity';
 import { Enrollment } from '../classes/entities/enrollment.entity';
 import { FeeInvoice } from '../finance/entities/fee.entity';
 import { Parent } from '../parents/entities/parent.entity';
+import { InMemoryCacheService } from './cache.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent])],
-  providers: [OwnershipGuard, AuditLogger],
-  exports: [OwnershipGuard, AuditLogger],
+  providers: [OwnershipGuard, AuditLogger, InMemoryCacheService],
+  exports: [OwnershipGuard, AuditLogger, InMemoryCacheService],
 })
 export class CommonModule {}
