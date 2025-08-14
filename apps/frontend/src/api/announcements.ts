@@ -1,5 +1,5 @@
 import { api } from './client'
-import type { Announcement } from '../types/api'
+import type { Announcement, Paginated } from '../types/api'
 
 export type CreateAnnouncementInput = {
   content: string
@@ -10,8 +10,8 @@ export type CreateAnnouncementInput = {
 export type UpdateAnnouncementInput = Partial<CreateAnnouncementInput>
 
 export async function listAnnouncements(): Promise<Announcement[]> {
-  const res = await api.get<Announcement[]>('/announcements')
-  return res.data
+  const res = await api.get<Paginated<Announcement>>('/announcements')
+  return res.data.data
 }
 
 export async function createAnnouncement(input: CreateAnnouncementInput): Promise<Announcement> {

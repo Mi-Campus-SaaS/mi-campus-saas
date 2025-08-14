@@ -23,7 +23,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
-          <p className="text-sm text-gray-600 mb-4">{this.state.error?.message || 'Unknown error'}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{this.state.error?.message || 'Unknown error'}</p>
           <button className="px-3 py-1 border rounded" onClick={() => this.setState({ hasError: false, error: undefined })}>
             Retry
           </button>

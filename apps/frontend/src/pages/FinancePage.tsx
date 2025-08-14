@@ -65,7 +65,7 @@ const FinancePage: React.FC = () => {
             aria-label={t('search_student') || 'Search student'}
           />
           {showStudentList && (studentsQ.isLoading || filteredStudents.length > 0) && (
-            <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-64 overflow-auto">
+            <ul className="absolute z-10 mt-1 w-full dropdown shadow max-h-64 overflow-auto">
               {studentsQ.isLoading ? (
                 <li className="px-3 py-2"><Skeleton className="w-44 h-3" /></li>
               ) : (
@@ -73,7 +73,7 @@ const FinancePage: React.FC = () => {
                   <li key={s.id}>
                     <button
                       type="button"
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                       className="w-full text-left px-3 py-2 hover-surface"
                       onClick={() => { setStudentId(s.id); setStudentSearch(`${s.firstName} ${s.lastName}`); setShowStudentList(false); }}
                     >
                       {s.firstName} {s.lastName} — <span className="text-xs text-gray-500">{s.id}</span>
@@ -127,10 +127,10 @@ const FinancePage: React.FC = () => {
           ) : (
           <ul className="space-y-2">
             {feesQ.data?.data?.map((f: FeeInvoice) => (
-              <li key={f.id} className="border rounded p-3 flex items-center justify-between">
+              <li key={f.id} className="card p-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">${f.amount.toFixed(2)} ({f.status})</div>
-                  <div className="text-sm text-gray-600">{t('due')}: {new Date(f.dueDate).toLocaleDateString()}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{t('due')}: {new Date(f.dueDate).toLocaleDateString()}</div>
                 </div>
                 <div className="text-xs text-gray-500">{f.id}</div>
               </li>
@@ -182,10 +182,10 @@ const FinancePage: React.FC = () => {
           ) : (
           <ul className="space-y-2">
             {paymentsQ.data?.map((p: Payment) => (
-              <li key={p.id} className="border rounded p-3 flex items-center justify-between">
+              <li key={p.id} className="card p-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">${p.amount.toFixed(2)}</div>
-                  <div className="text-sm text-gray-600">{new Date(p.paidAt).toLocaleString()}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{new Date(p.paidAt).toLocaleString()}</div>
                 </div>
                 <div className="text-xs text-gray-500">{p.reference}</div>
               </li>

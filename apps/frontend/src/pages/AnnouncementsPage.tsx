@@ -105,7 +105,7 @@ const AnnouncementsPage: React.FC = () => {
 
       <ul className="space-y-3">
         {data?.map((a) => (
-          <li key={a.id} className="border rounded p-3 space-y-2">
+          <li key={a.id} className="card p-3 space-y-2">
             <div className="text-sm text-gray-600">
               {new Date(a.publishAt).toLocaleString()}
             </div>

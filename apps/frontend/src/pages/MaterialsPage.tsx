@@ -85,7 +85,7 @@ const MaterialsPage: React.FC = () => {
       )}
 
       {isError && (
-        <div className="mb-3 p-3 border rounded bg-red-50 text-red-900">
+        <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100">
           <div className="flex items-center justify-between">
             <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
             <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry') || 'Retry'}</button>
@@ -95,17 +95,17 @@ const MaterialsPage: React.FC = () => {
 
       <ul className="space-y-3">
         {data?.map((m: ClassMaterial) => (
-          <li key={m.id} className="border rounded p-3 flex items-center justify-between">
+          <li key={m.id} className="card p-3 flex items-center justify-between">
             <div>
               <div className="font-medium">{m.title}</div>
-              {m.description && <div className="text-sm text-gray-600">{m.description}</div>}
-              <div className="text-xs text-gray-500">
+              {m.description && <div className="text-sm text-gray-600 dark:text-gray-400">{m.description}</div>}
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 {(m.originalName || m.filePath)}
                 {m.size ? ` • ${(m.size / 1024).toFixed(1)} KB` : ''}
               </div>
             </div>
             <a
-              className="text-blue-600 underline"
+              className="text-blue-600 dark:text-blue-400 underline"
               href={`/files/${m.filePath.replace(/^.*uploads[\\/]/, '')}`}
               target="_blank"
               rel="noreferrer"

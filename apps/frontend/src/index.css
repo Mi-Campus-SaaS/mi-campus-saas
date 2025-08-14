@@ -1,2 +1,69 @@
 @import "tailwindcss";
-body { margin: 0; }
+
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --fg: #111827; /* gray-900 */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb; /* gray-200 */
+  --muted: #6b7280; /* gray-500 */
+  --nav-bg: rgba(255, 255, 255, 0.7);
+  --hover-bg: #f9fafb; /* gray-50 */
+}
+.dark {
+  color-scheme: dark;
+  --bg: #111827; /* gray-900 */
+  --fg: #f3f4f6; /* gray-100 */
+  --card-bg: #1f2937; /* gray-800 */
+  --card-border: #374151; /* gray-700 */
+  --muted: #9ca3af; /* gray-400 */
+  --nav-bg: rgba(17, 24, 39, 0.7); /* gray-900 with alpha */
+  --hover-bg: #1f2937; /* gray-800 */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji";
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+}
+.muted {
+  color: var(--muted);
+}
+
+/* Helpers for variable-driven theming so we don't depend on dark: media */
+.navbar {
+  background-color: var(--nav-bg);
+}
+.dropdown {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+}
+.hover-surface:hover {
+  background-color: var(--hover-bg);
+}
+.border-base {
+  border-color: var(--card-border);
+}

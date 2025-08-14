@@ -16,7 +16,7 @@ const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
   if (!['es', 'en'].includes(locale)) return <Navigate to="/es" replace />;
   return (
-    <div>
+    <div className="min-h-screen">
       <NavBar />
       <ErrorBoundary>
       <Routes>

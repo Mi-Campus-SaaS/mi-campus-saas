@@ -6,17 +6,17 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation();
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold">{t('dashboard')}</h1>
-      <div className="mt-4 grid md:grid-cols-3 gap-4">
-        <div className="border rounded p-4">
+      <h1 className="text-2xl font-semibold tracking-tight">{t('dashboard')}</h1>
+      <div className="mt-6 grid md:grid-cols-3 gap-6">
+        <div className="card p-4">
           <Skeleton className="w-32 h-4" />
           <SkeletonText lines={3} />
         </div>
-        <div className="border rounded p-4">
+        <div className="card p-4">
           <Skeleton className="w-32 h-4" />
           <SkeletonText lines={3} />
         </div>
-        <div className="border rounded p-4">
+        <div className="card p-4">
           <Skeleton className="w-32 h-4" />
           <SkeletonText lines={3} />
         </div>
