@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Student } from '../../students/entities/student.entity';
 import { Payment } from './payment.entity';
 
@@ -13,6 +13,7 @@ export class FeeInvoice {
   @Column('float')
   amount!: number;
 
+  @Index('IDX_fee_dueDate')
   @Column({ type: 'date' })
   dueDate!: string;
 

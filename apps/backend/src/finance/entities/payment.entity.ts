@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { FeeInvoice } from './fee.entity';
 
 @Entity()
@@ -15,6 +15,7 @@ export class Payment {
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   paidAt!: Date;
 
+  @Index('UQ_payment_reference', { unique: true })
   @Column({ nullable: true })
   reference?: string;
 }

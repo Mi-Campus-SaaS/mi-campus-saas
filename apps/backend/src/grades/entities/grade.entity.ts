@@ -1,8 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Student } from '../../students/entities/student.entity';
 import { ClassEntity } from '../../classes/entities/class.entity';
 
 @Entity()
+@Index('IDX_grade_student', ['student'])
+@Index('IDX_grade_class', ['classEntity'])
 export class Grade {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

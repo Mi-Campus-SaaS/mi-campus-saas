@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Index } from 'typeorm';
 import { UserRole } from '../../common/roles.enum';
 import { Student } from '../../students/entities/student.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
@@ -10,6 +10,10 @@ export class User {
 
   @Column({ unique: true })
   username!: string;
+
+  @Index('UQ_user_email', { unique: true })
+  @Column({ nullable: true })
+  email?: string;
 
   @Column()
   displayName!: string;

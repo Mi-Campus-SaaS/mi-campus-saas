@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { Student } from '../../students/entities/student.entity';
 import { ClassEntity } from './class.entity';
 
 @Entity()
+@Unique('UQ_enrollment_student_class', ['student', 'classEntity'])
 export class Enrollment {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
