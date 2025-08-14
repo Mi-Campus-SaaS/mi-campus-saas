@@ -5,6 +5,7 @@ import { ClassEntity } from './entities/class.entity';
 import { Enrollment } from './entities/enrollment.entity';
 import { Teacher } from '../teachers/entities/teacher.entity';
 import { InMemoryCacheService } from '../common/cache.service';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class ClassesService {
@@ -29,5 +30,20 @@ export class ClassesService {
       this.cache.invalidatePrefix('schedule:');
       return res;
     });
+  }
+
+  async findAll(query?: PaginationQueryDto & { grade?: string }): Promise<PaginatedResponse<ClassEntity>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 20;
+    const qb = this.classRepo.createQueryBuilder('c').leftJoinAndSelect('c.teacher', 't');
+    if (query?.grade) {
+      qb.where('c.gradeLevel = :grade', { grade: query.grade });
+    }
+    const [data, total] = await qb
+      .orderBy('c.subjectName', 'ASC')
+      .take(limit)
+      .skip((page - 1) * limit)
+      .getManyAndCount();
+    return { data, total, page, limit };
   }
 }

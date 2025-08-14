@@ -67,3 +67,30 @@ body {
 .border-base {
   border-color: var(--card-border);
 }
+
+/* Virtual list helpers */
+.vh-600 {
+  height: 600px;
+}
+.vlist-outer {
+  position: relative;
+  width: 100%;
+}
+.vlist-abs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.vlist-abs-narrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 1rem);
+}
+.vlist-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(var(--y));
+}

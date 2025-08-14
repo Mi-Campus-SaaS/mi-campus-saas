@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/LoginPage';
 import StudentsPage from './pages/StudentsPage';
+import ClassesPage from './pages/ClassesPage';
 import SchedulePage from './pages/SchedulePage';
 import FinancePage from './pages/FinancePage';
 import NavBar from './components/NavBar';
@@ -30,6 +31,7 @@ const LocaleWrapper: React.FC = () => {
         </Route>
         <Route element={<RequireRole roles={["admin", "teacher"]} />}>
           <Route path="students" element={<StudentsPage />} />
+          <Route path="classes" element={<ClassesPage />} />
           <Route path="classes/:classId/materials" element={<MaterialsPage />} />
           <Route path="classes/:classId/sessions/:sessionId/attendance" element={<AttendancePage />} />
         </Route>

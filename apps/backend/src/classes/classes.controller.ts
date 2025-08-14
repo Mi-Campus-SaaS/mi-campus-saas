@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, UseGuards, ParseUUIDPipe, Get, Query } from '@nestjs/common';
 import { ClassesService } from './classes.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
@@ -6,11 +6,18 @@ import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../common/roles.enum';
 import { CreateClassDto } from './dto/create-class.dto';
 import { ClassEntity } from './entities/class.entity';
+import { PaginationQueryDto } from '../common/dto/pagination.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('classes')
 export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
+
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Get()
+  list(@Query() query: PaginationQueryDto & { grade?: string }) {
+    return this.classesService.findAll(query);
+  }
 
   @Roles(UserRole.ADMIN)
   @Post()

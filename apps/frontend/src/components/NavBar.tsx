@@ -24,26 +24,22 @@ const NavBar: React.FC = () => {
 
   React.useEffect(() => {
     const root = document.documentElement;
-    const body = document.body;
-    const apply = () => {
+    const update = () => {
       if (isDark) {
         root.classList.add('dark');
-        body.classList.remove('dark');
         localStorage.setItem('theme', 'dark');
       } else {
         root.classList.remove('dark');
-        body.classList.remove('dark');
         localStorage.setItem('theme', 'light');
       }
     };
-    apply();
+    update();
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
       const saved = localStorage.getItem('theme');
       if (!saved) {
         setIsDark(media.matches);
-        // Ensure body/root are kept in sync even if no state change occurs
-        apply();
+        update();
       }
     };
     media.addEventListener?.('change', handler);
@@ -55,6 +51,7 @@ const NavBar: React.FC = () => {
       <ul className="flex items-center gap-4">
         <li><Link className="font-semibold" to={`/${locale}`}>{t('app_title')}</Link></li>
         <li><Link className="hover:underline" to={`/${locale}/students`}>{t('students')}</Link></li>
+        <li><Link className="hover:underline" to={`/${locale}/classes`}>{t('classes')}</Link></li>
         <li><Link className="hover:underline" to={`/${locale}/schedule`}>{t('schedule')}</Link></li>
         <li><Link className="hover:underline" to={`/${locale}/announcements`}>{t('announcements')}</Link></li>
         <li><Link className="hover:underline" to={`/${locale}/finance`}>{t('finance')}</Link></li>
