@@ -23,6 +23,10 @@ import { UploadMaterialDto } from './dto/upload-material.dto';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
+import { Throttle } from '@nestjs/throttler';
+
+const MATERIALS_LIMIT = Number(process.env.MATERIALS_THROTTLE_LIMIT ?? 20);
+const MATERIALS_TTL = Number(process.env.MATERIALS_THROTTLE_TTL_SECONDS ?? 60);
 
 @UseGuards(JwtAuthGuard, RolesGuard, OwnershipGuard)
 @Controller('classes/:id/materials')
@@ -39,6 +43,12 @@ export class MaterialsController {
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Ownership({ type: 'classParam', key: 'id' })
   @Post()
+  @Throttle({
+    default: {
+      limit: MATERIALS_LIMIT,
+      ttl: MATERIALS_TTL,
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({

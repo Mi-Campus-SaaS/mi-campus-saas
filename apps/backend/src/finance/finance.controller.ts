@@ -12,6 +12,10 @@ import { ListFeesQueryDto } from './dto/list-fees.query.dto';
 import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
+import { Throttle } from '@nestjs/throttler';
+
+const FINANCE_LIMIT = Number(process.env.FINANCE_THROTTLE_LIMIT ?? 30);
+const FINANCE_TTL = Number(process.env.FINANCE_THROTTLE_TTL_SECONDS ?? 60);
 
 @UseGuards(JwtAuthGuard, RolesGuard, OwnershipGuard)
 @Controller()
@@ -21,12 +25,24 @@ export class FinanceController {
   @Roles(UserRole.ADMIN, UserRole.PARENT)
   @Get('fees')
   @Ownership({ type: 'studentQuery', key: 'studentId' })
+  @Throttle({
+    default: {
+      limit: FINANCE_LIMIT,
+      ttl: FINANCE_TTL,
+    },
+  })
   list(@Query() query: ListFeesQueryDto & PaginationQueryDto) {
     return this.financeService.listFees(query.studentId, query);
   }
 
   @Roles(UserRole.ADMIN)
   @Post('fees')
+  @Throttle({
+    default: {
+      limit: FINANCE_LIMIT,
+      ttl: FINANCE_TTL,
+    },
+  })
   create(@Body() body: CreateFeeDto) {
     const dto: Partial<FeeInvoice> = {
       student: { id: body.studentId } as unknown as Student,
@@ -40,6 +56,12 @@ export class FinanceController {
   @Roles(UserRole.ADMIN, UserRole.PARENT)
   @Post('payments')
   @Ownership({ type: 'invoiceIdBody', key: 'invoiceId' })
+  @Throttle({
+    default: {
+      limit: FINANCE_LIMIT,
+      ttl: FINANCE_TTL,
+    },
+  })
   pay(@Body() body: RecordPaymentDto) {
     return this.financeService.recordPayment(body.invoiceId, body.amount, body.reference);
   }
@@ -47,6 +69,12 @@ export class FinanceController {
   @Roles(UserRole.ADMIN, UserRole.PARENT)
   @Get('payments')
   @Ownership({ type: 'studentQuery', key: 'studentId' })
+  @Throttle({
+    default: {
+      limit: FINANCE_LIMIT,
+      ttl: FINANCE_TTL,
+    },
+  })
   listPayments(@Query('studentId') studentId: string) {
     return this.financeService.listPaymentsForStudent(studentId);
   }
