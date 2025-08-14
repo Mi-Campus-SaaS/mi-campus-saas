@@ -1,19 +1,21 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../api/client';
+import { listStudents } from '../api/students';
 import { useTranslation } from 'react-i18next';
-import type { AxiosResponse } from 'axios';
-import type { Student } from '../types/api';
+import type { Paginated, Student } from '../types/api';
 import { Skeleton } from '../components/Skeleton';
+import { queryKeys } from '../api/queryKeys';
 
 const StudentsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { data, isLoading } = useQuery({
-    queryKey: ['students'],
-    queryFn: async (): Promise<Student[]> => {
-      const res: AxiosResponse<Student[]> = await api.get('/students');
-      return res.data;
-    },
+  const [sortBy, setSortBy] = React.useState<'lastName' | 'gpa'>('lastName');
+  const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
+  const [page, setPage] = React.useState(1);
+
+  const { data, isLoading } = useQuery<Paginated<Student>>({
+    queryKey: queryKeys.students.list({ page, sortBy, sortDir }),
+    queryFn: async () => listStudents({ page, sortBy, sortDir }),
+    placeholderData: (prev) => prev as Paginated<Student> | undefined,
   });
   const studentSkeletonKeys = React.useMemo(() => Array.from({ length: 6 }, (_, i) => `stud-sk-${i}`), []);
 
@@ -30,11 +32,32 @@ const StudentsPage: React.FC = () => {
           ))}
         </div>
       ) : (
-      <ul className="space-y-2">
-        {data?.map((s) => (
-          <li key={s.id} className="border p-3 rounded">{s.firstName} {s.lastName}</li>
-        ))}
-      </ul>
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <label className="text-sm">{t('sortBy')}</label>
+          <select aria-label={t('sortBy')} className="border rounded px-2 py-1" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}>
+            <option value="lastName">{t('lastName')}</option>
+            <option value="gpa">GPA</option>
+          </select>
+          <select aria-label={t('sortDirection')} className="border rounded px-2 py-1" value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}>
+            <option value="asc">{t('ascending')}</option>
+            <option value="desc">{t('descending')}</option>
+          </select>
+        </div>
+        <ul className="space-y-2">
+          {data?.data?.map((s: Student & { gpa?: number }) => (
+            <li key={s.id} className="border p-3 rounded flex justify-between">
+              <span>{s.firstName} {s.lastName}</span>
+              <span className="text-sm text-gray-600">GPA: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex items-center gap-3">
+          <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>{t('prev')}</button>
+          <span className="text-sm">{t('page')} {data?.page ?? page} / {Math.ceil((data?.total ?? 0) / (data?.limit ?? 20)) || 1}</span>
+          <button className="px-3 py-1 border rounded disabled:opacity-50" disabled={(data?.page ?? 1) >= Math.ceil((data?.total ?? 0) / (data?.limit ?? 20))} onClick={() => setPage((p) => p + 1)}>{t('next')}</button>
+        </div>
+      </div>
       )}
     </div>
   );

@@ -11,6 +11,12 @@ export type Student = {
   id: string;
   firstName: string;
   lastName: string;
+  gpa?: number;
 };
 
-
+export type Paginated<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+};

@@ -1,9 +1,7 @@
 import { api } from './client'
-import type { Student } from '../types/api'
+import type { Paginated, Student } from '../types/api'
 
-export async function listStudents(): Promise<Student[]> {
-  const res = await api.get<Student[]>('/students')
+export async function listStudents(params: { page?: number; limit?: number; q?: string; sortBy?: string; sortDir?: 'asc' | 'desc' }): Promise<Paginated<Student>> {
+  const res = await api.get<Paginated<Student>>('/students', { params })
   return res.data
 }
-
-

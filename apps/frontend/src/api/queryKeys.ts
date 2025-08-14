@@ -19,7 +19,8 @@ export const queryKeys = {
 
   students: {
     all: ['students'] as const,
-    list: (params: { page: number; q?: string }) => ['students', 'list', normalizeParams(params)] as const,
+    list: (params: { page: number; q?: string; sortBy?: string; sortDir?: 'asc' | 'desc' }) =>
+      ['students', 'list', normalizeParams(params)] as const,
     detail: (id: string) => ['students', 'detail', id] as const,
   },
 
