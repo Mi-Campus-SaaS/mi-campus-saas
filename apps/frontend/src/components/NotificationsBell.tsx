@@ -1,8 +1,10 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const NotificationsBell: React.FC<{ count?: number }> = ({ count = 0 }) => {
-  const label = count > 0 ? `Notifications, ${count} unread` : 'Notifications';
+  const { t } = useTranslation();
+  const label = count > 0 ? t('notifications_unread', { count }) : t('notifications');
   return (
     <button type="button" className="relative" aria-label={label} title={label}>
       <Bell size={20} aria-hidden />

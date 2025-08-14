@@ -46,6 +46,9 @@ const NavBar: React.FC = () => {
     return () => media.removeEventListener?.('change', handler);
   }, [isDark]);
 
+  const themeAria = isDark ? t('switch_to_light') : t('switch_to_dark');
+  const themeLabel = isDark ? t('light') : t('dark');
+
   return (
     <nav className="flex items-center justify-between p-3 border-b border-base navbar backdrop-blur" aria-label="Main">
       <ul className="flex items-center gap-4">
@@ -61,18 +64,18 @@ const NavBar: React.FC = () => {
         <button
           className="inline-flex items-center gap-2 px-2 py-1 rounded border border-base hover-surface"
           onClick={() => setIsDark((d) => !d)}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          title={isDark ? 'Light' : 'Dark'}
+          aria-label={themeAria}
+          title={themeLabel}
         >
           {isDark ? <Sun size={16} aria-hidden /> : <Moon size={16} aria-hidden />}
-          <span className="text-xs">{isDark ? 'Light' : 'Dark'}</span>
+          <span className="text-xs">{themeLabel}</span>
         </button>
-        <button className="px-2" onClick={() => changeLang('es')} aria-label="Switch to Spanish" title={t('spanish') || 'Spanish'}>{t('spanish')}</button>
-        <button className="px-2" onClick={() => changeLang('en')} aria-label="Switch to English" title={t('english') || 'English'}>{t('english')}</button>
+        <button className="px-2" onClick={() => changeLang('es')} aria-label={t('switch_to_spanish')} title={t('spanish')}>{t('spanish')}</button>
+        <button className="px-2" onClick={() => changeLang('en')} aria-label={t('switch_to_english')} title={t('english')}>{t('english')}</button>
         {user ? (
-          <button className="px-3 py-1 rounded border border-base hover-surface" onClick={logout} aria-label={t('logout') || 'Logout'}>{t('logout')}</button>
+          <button className="px-3 py-1 rounded border border-base hover-surface" onClick={logout} aria-label={t('logout')}>{t('logout')}</button>
         ) : (
-          <Link className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500" to={`/${locale}/login`} aria-label={t('login') || 'Login'}>{t('login')}</Link>
+          <Link className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500" to={`/${locale}/login`} aria-label={t('login')}>{t('login')}</Link>
         )}
       </div>
     </nav>

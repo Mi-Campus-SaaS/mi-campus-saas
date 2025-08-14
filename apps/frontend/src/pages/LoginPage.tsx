@@ -17,8 +17,8 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
         <h1 className="text-2xl font-semibold">{t('login')}</h1>
-        <input className="border rounded p-2 w-full" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="usuario" />
-        <input className="border rounded p-2 w-full" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="contraseña" />
+        <input className="border rounded p-2 w-full" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t('username')} aria-label={t('username')} />
+        <input className="border rounded p-2 w-full" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('password')} aria-label={t('password')} />
         <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{t('login')}</button>
       </form>
     </div>

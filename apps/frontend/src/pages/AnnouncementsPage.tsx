@@ -51,18 +51,18 @@ const AnnouncementsPage: React.FC = () => {
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm mb-1">{t('search') || 'Search'}</label>
+          <label className="block text-sm mb-1">{t('search')}</label>
           <input
             className="border rounded p-2 w-full"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('search') || 'Search'}
-            aria-label={t('search') || 'Search'}
+            placeholder={t('search')}
+            aria-label={t('search')}
           />
         </div>
         <label className="inline-flex items-center gap-2">
           <input type="checkbox" checked={showScheduled} onChange={(e) => setShowScheduled(e.target.checked)} />
-          <span>{t('show_scheduled') || 'Show scheduled'}</span>
+          <span>{t('show_scheduled')}</span>
         </label>
       </div>
 
@@ -77,28 +77,28 @@ const AnnouncementsPage: React.FC = () => {
         }}
       >
         <div className="flex-1 min-w-[240px]">
-          <label className="block text-sm mb-1">{t('content') || 'Content'}</label>
+          <label className="block text-sm mb-1">{t('content')}</label>
           <input
             className="border rounded p-2 w-full"
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
-            placeholder={t('content') || 'Content'}
-            aria-label={t('content') || 'Content'}
+            placeholder={t('content')}
+            aria-label={t('content')}
             required
           />
         </div>
         <div>
-          <label className="block text-sm mb-1">{t('publish_at') || 'Publish at'}</label>
+          <label className="block text-sm mb-1">{t('publish_at')}</label>
           <input
             type="datetime-local"
             className="border rounded p-2"
             value={newPublishAt}
             onChange={(e) => setNewPublishAt(e.target.value)}
-            aria-label={t('publish_at') || 'Publish at'}
+            aria-label={t('publish_at')}
           />
         </div>
         <button disabled={!canCreate || createMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">
-          {t('create') || 'Create'}
+          {t('create')}
         </button>
       </form>
       )}
@@ -115,22 +115,22 @@ const AnnouncementsPage: React.FC = () => {
               <button
                 className="px-3 py-1 rounded border"
                 onClick={() => {
-                  const content = prompt('Edit content', a.content) || ''
+                  const content = prompt(t('prompt_edit_content'), a.content) || ''
                   if (!content.trim()) return
-                  const publishAt = prompt('Edit publish datetime (ISO or empty)', new Date(a.publishAt).toISOString()) || ''
+                  const publishAt = prompt(t('prompt_edit_publish_at'), new Date(a.publishAt).toISOString()) || ''
                   updateMut.mutate({ id: a.id, input: { content: content.trim(), publishAt: publishAt || undefined } })
                 }}
               >
-                {t('edit') || 'Edit'}
+                 {t('edit')}
               </button>
               <button
                 className="px-3 py-1 rounded border border-red-300 text-red-700"
                 onClick={() => {
-                  if (!confirm('Delete announcement?')) return
+                  if (!confirm(t('confirm_delete_announcement'))) return
                   deleteMut.mutate(a.id)
                 }}
               >
-                {t('delete') || 'Delete'}
+                {t('delete')}
               </button>
             </div>
             )}

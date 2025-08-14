@@ -32,12 +32,12 @@ const ClassesPage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="p-6">
-        <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-between">
-          <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
-          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry') || 'Retry'}</button>
+        <div className="p-6">
+          <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-between">
+            <span className="text-sm">{t('error_loading')}</span>
+            <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry')}</button>
+          </div>
         </div>
-      </div>
     )
   }
 
@@ -47,7 +47,7 @@ const ClassesPage: React.FC = () => {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 10 }, (_, i) => (
-            <div key={`cls-sk-${i}`} className="border p-3 rounded">
+             <div key={`cls-sk-${i}`} className="border p-3 rounded">
               <Skeleton className="w-48 h-3" />
               <Skeleton className="w-36 h-3 mt-2" />
             </div>
@@ -77,7 +77,7 @@ const ClassesPage: React.FC = () => {
                       <div className="text-sm text-gray-600 dark:text-gray-400">{t('classes')} • {c.gradeLevel}</div>
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {c.teacher ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim() : t('unassigned') || 'Unassigned'}
+                      {c.teacher ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim() : t('unassigned')}
                     </div>
                   </div>
                 </div>

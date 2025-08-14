@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 type SpinnerProps = {
   size?: 'sm' | 'md' | 'lg'
@@ -12,6 +13,7 @@ const sizeToClasses: Record<NonNullable<SpinnerProps['size']>, string> = {
 }
 
 const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className }) => {
+  const { t } = useTranslation()
   return (
     <output
       className={[
@@ -21,7 +23,7 @@ const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className }) => {
       ]
         .filter(Boolean)
         .join(' ')}
-      aria-label="loading"
+      aria-label={t('loading')}
     />
   )
 }

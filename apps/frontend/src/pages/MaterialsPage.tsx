@@ -46,39 +46,39 @@ const MaterialsPage: React.FC = () => {
           }}
         >
           <div>
-            <label className="block text-sm mb-1">{t('title') || 'Title'}</label>
+            <label className="block text-sm mb-1">{t('title')}</label>
             <input
               className="border rounded p-2 w-full"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={t('title') || 'Title'}
-              aria-label={t('title') || 'Title'}
+              placeholder={t('title')}
+              aria-label={t('title')}
               required
             />
           </div>
           <div>
-            <label className="block text-sm mb-1">{t('description') || 'Description'}</label>
+            <label className="block text-sm mb-1">{t('description')}</label>
             <input
               className="border rounded p-2 w-full"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={t('description') || 'Description'}
-              aria-label={t('description') || 'Description'}
+              placeholder={t('description')}
+              aria-label={t('description')}
             />
           </div>
           <div>
-            <label className="block text-sm mb-1">{t('file') || 'File'}</label>
+            <label className="block text-sm mb-1">{t('file')}</label>
             <input
               type="file"
               className="border rounded p-2 w-full"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              aria-label={t('file') || 'File'}
+              aria-label={t('file')}
               required
             />
           </div>
           <div>
             <button disabled={!canUpload || uploadMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">
-              {t('upload') || 'Upload'}
+              {t('upload')}
             </button>
           </div>
         </form>
@@ -87,8 +87,8 @@ const MaterialsPage: React.FC = () => {
       {isError && (
         <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100">
           <div className="flex items-center justify-between">
-            <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
-            <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry') || 'Retry'}</button>
+            <span className="text-sm">{t('error_loading')}</span>
+            <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry')}</button>
           </div>
         </div>
       )}
@@ -110,7 +110,7 @@ const MaterialsPage: React.FC = () => {
               target="_blank"
               rel="noreferrer"
             >
-              {t('download') || 'Download'}
+              {t('download')}
             </a>
           </li>
         ))}

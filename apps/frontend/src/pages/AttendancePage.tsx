@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { listStudents } from '../api/students'
@@ -8,6 +9,7 @@ import { queryKeys } from '../api/queryKeys'
 
 const AttendancePage: React.FC = () => {
   const { classId = '', sessionId = '' } = useParams()
+  const { t } = useTranslation()
   const today = React.useMemo(() => new Date().toISOString().slice(0, 10), [])
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [present, setPresent] = React.useState(true)
@@ -50,39 +52,39 @@ const AttendancePage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Attendance</h1>
+      <h1 className="text-xl font-semibold mb-4">{t('attendance')}</h1>
       <div className="mb-3 flex items-center gap-2">
         <button
           className="px-3 py-1 border rounded"
           onClick={() => setSelectedIds(new Set((studentsQ.data?.data ?? []).map((s) => s.id)))}
         >
-          Select all
+          {t('select_all')}
         </button>
-        <button className="px-3 py-1 border rounded" onClick={() => setSelectedIds(new Set())}>Clear</button>
-        <select aria-label="Mark as" className="border rounded px-2 py-1" value={present ? 'present' : 'absent'} onChange={(e) => setPresent(e.target.value === 'present')}>
-          <option value="present">Present</option>
-          <option value="absent">Absent</option>
+        <button className="px-3 py-1 border rounded" onClick={() => setSelectedIds(new Set())}>{t('clear')}</button>
+        <select aria-label={t('mark_as')} className="border rounded px-2 py-1" value={present ? 'present' : 'absent'} onChange={(e) => setPresent(e.target.value === 'present')}>
+          <option value="present">{t('present')}</option>
+          <option value="absent">{t('absent')}</option>
         </select>
         <button
           className="px-3 py-1 border rounded disabled:opacity-50"
           disabled={selectedIds.size === 0 || mutation.isPending}
           onClick={bulkMark}
         >
-          {mutation.isPending ? 'Saving...' : 'Mark selected'}
+          {mutation.isPending ? t('saving') : t('mark_selected')}
         </button>
       </div>
 
       {studentsQ.isError && (
         <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
-          <span className="text-sm">Error loading students.</span>
-          <button className="px-2 py-1 border rounded" onClick={() => studentsQ.refetch()}>Retry</button>
+          <span className="text-sm">{t('error_loading')}</span>
+          <button className="px-2 py-1 border rounded" onClick={() => studentsQ.refetch()}>{t('retry')}</button>
         </div>
       )}
       <ul className="space-y-2">
         {(studentsQ.data?.data ?? []).map((s) => (
           <li key={s.id} className="border p-3 rounded flex items-center gap-3">
             <label className="flex items-center gap-3">
-              <input aria-label={`Select ${s.firstName} ${s.lastName}`} type="checkbox" checked={selectedIds.has(s.id)} onChange={() => toggleId(s.id)} />
+              <input aria-label={t('select_name', { name: `${s.firstName} ${s.lastName}` })} type="checkbox" checked={selectedIds.has(s.id)} onChange={() => toggleId(s.id)} />
               <span>
                 {s.firstName} {s.lastName}
               </span>

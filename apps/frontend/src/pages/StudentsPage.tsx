@@ -47,8 +47,8 @@ const StudentsPage: React.FC = () => {
       <h1 className="text-xl font-semibold mb-4">{t('students')}</h1>
       {isError && (
         <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-between">
-          <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
-          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry') || 'Retry'}</button>
+          <span className="text-sm">{t('error_loading')}</span>
+          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>{t('retry')}</button>
         </div>
       )}
       {isLoading ? (
@@ -66,7 +66,7 @@ const StudentsPage: React.FC = () => {
           <label className="text-sm">{t('sortBy')}</label>
           <select aria-label={t('sortBy')} className="border rounded px-2 py-1" value={sortBy} onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}>
             <option value="lastName">{t('lastName')}</option>
-            <option value="gpa">GPA</option>
+            <option value="gpa">{t('gpa')}</option>
           </select>
           <select aria-label={t('sortDirection')} className="border rounded px-2 py-1" value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}>
             <option value="asc">{t('ascending')}</option>
@@ -90,7 +90,7 @@ const StudentsPage: React.FC = () => {
               return (
                 <div key={vi.key} className="card p-3 flex justify-between m-2 vlist-abs-narrow vlist-item" style={{ ['--y']: `${vi.start}px` } as YStyle}>
                   <span>{s.firstName} {s.lastName}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">GPA: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('gpa')}: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}</span>
                 </div>
               )
             })}

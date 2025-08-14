@@ -61,8 +61,8 @@ const FinancePage: React.FC = () => {
             value={studentSearch}
             onChange={(e) => { setStudentSearch(e.target.value); setShowStudentList(true); }}
             onFocus={() => setShowStudentList(true)}
-            placeholder={t('search_student') || 'Search student...'}
-            aria-label={t('search_student') || 'Search student'}
+            placeholder={t('search_student')}
+            aria-label={t('search_student')}
           />
           {showStudentList && (studentsQ.isLoading || filteredStudents.length > 0) && (
             <ul className="absolute z-10 mt-1 w-full dropdown shadow max-h-64 overflow-auto">
@@ -76,7 +76,7 @@ const FinancePage: React.FC = () => {
                        className="w-full text-left px-3 py-2 hover-surface"
                       onClick={() => { setStudentId(s.id); setStudentSearch(`${s.firstName} ${s.lastName}`); setShowStudentList(false); }}
                     >
-                      {s.firstName} {s.lastName} — <span className="text-xs text-gray-500">{s.id}</span>
+                      <span className="mr-2">{s.firstName} {s.lastName}</span><span className="text-xs text-gray-500">{s.id}</span>
                     </button>
                   </li>
                 ))
@@ -98,11 +98,11 @@ const FinancePage: React.FC = () => {
           >
             <div>
               <label htmlFor="feeAmount" className="block text-sm mb-1">{t('amount')}</label>
-              <input id="feeAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" aria-label="Amount" />
+              <input id="feeAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={t('amount')} aria-label={t('amount')} />
             </div>
             <div>
               <label htmlFor="feeDue" className="block text-sm mb-1">{t('due_date')}</label>
-              <input id="feeDue" className="border rounded p-2 w-full" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} aria-label="Due date" />
+              <input id="feeDue" className="border rounded p-2 w-full" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} aria-label={t('due_date')} />
             </div>
             <div>
               <button disabled={!canCreate || createMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{t('create_fee')}</button>
@@ -111,8 +111,8 @@ const FinancePage: React.FC = () => {
 
           {feesQ.isError && (
             <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
-              <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
-              <button className="px-2 py-1 border rounded" onClick={() => feesQ.refetch()}>{t('retry') || 'Retry'}</button>
+              <span className="text-sm">{t('error_loading')}</span>
+              <button className="px-2 py-1 border rounded" onClick={() => feesQ.refetch()}>{t('retry')}</button>
             </div>
           )}
           {feesQ.isLoading ? (
@@ -130,7 +130,7 @@ const FinancePage: React.FC = () => {
               <li key={f.id} className="card p-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">${f.amount.toFixed(2)} ({f.status})</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{t('due')}: {new Date(f.dueDate).toLocaleDateString()}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{`${t('due')}:`} {new Date(f.dueDate).toLocaleDateString()}</div>
                 </div>
                 <div className="text-xs text-gray-500">{f.id}</div>
               </li>
@@ -149,15 +149,15 @@ const FinancePage: React.FC = () => {
           >
             <div className="md:col-span-2">
               <label htmlFor="invoiceId" className="block text-sm mb-1">{t('invoice_id')}</label>
-              <input id="invoiceId" className="border rounded p-2 w-full" value={payInvoiceId} onChange={(e) => setPayInvoiceId(e.target.value)} placeholder="Invoice ID" aria-label="Invoice ID" />
+              <input id="invoiceId" className="border rounded p-2 w-full" value={payInvoiceId} onChange={(e) => setPayInvoiceId(e.target.value)} placeholder={t('invoice_id')} aria-label={t('invoice_id')} />
             </div>
             <div>
               <label htmlFor="payAmount" className="block text-sm mb-1">{t('amount')}</label>
-              <input id="payAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Amount" aria-label="Amount" />
+              <input id="payAmount" className="border rounded p-2 w-full" type="number" min="0" step="0.01" value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder={t('amount')} aria-label={t('amount')} />
             </div>
             <div>
               <label htmlFor="payRef" className="block text-sm mb-1">{t('reference')}</label>
-              <input id="payRef" className="border rounded p-2 w-full" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Reference" aria-label="Reference" />
+              <input id="payRef" className="border rounded p-2 w-full" value={reference} onChange={(e) => setReference(e.target.value)} placeholder={t('reference')} aria-label={t('reference')} />
             </div>
             <div>
               <button disabled={!canPay || payMut.isPending} className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">{t('record_payment')}</button>
@@ -166,8 +166,8 @@ const FinancePage: React.FC = () => {
 
           {paymentsQ.isError && (
             <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
-              <span className="text-sm">{t('error_loading') || 'Error loading data.'}</span>
-              <button className="px-2 py-1 border rounded" onClick={() => paymentsQ.refetch()}>{t('retry') || 'Retry'}</button>
+              <span className="text-sm">{t('error_loading')}</span>
+              <button className="px-2 py-1 border rounded" onClick={() => paymentsQ.refetch()}>{t('retry')}</button>
             </div>
           )}
           {paymentsQ.isLoading ? (
