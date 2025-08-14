@@ -1,4 +1,5 @@
 import { api } from './client'
+import type { Paginated } from '../types/api'
 
 export type FeeInvoice = {
   id: string
@@ -15,8 +16,8 @@ export type Payment = {
   invoice: { id: string }
 }
 
-export async function listFees(studentId: string): Promise<FeeInvoice[]> {
-  const res = await api.get<FeeInvoice[]>(`/fees`, { params: { studentId } })
+export async function listFees(studentId: string): Promise<Paginated<FeeInvoice>> {
+  const res = await api.get<Paginated<FeeInvoice>>(`/fees`, { params: { studentId } })
   return res.data
 }
 

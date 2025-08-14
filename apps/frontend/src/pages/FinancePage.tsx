@@ -3,18 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFee, listFees, listPayments, recordPayment, type FeeInvoice, type Payment } from '../api/finance';
 import { listStudents } from '../api/students';
+import type { Paginated, Student } from '../types/api';
 import { queryClient } from '../queryClient';
 import { Skeleton } from '../components/Skeleton';
 
 const FinancePage: React.FC = () => {
   const { t } = useTranslation();
   const [studentId, setStudentId] = useState('');
-  const studentsQ = useQuery({ queryKey: ['students'], queryFn: listStudents, staleTime: 60_000 });
+  const studentsQ = useQuery<Paginated<Student>>({ queryKey: ['students'], queryFn: () => listStudents({ page: 1 }), staleTime: 60_000 });
   const [studentSearch, setStudentSearch] = useState('');
   const [showStudentList, setShowStudentList] = useState(false);
   const filteredStudents = useMemo(() => {
     const q = studentSearch.toLowerCase();
-    return (studentsQ.data || []).filter((s) =>
+    return (studentsQ.data?.data || []).filter((s: Student) =>
       s.firstName.toLowerCase().includes(q) || s.lastName.toLowerCase().includes(q) || s.id.toLowerCase().includes(q),
     ).slice(0, 10);
   }, [studentsQ.data, studentSearch]);
@@ -68,7 +69,7 @@ const FinancePage: React.FC = () => {
               {studentsQ.isLoading ? (
                 <li className="px-3 py-2"><Skeleton className="w-44 h-3" /></li>
               ) : (
-                filteredStudents.map((s) => (
+                 filteredStudents.map((s: Student) => (
                   <li key={s.id}>
                     <button
                       type="button"
@@ -119,7 +120,7 @@ const FinancePage: React.FC = () => {
             </div>
           ) : (
           <ul className="space-y-2">
-            {feesQ.data?.map((f: FeeInvoice) => (
+            {feesQ.data?.data?.map((f: FeeInvoice) => (
               <li key={f.id} className="border rounded p-3 flex items-center justify-between">
                 <div>
                   <div className="font-medium">${f.amount.toFixed(2)} ({f.status})</div>
