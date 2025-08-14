@@ -24,16 +24,13 @@
   },
   "lint-staged": {
     "apps/frontend/**/*.{ts,tsx,js,jsx}": [
-      "yarn --cwd apps/frontend eslint --fix",
-      "git add"
+      "yarn --cwd apps/frontend eslint --fix"
     ],
-    "apps/backend/**/*.{ts}": [
-      "yarn --cwd apps/backend eslint --fix",
-      "git add"
+    "apps/backend/**/*.ts": [
+      "yarn --cwd apps/backend eslint --fix"
     ],
     "**/*.{json,md,css,scss,html,mdx}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   }
 }

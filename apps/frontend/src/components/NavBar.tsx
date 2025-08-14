@@ -84,7 +84,7 @@ const NavBar: React.FC = () => {
         </li>
       </ul>
       <div className="flex items-center gap-3">
-        <NotificationsBell count={3} />
+        <NotificationsBell />
         <button
           className="inline-flex items-center gap-2 px-2 py-1 rounded border border-base hover-surface"
           onClick={() => setIsDark((d) => !d)}
