@@ -4,11 +4,20 @@ import type { Queue, Job } from 'bull';
 import { Announcement } from './entities/announcement.entity';
 import type { PublishAnnouncementJob } from './announcements.processor';
 
+export interface JobStatus {
+  status: string;
+  id?: string | number;
+  data?: PublishAnnouncementJob;
+  progress?: number;
+  attempts?: number;
+  timestamp?: number;
+}
+
 @Injectable()
 export class AnnouncementsQueueService {
   private readonly logger = new Logger(AnnouncementsQueueService.name);
 
-  constructor(@InjectQueue('announcements') private readonly announcementsQueue: Queue) {}
+  constructor(@InjectQueue('announcements') private readonly announcementsQueue: Queue<PublishAnnouncementJob>) {}
 
   async scheduleAnnouncement(announcement: Announcement): Promise<Job<PublishAnnouncementJob>> {
     const delay = announcement.publishAt.getTime() - Date.now();
@@ -77,7 +86,7 @@ export class AnnouncementsQueueService {
     };
   }
 
-  async getJobStatus(announcementId: string) {
+  async getJobStatus(announcementId: string): Promise<JobStatus> {
     const jobs = await this.announcementsQueue.getJobs(['waiting', 'delayed', 'active', 'completed', 'failed']);
     const job = jobs.find((j) => j.data.announcementId === announcementId);
 
@@ -89,6 +98,7 @@ export class AnnouncementsQueueService {
       id: job.id,
       status: await job.getState(),
       data: job.data,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       progress: job.progress(),
       attempts: job.attemptsMade,
       timestamp: job.timestamp,

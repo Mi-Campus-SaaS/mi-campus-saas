@@ -5,7 +5,8 @@ import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../common/roles.enum';
 import { RolesGuard } from '../common/roles.guard';
 import { CreateStudentDto } from './dto/create-student.dto';
-import { PaginationQueryDto } from '../common/dto/pagination.dto';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
+import { StudentWithGpa } from './dto/student-with-gpa.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('students')
@@ -14,7 +15,7 @@ export class StudentsController {
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Get()
-  findAll(@Query() query: PaginationQueryDto) {
+  findAll(@Query() query: PaginationQueryDto): Promise<PaginatedResponse<StudentWithGpa>> {
     return this.studentsService.findAll(query);
   }
 

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter;
 
   constructor(private readonly config: ConfigService) {
     this.transporter = nodemailer.createTransport({
@@ -17,7 +17,7 @@ export class MailService {
     });
   }
 
-  async sendMail(to: string, subject: string, text: string) {
+  async sendMail(to: string, subject: string, text: string): Promise<nodemailer.SentMessageInfo> {
     const from = this.config.get<string>('smtp.from') || 'Mi Campus <noreply@micampus.local>';
     return this.transporter.sendMail({ from, to, subject, text });
   }

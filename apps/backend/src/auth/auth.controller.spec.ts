@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../app.module';
+import type { Server } from 'http';
 
 describe('AuthController throttling (e2e-lite)', () => {
   let app: INestApplication;
@@ -21,7 +22,7 @@ describe('AuthController throttling (e2e-lite)', () => {
 
   it('limits login attempts', async () => {
     // We expect 2 allowed then 429
-    const server = app.getHttpServer();
+    const server = app.getHttpServer() as Server;
     await request(server).post('/auth/login').send({ username: 'x', password: 'y' });
     await request(server).post('/auth/login').send({ username: 'x', password: 'y' });
     const res = await request(server).post('/auth/login').send({ username: 'x', password: 'y' });
@@ -29,7 +30,7 @@ describe('AuthController throttling (e2e-lite)', () => {
   });
 
   it('limits refresh attempts', async () => {
-    const server = app.getHttpServer();
+    const server = app.getHttpServer() as Server;
     await request(server).post('/auth/refresh').send({ refresh_token: 'bad' });
     await request(server).post('/auth/refresh').send({ refresh_token: 'bad' });
     const res = await request(server).post('/auth/refresh').send({ refresh_token: 'bad' });

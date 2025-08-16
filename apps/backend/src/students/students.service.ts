@@ -3,6 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
+import { StudentWithGpa } from './dto/student-with-gpa.dto';
+
+interface RawStudentData {
+  gpa?: string | number;
+}
 
 @Injectable()
 export class StudentsService {
@@ -11,7 +16,7 @@ export class StudentsService {
     private readonly studentsRepo: Repository<Student>,
   ) {}
 
-  async findAll(query?: PaginationQueryDto): Promise<PaginatedResponse<Student & { gpa?: number }>> {
+  async findAll(query?: PaginationQueryDto): Promise<PaginatedResponse<StudentWithGpa>> {
     const page = query?.page ?? 1;
     const limit = query?.limit ?? 20;
     const q = query?.q?.trim();
@@ -45,7 +50,8 @@ export class StudentsService {
 
     const { raw, entities } = await dataQb.getRawAndEntities();
     const data = entities.map((s, idx) => {
-      const gpaRaw = raw[idx]?.gpa;
+      const rawData = raw[idx] as RawStudentData;
+      const gpaRaw = rawData?.gpa;
       const gpa = gpaRaw == null ? undefined : Number(gpaRaw);
       return { ...s, gpa };
     });

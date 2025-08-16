@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository, FindOptionsWhere } from 'typeorm';
 import { Material } from './entities/material.entity';
 import { join } from 'path';
 import { ClassEntity } from '../classes/entities/class.entity';
@@ -16,10 +16,10 @@ export class MaterialsService {
   async listForClass(classId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<Material>> {
     const page = query?.page ?? 1;
     const limit = query?.limit ?? 20;
-    const where = {
-      classEntity: { id: classId } as unknown as ClassEntity,
+    const where: FindOptionsWhere<Material> = {
+      classEntity: { id: classId } as ClassEntity,
       ...(query?.q ? { title: Like(`%${query.q}%`) } : {}),
-    } as any;
+    };
     const [rows, total] = await this.materialsRepo.findAndCount({
       where,
       order: { createdAt: (query?.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
@@ -33,7 +33,7 @@ export class MaterialsService {
     const uploadDir = process.env.UPLOAD_DIR || 'uploads';
     const relativePath = join(uploadDir, file.filename);
     const entity = this.materialsRepo.create({
-      classEntity: { id: classId } as unknown as ClassEntity,
+      classEntity: { id: classId } as ClassEntity,
       title,
       description,
       filePath: relativePath,

@@ -2,8 +2,8 @@ import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Announcement } from './entities/announcement.entity';
+import { AnnouncementsQueueService, type JobStatus } from './announcements-queue.service';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
-import { AnnouncementsQueueService } from './announcements-queue.service';
 
 @Injectable()
 export class AnnouncementsService {
@@ -83,7 +83,7 @@ export class AnnouncementsService {
     return this.queueService.getQueueMetrics();
   }
 
-  async getJobStatus(announcementId: string) {
+  async getJobStatus(announcementId: string): Promise<JobStatus> {
     if (!this.queueService) {
       return { status: 'not_available' };
     }
