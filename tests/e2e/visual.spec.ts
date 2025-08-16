@@ -46,7 +46,7 @@ test.describe('visual-regression', () => {
     await disableAnimations(page);
     
     // Wait for either the virtual list container or loading skeletons
-    const container = page.locator('.vh-600');
+    const container = page.locator('.vlist-outer');
     const skeletons = page.locator('.space-y-3');
     
     // Wait for either content to load (with longer timeout)
@@ -57,7 +57,7 @@ test.describe('visual-regression', () => {
     
     // If we have the virtual container, wait for student rows
     if (await container.isVisible()) {
-      const studentRow = page.locator('.card.p-3.flex.justify-between').first();
+      const studentRow = page.locator('.vlist-item').first();
       await studentRow.waitFor({ state: 'visible', timeout: 10000 });
       
       // Wait for virtual scrolling to stabilize
