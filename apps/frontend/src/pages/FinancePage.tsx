@@ -7,6 +7,7 @@ import type { Paginated, Student } from '../types/api';
 import { queryClient } from '../queryClient';
 import { Skeleton } from '../components/Skeleton';
 import { createFeeSchema, recordPaymentSchema } from '../validation/schemas';
+import { DollarSign } from 'lucide-react';
 
 const FinancePage: React.FC = () => {
   const { t } = useTranslation();
@@ -86,63 +87,80 @@ const FinancePage: React.FC = () => {
     invoiceId?: string;
     amount?: string;
   }>({});
+
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-xl font-semibold">{t('finance')}</h1>
+      <div className="flex items-center gap-2 mb-6">
+        <DollarSign className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+        <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+          {t('finance')}
+        </h1>
+      </div>
 
-      <div className="flex items-end gap-3 relative max-w-lg">
-        <div className="w-full">
-          <label htmlFor="studentSearch" className="block text-sm mb-1">
-            {t('student')}
-          </label>
-          <input
-            id="studentSearch"
-            className="border rounded p-2 w-full"
-            value={studentSearch}
-            onChange={(e) => {
-              setStudentSearch(e.target.value);
-              setShowStudentList(true);
-            }}
-            onFocus={() => setShowStudentList(true)}
-            placeholder={t('search_student')}
-            aria-label={t('search_student')}
-          />
-          {showStudentList && (studentsQ.isLoading || filteredStudents.length > 0) && (
-            <ul className="absolute z-10 mt-1 w-full dropdown shadow max-h-64 overflow-auto">
-              {studentsQ.isLoading ? (
-                <li className="px-3 py-2">
-                  <Skeleton className="w-44 h-3" />
-                </li>
-              ) : (
-                filteredStudents.map((s: Student) => (
-                  <li key={s.id}>
-                    <button
-                      type="button"
-                      className="w-full text-left px-3 py-2 hover-surface"
-                      onClick={() => {
-                        setStudentId(s.id);
-                        setStudentSearch(`${s.firstName} ${s.lastName}`);
-                        setShowStudentList(false);
-                      }}
-                    >
-                      <span className="mr-2">
-                        {s.firstName} {s.lastName}
-                      </span>
-                      <span className="text-xs text-gray-500">{s.id}</span>
-                    </button>
+      <div className="card rounded-lg shadow-sm p-4">
+        <div className="flex items-end gap-3 relative max-w-lg">
+          <div className="w-full">
+            <label htmlFor="studentSearch" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              {t('student')}
+            </label>
+            <input
+              id="studentSearch"
+              className="border rounded p-2 w-full"
+              style={{
+                borderColor: 'var(--card-border)',
+                backgroundColor: 'var(--card-bg)',
+                color: 'var(--fg)',
+              }}
+              value={studentSearch}
+              onChange={(e) => {
+                setStudentSearch(e.target.value);
+                setShowStudentList(true);
+              }}
+              onFocus={() => setShowStudentList(true)}
+              placeholder={t('search_student')}
+              aria-label={t('search_student')}
+            />
+            {showStudentList && (studentsQ.isLoading || filteredStudents.length > 0) && (
+              <ul className="absolute z-10 mt-1 w-full dropdown shadow-lg max-h-64 overflow-auto">
+                {studentsQ.isLoading ? (
+                  <li className="px-3 py-2">
+                    <Skeleton className="w-44 h-3" />
                   </li>
-                ))
-              )}
-            </ul>
-          )}
+                ) : (
+                  filteredStudents.map((s: Student) => (
+                    <li key={s.id}>
+                      <button
+                        type="button"
+                        className="w-full text-left px-3 py-2 hover-surface"
+                        onClick={() => {
+                          setStudentId(s.id);
+                          setStudentSearch(`${s.firstName} ${s.lastName}`);
+                          setShowStudentList(false);
+                        }}
+                      >
+                        <span className="mr-2" style={{ color: 'var(--fg)' }}>
+                          {s.firstName} {s.lastName}
+                        </span>
+                        <span className="text-xs" style={{ color: 'var(--muted)' }}>
+                          {s.id}
+                        </span>
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="font-semibold mb-2">{t('fees')}</h2>
+        <div className="card rounded-lg shadow-sm p-4">
+          <h2 className="font-semibold mb-4" style={{ color: 'var(--fg)' }}>
+            {t('fees')}
+          </h2>
           <form
-            className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-3"
+            className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-4"
             onSubmit={(e) => {
               e.preventDefault();
               const parse = createFeeSchema
@@ -177,12 +195,17 @@ const FinancePage: React.FC = () => {
             }}
           >
             <div>
-              <label htmlFor="feeAmount" className="block text-sm mb-1">
+              <label htmlFor="feeAmount" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
                 {t('amount')}
               </label>
               <input
                 id="feeAmount"
                 className="border rounded p-2 w-full"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
                 type="number"
                 min="0"
                 step="0.01"
@@ -191,26 +214,31 @@ const FinancePage: React.FC = () => {
                 placeholder={t('amount')}
                 aria-label={t('amount')}
               />
-              {feeErrors.amount && <div className="text-xs text-red-600">{feeErrors.amount}</div>}
+              {feeErrors.amount && <div className="text-xs text-red-600 dark:text-red-400">{feeErrors.amount}</div>}
             </div>
             <div>
-              <label htmlFor="feeDue" className="block text-sm mb-1">
+              <label htmlFor="feeDue" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
                 {t('due_date')}
               </label>
               <input
                 id="feeDue"
                 className="border rounded p-2 w-full"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 aria-label={t('due_date')}
               />
-              {feeErrors.dueDate && <div className="text-xs text-red-600">{feeErrors.dueDate}</div>}
+              {feeErrors.dueDate && <div className="text-xs text-red-600 dark:text-red-400">{feeErrors.dueDate}</div>}
             </div>
             <div>
               <button
                 disabled={!canCreate || createMut.isPending}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
               >
                 {t('create_fee')}
@@ -219,9 +247,12 @@ const FinancePage: React.FC = () => {
           </form>
 
           {feesQ.isError && (
-            <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
+            <div className="mb-3 p-3 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 flex items-center justify-between">
               <span className="text-sm">{t('error_loading')}</span>
-              <button className="px-2 py-1 border rounded" onClick={() => feesQ.refetch()}>
+              <button
+                className="px-2 py-1 border border-red-300 dark:border-red-600 rounded text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                onClick={() => feesQ.refetch()}
+              >
                 {t('retry')}
               </button>
             </div>
@@ -229,7 +260,7 @@ const FinancePage: React.FC = () => {
           {feesQ.isLoading ? (
             <div className="space-y-3">
               {['a', 'b', 'c'].map((k) => (
-                <div key={`fees-sk-${k}`} className="border rounded p-3">
+                <div key={`fees-sk-${k}`} className="border rounded p-3" style={{ borderColor: 'var(--card-border)' }}>
                   <Skeleton className="w-40 h-3" />
                   <Skeleton className="w-32 h-3 mt-2" />
                 </div>
@@ -238,25 +269,37 @@ const FinancePage: React.FC = () => {
           ) : (
             <ul className="space-y-2">
               {feesQ.data?.data?.map((f: FeeInvoice) => (
-                <li key={f.id} className="card p-3 flex items-center justify-between">
+                <li
+                  key={f.id}
+                  className="border rounded p-3 flex items-center justify-between"
+                  style={{
+                    borderColor: 'var(--card-border)',
+                    backgroundColor: 'var(--hover-bg)',
+                  }}
+                >
                   <div>
-                    <div className="font-medium">
+                    <div className="font-medium" style={{ color: 'var(--fg)' }}>
                       ${f.amount.toFixed(2)} ({f.status})
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm" style={{ color: 'var(--muted)' }}>
                       {`${t('due')}:`} {new Date(f.dueDate).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500">{f.id}</div>
+                  <div className="text-xs" style={{ color: 'var(--muted)' }}>
+                    {f.id}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <div>
-          <h2 className="font-semibold mb-2">{t('payments')}</h2>
+
+        <div className="card rounded-lg shadow-sm p-4">
+          <h2 className="font-semibold mb-4" style={{ color: 'var(--fg)' }}>
+            {t('payments')}
+          </h2>
           <form
-            className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end mb-3"
+            className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end mb-4"
             onSubmit={(e) => {
               e.preventDefault();
               const parsed = recordPaymentSchema.safeParse({
@@ -278,26 +321,38 @@ const FinancePage: React.FC = () => {
             }}
           >
             <div className="md:col-span-2">
-              <label htmlFor="invoiceId" className="block text-sm mb-1">
+              <label htmlFor="invoiceId" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
                 {t('invoice_id')}
               </label>
               <input
                 id="invoiceId"
                 className="border rounded p-2 w-full"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
                 value={payInvoiceId}
                 onChange={(e) => setPayInvoiceId(e.target.value)}
                 placeholder={t('invoice_id')}
                 aria-label={t('invoice_id')}
               />
-              {payErrors.invoiceId && <div className="text-xs text-red-600">{payErrors.invoiceId}</div>}
+              {payErrors.invoiceId && (
+                <div className="text-xs text-red-600 dark:text-red-400">{payErrors.invoiceId}</div>
+              )}
             </div>
             <div>
-              <label htmlFor="payAmount" className="block text-sm mb-1">
+              <label htmlFor="payAmount" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
                 {t('amount')}
               </label>
               <input
                 id="payAmount"
                 className="border rounded p-2 w-full"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
                 type="number"
                 min="0"
                 step="0.01"
@@ -306,15 +361,20 @@ const FinancePage: React.FC = () => {
                 placeholder={t('amount')}
                 aria-label={t('amount')}
               />
-              {payErrors.amount && <div className="text-xs text-red-600">{payErrors.amount}</div>}
+              {payErrors.amount && <div className="text-xs text-red-600 dark:text-red-400">{payErrors.amount}</div>}
             </div>
             <div>
-              <label htmlFor="payRef" className="block text-sm mb-1">
+              <label htmlFor="payRef" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
                 {t('reference')}
               </label>
               <input
                 id="payRef"
                 className="border rounded p-2 w-full"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
                 placeholder={t('reference')}
@@ -324,7 +384,7 @@ const FinancePage: React.FC = () => {
             <div>
               <button
                 disabled={!canPay || payMut.isPending}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
               >
                 {t('record_payment')}
@@ -333,9 +393,12 @@ const FinancePage: React.FC = () => {
           </form>
 
           {paymentsQ.isError && (
-            <div className="mb-3 p-3 border rounded bg-red-50 text-red-900 flex items-center justify-between">
+            <div className="mb-3 p-3 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 flex items-center justify-between">
               <span className="text-sm">{t('error_loading')}</span>
-              <button className="px-2 py-1 border rounded" onClick={() => paymentsQ.refetch()}>
+              <button
+                className="px-2 py-1 border border-red-300 dark:border-red-600 rounded text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+                onClick={() => paymentsQ.refetch()}
+              >
                 {t('retry')}
               </button>
             </div>
@@ -343,7 +406,7 @@ const FinancePage: React.FC = () => {
           {paymentsQ.isLoading ? (
             <div className="space-y-3">
               {['a', 'b', 'c'].map((k) => (
-                <div key={`pay-sk-${k}`} className="border rounded p-3">
+                <div key={`pay-sk-${k}`} className="border rounded p-3" style={{ borderColor: 'var(--card-border)' }}>
                   <Skeleton className="w-30 h-3" />
                   <Skeleton className="w-40 h-3 mt-2" />
                 </div>
@@ -352,14 +415,25 @@ const FinancePage: React.FC = () => {
           ) : (
             <ul className="space-y-2">
               {paymentsQ.data?.map((p: Payment) => (
-                <li key={p.id} className="card p-3 flex items-center justify-between">
+                <li
+                  key={p.id}
+                  className="border rounded p-3 flex items-center justify-between"
+                  style={{
+                    borderColor: 'var(--card-border)',
+                    backgroundColor: 'var(--hover-bg)',
+                  }}
+                >
                   <div>
-                    <div className="font-medium">${p.amount.toFixed(2)}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="font-medium" style={{ color: 'var(--fg)' }}>
+                      ${p.amount.toFixed(2)}
+                    </div>
+                    <div className="text-sm" style={{ color: 'var(--muted)' }}>
                       {new Date(p.paidAt).toLocaleString()}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500">{p.reference}</div>
+                  <div className="text-xs" style={{ color: 'var(--muted)' }}>
+                    {p.reference}
+                  </div>
                 </li>
               ))}
             </ul>

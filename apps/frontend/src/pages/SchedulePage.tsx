@@ -51,8 +51,10 @@ const SchedulePage: React.FC = () => {
     return (
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-6 h-6" />
-          <h1 className="text-xl font-semibold dark:text-white">{t('schedule')}</h1>
+          <Calendar className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+            {t('schedule')}
+          </h1>
         </div>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
@@ -70,8 +72,10 @@ const SchedulePage: React.FC = () => {
     return (
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-6 h-6" />
-          <h1 className="text-xl font-semibold dark:text-white">{t('schedule')}</h1>
+          <Calendar className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+            {t('schedule')}
+          </h1>
         </div>
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
@@ -88,8 +92,10 @@ const SchedulePage: React.FC = () => {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Calendar className="w-6 h-6" />
-          <h1 className="text-xl font-semibold dark:text-white">{t('schedule')}</h1>
+          <Calendar className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+            {t('schedule')}
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           {isOnline ? (
@@ -106,9 +112,9 @@ const SchedulePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+      <div className="card rounded-lg shadow-sm">
+        <div className="p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
+          <div className="flex items-center gap-2" style={{ color: 'var(--muted)' }}>
             <Clock className="w-4 h-4" />
             <span className="text-sm font-medium">{t('todays_schedule')}</span>
           </div>
@@ -120,17 +126,22 @@ const SchedulePage: React.FC = () => {
                 data.map((item: ScheduleItem) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    style={{ backgroundColor: 'var(--hover-bg)' }}
                   >
                     <div className="flex-shrink-0 w-20 text-center">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{formatTime(item.time)}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-sm font-medium" style={{ color: 'var(--fg)' }}>
+                        {formatTime(item.time)}
+                      </div>
+                      <div className="text-xs" style={{ color: 'var(--muted)' }}>
                         {item.duration} {t('minutes')}
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">{item.subject}</div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="font-medium" style={{ color: 'var(--fg)' }}>
+                        {item.subject}
+                      </div>
+                      <div className="flex items-center gap-4 mt-1 text-sm" style={{ color: 'var(--muted)' }}>
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />
                           <span>{item.teacher}</span>
@@ -144,14 +155,14 @@ const SchedulePage: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div className="text-center py-8" style={{ color: 'var(--muted)' }}>
                   <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
                   <p>{t('no_classes_today')}</p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8" style={{ color: 'var(--muted)' }}>
               <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
               <p>{t('no_schedule_data')}</p>
             </div>

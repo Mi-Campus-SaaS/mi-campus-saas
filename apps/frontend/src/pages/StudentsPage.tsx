@@ -7,7 +7,7 @@ import type { Student } from '../types/api';
 import { Skeleton } from '../components/Skeleton';
 import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { queryKeys } from '../api/queryKeys';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Users } from 'lucide-react';
 
 const StudentsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -38,8 +38,13 @@ const StudentsPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold dark:text-white">{t('students')}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Users className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+            {t('students')}
+          </h1>
+        </div>
         <FeatureGate feature="students.create">
           <FeatureButton
             feature="students.create"
@@ -53,47 +58,66 @@ const StudentsPage: React.FC = () => {
       </div>
 
       {isError && (
-        <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-between">
-          <span className="text-sm">{t('error_loading')}</span>
-          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>
-            {t('retry')}
-          </button>
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-red-700 dark:text-red-400">{t('error_loading')}</span>
+            <button
+              className="px-3 py-1 border border-red-300 dark:border-red-600 rounded text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+              onClick={() => refetch()}
+            >
+              {t('retry')}
+            </button>
+          </div>
         </div>
       )}
 
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 12 }, (_, i) => (
-            <div key={`stud-sk-${i}`} className="border p-3 rounded">
+            <div key={`stud-sk-${i}`} className="card rounded-lg shadow-sm p-4">
               <Skeleton className="w-48 h-3" />
               <Skeleton className="w-36 h-3 mt-2" />
             </div>
           ))}
         </div>
       ) : (
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <label className="text-sm dark:text-gray-300">{t('sortBy')}</label>
-            <select
-              aria-label={t('sortBy')}
-              className="border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}
-            >
-              <option value="lastName">{t('lastName')}</option>
-              <option value="gpa">{t('gpa')}</option>
-            </select>
-            <select
-              aria-label={t('sortDirection')}
-              className="border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              value={sortDir}
-              onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
-            >
-              <option value="asc">{t('ascending')}</option>
-              <option value="desc">{t('descending')}</option>
-            </select>
+        <div className="card rounded-lg shadow-sm">
+          <div className="p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
+            <div className="flex items-center gap-3">
+              <label className="text-sm" style={{ color: 'var(--muted)' }}>
+                {t('sortBy')}
+              </label>
+              <select
+                aria-label={t('sortBy')}
+                className="border rounded px-3 py-1"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}
+              >
+                <option value="lastName">{t('lastName')}</option>
+                <option value="gpa">{t('gpa')}</option>
+              </select>
+              <select
+                aria-label={t('sortDirection')}
+                className="border rounded px-3 py-1"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
+              >
+                <option value="asc">{t('ascending')}</option>
+                <option value="desc">{t('descending')}</option>
+              </select>
+            </div>
           </div>
-          <div ref={containerRef} className="relative border rounded vh-600 overflow-auto dark:border-gray-600">
+          <div ref={containerRef} className="relative overflow-auto max-h-96">
             <div className="vlist-outer" style={{ height: rowVirtualizer.getTotalSize() } as React.CSSProperties}>
               {rowVirtualizer.getVirtualItems().map((vi) => {
                 if (vi.index > flatRows.length - 1) {
@@ -101,7 +125,7 @@ const StudentsPage: React.FC = () => {
                   return (
                     <div
                       key={vi.key}
-                      className="p-3 flex items-center justify-center vlist-abs vlist-item"
+                      className="p-4 flex items-center justify-center vlist-abs vlist-item"
                       style={{ ['--y']: `${vi.start}px` } as YStyle}
                     >
                       <Skeleton className="w-32 h-4" />
@@ -112,14 +136,20 @@ const StudentsPage: React.FC = () => {
                 return (
                   <div
                     key={vi.key}
-                    className="card p-3 flex justify-between items-center m-2 vlist-abs-narrow vlist-item dark:bg-gray-800 dark:border-gray-700"
-                    style={{ ['--y']: `${vi.start}px` } as YStyle}
+                    className="p-4 flex justify-between items-center border-b vlist-abs-narrow vlist-item transition-colors"
+                    style={
+                      {
+                        ['--y']: `${vi.start}px`,
+                        borderColor: 'var(--card-border)',
+                        backgroundColor: 'var(--hover-bg)',
+                      } as YStyle
+                    }
                   >
                     <div className="flex-1">
-                      <span className="dark:text-white">
+                      <span className="font-medium" style={{ color: 'var(--fg)' }}>
                         {s.firstName} {s.lastName}
                       </span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400 ml-4">
+                      <span className="text-sm ml-4" style={{ color: 'var(--muted)' }}>
                         {t('gpa')}: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}
                       </span>
                     </div>

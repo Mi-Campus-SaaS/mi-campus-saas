@@ -7,7 +7,7 @@ import { queryClient } from '../queryClient';
 
 import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { createAnnouncementSchema } from '../validation/schemas';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Megaphone } from 'lucide-react';
 
 const AnnouncementsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -55,9 +55,14 @@ const AnnouncementsPage: React.FC = () => {
   const canCreate = useMemo(() => newContent.trim().length > 0, [newContent]);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold dark:text-white">{t('announcements')}</h1>
+        <div className="flex items-center gap-2">
+          <Megaphone className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+            {t('announcements')}
+          </h1>
+        </div>
         <FeatureGate feature="announcements.create">
           <FeatureButton
             feature="announcements.create"
@@ -70,94 +75,126 @@ const AnnouncementsPage: React.FC = () => {
         </FeatureGate>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm mb-1 dark:text-gray-300">{t('search')}</label>
-          <input
-            className="border rounded p-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('search')}
-            aria-label={t('search')}
-          />
+      <div className="card rounded-lg shadow-sm p-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              {t('search')}
+            </label>
+            <input
+              className="border rounded p-2 w-full"
+              style={{
+                borderColor: 'var(--card-border)',
+                backgroundColor: 'var(--card-bg)',
+                color: 'var(--fg)',
+              }}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('search')}
+              aria-label={t('search')}
+            />
+          </div>
+          <label className="inline-flex items-center gap-2" style={{ color: 'var(--muted)' }}>
+            <input
+              type="checkbox"
+              checked={showScheduled}
+              onChange={(e) => setShowScheduled(e.target.checked)}
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                borderColor: 'var(--card-border)',
+              }}
+            />
+            <span>{t('show_scheduled')}</span>
+          </label>
         </div>
-        <label className="inline-flex items-center gap-2 dark:text-gray-300">
-          <input
-            type="checkbox"
-            checked={showScheduled}
-            onChange={(e) => setShowScheduled(e.target.checked)}
-            className="dark:bg-gray-700 dark:border-gray-600"
-          />
-          <span>{t('show_scheduled')}</span>
-        </label>
       </div>
 
       <FeatureGate feature="announcements.create">
-        <form
-          className="flex flex-wrap items-end gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const result = createAnnouncementSchema.safeParse({
-              content: newContent,
-              publishAt: newPublishAt || undefined,
-            });
-            if (!result.success) {
-              const fieldErrors: { content?: string; publishAt?: string } = {};
-              for (const issue of result.error.issues) {
-                if (issue.path[0] === 'content') fieldErrors.content = t(issue.message);
-                if (issue.path[0] === 'publishAt') fieldErrors.publishAt = t(issue.message);
+        <div className="card rounded-lg shadow-sm p-4">
+          <form
+            className="flex flex-wrap items-end gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const result = createAnnouncementSchema.safeParse({
+                content: newContent,
+                publishAt: newPublishAt || undefined,
+              });
+              if (!result.success) {
+                const fieldErrors: { content?: string; publishAt?: string } = {};
+                for (const issue of result.error.issues) {
+                  if (issue.path[0] === 'content') fieldErrors.content = t(issue.message);
+                  if (issue.path[0] === 'publishAt') fieldErrors.publishAt = t(issue.message);
+                }
+                setErrors(fieldErrors);
+                return;
               }
-              setErrors(fieldErrors);
-              return;
-            }
-            setErrors({});
-            createMut.mutate({
-              content: newContent.trim(),
-              publishAt: newPublishAt || undefined,
-            });
-            setNewContent('');
-            setNewPublishAt('');
-          }}
-        >
-          <div className="flex-1 min-w-[240px]">
-            <label className="block text-sm mb-1 dark:text-gray-300">{t('content')}</label>
-            <input
-              className="border rounded p-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              value={newContent}
-              onChange={(e) => setNewContent(e.target.value)}
-              placeholder={t('content')}
-              aria-label={t('content')}
-              required
-            />
-            {errors.content && <div className="text-xs text-red-600 dark:text-red-400">{errors.content}</div>}
-          </div>
-          <div>
-            <label className="block text-sm mb-1 dark:text-gray-300">{t('publish_at')}</label>
-            <input
-              type="datetime-local"
-              className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              value={newPublishAt}
-              onChange={(e) => setNewPublishAt(e.target.value)}
-              placeholder={t('publish_at')}
-              aria-label={t('publish_at')}
-            />
-            {errors.publishAt && <div className="text-xs text-red-600 dark:text-red-400">{errors.publishAt}</div>}
-          </div>
-          <button
-            disabled={!canCreate || createMut.isPending}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            type="submit"
+              setErrors({});
+              createMut.mutate({
+                content: newContent.trim(),
+                publishAt: newPublishAt || undefined,
+              });
+              setNewContent('');
+              setNewPublishAt('');
+            }}
           >
-            {t('create')}
-          </button>
-        </form>
+            <div className="flex-1 min-w-[240px]">
+              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+                {t('content')}
+              </label>
+              <input
+                className="border rounded p-2 w-full"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                placeholder={t('content')}
+                aria-label={t('content')}
+                required
+              />
+              {errors.content && <div className="text-xs text-red-600 dark:text-red-400">{errors.content}</div>}
+            </div>
+            <div>
+              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+                {t('publish_at')}
+              </label>
+              <input
+                type="datetime-local"
+                className="border rounded p-2"
+                style={{
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--fg)',
+                }}
+                value={newPublishAt}
+                onChange={(e) => setNewPublishAt(e.target.value)}
+                placeholder={t('publish_at')}
+                aria-label={t('publish_at')}
+              />
+              {errors.publishAt && <div className="text-xs text-red-600 dark:text-red-400">{errors.publishAt}</div>}
+            </div>
+            <button
+              disabled={!canCreate || createMut.isPending}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+            >
+              {t('create')}
+            </button>
+          </form>
+        </div>
       </FeatureGate>
 
-      <ul className="space-y-3">
+      <div className="space-y-3">
         {data?.map((a) => (
-          <li key={a.id} className="card p-3 space-y-2 dark:bg-gray-800 dark:border-gray-700">
-            <div className="text-sm text-gray-600 dark:text-gray-400">{new Date(a.publishAt).toLocaleString()}</div>
-            <div className="font-medium dark:text-white">{a.content}</div>
+          <div key={a.id} className="card rounded-lg shadow-sm p-4 space-y-2">
+            <div className="text-sm" style={{ color: 'var(--muted)' }}>
+              {new Date(a.publishAt).toLocaleString()}
+            </div>
+            <div className="font-medium" style={{ color: 'var(--fg)' }}>
+              {a.content}
+            </div>
             <div className="flex gap-2">
               <FeatureGate feature="announcements.edit">
                 <FeatureButton
@@ -198,9 +235,9 @@ const AnnouncementsPage: React.FC = () => {
                 </FeatureButton>
               </FeatureGate>
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

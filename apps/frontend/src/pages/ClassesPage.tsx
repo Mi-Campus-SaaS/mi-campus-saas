@@ -5,6 +5,7 @@ import { listClasses, type ClassItem } from '../api/classes';
 import { Skeleton } from '../components/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 
 const ClassesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -35,11 +36,22 @@ const ClassesPage: React.FC = () => {
   if (isError) {
     return (
       <div className="p-6">
-        <div className="mb-3 p-3 card bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-between">
-          <span className="text-sm">{t('error_loading')}</span>
-          <button className="px-2 py-1 border rounded" onClick={() => refetch()}>
-            {t('retry')}
-          </button>
+        <div className="flex items-center gap-2 mb-6">
+          <BookOpen className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+            {t('classes')}
+          </h1>
+        </div>
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-red-700 dark:text-red-400">{t('error_loading')}</span>
+            <button
+              className="px-3 py-1 border border-red-300 dark:border-red-600 rounded text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
+              onClick={() => refetch()}
+            >
+              {t('retry')}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -47,62 +59,79 @@ const ClassesPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">{t('classes')}</h1>
+      <div className="flex items-center gap-2 mb-6">
+        <BookOpen className="w-6 h-6" style={{ color: 'var(--fg)' }} />
+        <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+          {t('classes')}
+        </h1>
+      </div>
+
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 10 }, (_, i) => (
-            <div key={`cls-sk-${i}`} className="border p-3 rounded">
+            <div key={`cls-sk-${i}`} className="card rounded-lg shadow-sm p-4">
               <Skeleton className="w-48 h-3" />
               <Skeleton className="w-36 h-3 mt-2" />
             </div>
           ))}
         </div>
       ) : (
-        <div ref={containerRef} className="relative border rounded vh-600 overflow-auto">
-          {/* Remaining inline height/var needed for performance */}
-          <div className="vlist-outer" style={{ height: rowVirtualizer.getTotalSize() }}>
-            {rowVirtualizer.getVirtualItems().map((vi) => {
-              if (vi.index > flatRows.length - 1) {
-                if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
-                const loaderStyle: CSSVarStyle = { ['--y']: `${vi.start}px` };
+        <div className="card rounded-lg shadow-sm">
+          <div ref={containerRef} className="relative overflow-auto max-h-96">
+            <div className="vlist-outer" style={{ height: rowVirtualizer.getTotalSize() } as React.CSSProperties}>
+              {rowVirtualizer.getVirtualItems().map((vi) => {
+                if (vi.index > flatRows.length - 1) {
+                  if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+                  const loaderStyle: CSSVarStyle = { ['--y']: `${vi.start}px` };
+                  return (
+                    <div
+                      key={vi.key}
+                      className="p-4 flex items-center justify-center vlist-abs vlist-item"
+                      style={loaderStyle}
+                    >
+                      <Skeleton className="w-32 h-4" />
+                    </div>
+                  );
+                }
+                const c = flatRows[vi.index];
+                const yStyle: CSSVarStyle = { ['--y']: `${vi.start}px` };
                 return (
                   <div
                     key={vi.key}
-                    className="p-3 flex items-center justify-center vlist-abs vlist-item"
-                    style={loaderStyle}
+                    className="p-4 border-b vlist-abs-narrow vlist-item transition-colors"
+                    style={{
+                      ...yStyle,
+                      borderColor: 'var(--card-border)',
+                      backgroundColor: 'var(--hover-bg)',
+                    }}
                   >
-                    <Skeleton className="w-32 h-4" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium" style={{ color: 'var(--fg)' }}>
+                          {c.subjectName}
+                        </div>
+                        <div className="text-sm" style={{ color: 'var(--muted)' }}>
+                          {t('classes')} • {c.gradeLevel}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-sm" style={{ color: 'var(--muted)' }}>
+                          {c.teacher
+                            ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim()
+                            : t('unassigned')}
+                        </div>
+                        <Link
+                          className="text-blue-600 dark:text-blue-400 underline text-sm hover:text-blue-700 dark:hover:text-blue-300"
+                          to={`/${locale}/classes/${c.id}/materials`}
+                        >
+                          {t('materials')}
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 );
-              }
-              const c = flatRows[vi.index];
-              const yStyle: CSSVarStyle = { ['--y']: `${vi.start}px` };
-              return (
-                <div key={vi.key} className="card p-3 m-2 vlist-abs-narrow vlist-item" style={yStyle}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{c.subjectName}</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {t('classes')} • {c.gradeLevel}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {c.teacher
-                          ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim()
-                          : t('unassigned')}
-                      </div>
-                      <Link
-                        className="text-blue-600 dark:text-blue-400 underline text-sm"
-                        to={`/${locale}/classes/${c.id}/materials`}
-                      >
-                        {t('materials')}
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+              })}
+            </div>
           </div>
         </div>
       )}
