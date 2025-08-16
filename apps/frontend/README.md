@@ -6,7 +6,7 @@ Dev commands:
 
 Environment:
 
-- VITE_API_URL (defaults to http://localhost:3000/api)
+- VITE_API_URL (defaults to <http://localhost:3000/api>)
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

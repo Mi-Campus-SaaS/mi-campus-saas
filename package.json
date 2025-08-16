@@ -17,7 +17,7 @@
     "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint",
     "format": "yarn --cwd apps/frontend format && yarn --cwd apps/backend format",
     "budgets:bundle": "yarn --cwd apps/frontend build && size-limit",
-    "budgets:perf": "yarn --cwd apps/frontend build && node tools/perf/lhci-run.cjs",
+    "budgets:perf": "node tools/perf/lhci-run.cjs",
     "ci:budgets": "yarn budgets:bundle && yarn budgets:perf",
     "ci:visual": "yarn test:visual",
     "prepare": "husky"

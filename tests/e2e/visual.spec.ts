@@ -44,9 +44,18 @@ test.describe('visual-regression', () => {
     await page.goto('/es/students');
     await page.waitForLoadState('networkidle');
     await disableAnimations(page);
-    // Ensure at least one student row is rendered before snapshot
-    const possibleRow = page.getByText(/Pedro|Estudiantes|Students/i);
-    await possibleRow.first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    
+    // Wait for the virtual list container to be stable
+    const container = page.locator('.vh-600');
+    await container.waitFor({ state: 'visible', timeout: 10000 });
+    
+    // Wait for at least one student row to be rendered
+    const studentRow = page.locator('.card.p-3.flex.justify-between').first();
+    await studentRow.waitFor({ state: 'visible', timeout: 10000 });
+    
+    // Wait a bit more for virtual scrolling to stabilize
+    await page.waitForTimeout(1000);
+    
     await expect(page).toHaveScreenshot('students.png', {
       animations: 'disabled',
       fullPage: true,
