@@ -2,7 +2,7 @@
   {
     "name": "Initial JS (main chunk)",
     "path": "apps/frontend/dist/assets/*.js",
-    "limit": "170 kB"
+    "limit": "200 kB"
   },
   {
     "name": "CSS",

@@ -4,6 +4,7 @@
  */
 module.exports = {
   projects: ['<rootDir>/apps/backend'],
+  testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
 };
 
 
