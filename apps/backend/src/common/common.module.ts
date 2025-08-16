@@ -1,4 +1,5 @@
 import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OwnershipGuard } from './ownership.guard';
 import { AuditLogger } from './audit.logger';
@@ -16,7 +17,7 @@ import { HttpCacheService } from './http-cache.service';
 import { CacheInterceptor } from './cache.interceptor';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent])],
+  imports: [ConfigModule, TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent])],
   providers: [
     OwnershipGuard,
     AuditLogger,

@@ -11,7 +11,6 @@ module.exports = {
       {
         tsconfig: '<rootDir>/tsconfig.spec.json',
         diagnostics: false,
-        isolatedModules: true,
       },
     ],
   },

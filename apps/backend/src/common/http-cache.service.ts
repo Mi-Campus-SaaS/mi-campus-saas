@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { createHash } from 'crypto';
+import { InMemoryCacheService } from './cache.service';
+import { ConfigService } from '@nestjs/config';
 
 export interface CacheMetadata {
   etag: string;
@@ -16,7 +18,13 @@ export interface CacheOptions {
 
 @Injectable()
 export class HttpCacheService {
-  private readonly defaultMaxAge = 300; // 5 minutes
+  private readonly defaultMaxAge: number;
+  constructor(
+    private readonly cache: InMemoryCacheService,
+    private readonly config: ConfigService,
+  ) {
+    this.defaultMaxAge = Number(this.config.get<number>('httpCacheTtlSeconds')) || 300;
+  }
 
   /**
    * Generate ETag from data content
@@ -125,6 +133,22 @@ export class HttpCacheService {
     const shouldReturn304 = generateEtag && this.isNotModified(req, etag, lastModified);
 
     return { shouldReturn304, metadata };
+  }
+
+  /**
+   * Server-side response cache helpers
+   */
+  getCachedResponse<T>(key: string): T | undefined {
+    return this.cache.get<T>(key);
+  }
+
+  setCachedResponse<T>(key: string, value: T, ttlSeconds?: number): void {
+    const ttlMs = (ttlSeconds ?? this.defaultMaxAge) * 1000;
+    this.cache.set<T>(key, value, ttlMs);
+  }
+
+  invalidateByPrefix(prefix: string): void {
+    this.cache.invalidatePrefix(prefix);
   }
 
   /**

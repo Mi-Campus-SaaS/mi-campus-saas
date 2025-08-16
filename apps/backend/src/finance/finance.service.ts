@@ -6,6 +6,7 @@ import { Payment } from './entities/payment.entity';
 import { Student } from '../students/entities/student.entity';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 import { AuditLogger } from '../common/audit.logger';
+import { HttpCacheService } from '../common/http-cache.service';
 
 @Injectable()
 export class FinanceService {
@@ -13,6 +14,7 @@ export class FinanceService {
     @InjectRepository(FeeInvoice) private readonly feeRepo: Repository<FeeInvoice>,
     @InjectRepository(Payment) private readonly paymentRepo: Repository<Payment>,
     private readonly audit: AuditLogger,
+    private readonly httpCache: HttpCacheService,
   ) {}
 
   async listFees(studentId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<FeeInvoice>> {
@@ -40,6 +42,7 @@ export class FinanceService {
         amount: saved.amount,
         dueDate: String(saved.dueDate),
       });
+      this.httpCache.invalidateByPrefix('http-cache:fees');
       return saved;
     });
   }
@@ -49,6 +52,7 @@ export class FinanceService {
     return this.paymentRepo.save(p).then(async (res) => {
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
       this.audit.log({ type: 'finance.record_payment', invoiceId, amount });
+      this.httpCache.invalidateByPrefix('http-cache:fees');
       return res;
     });
   }

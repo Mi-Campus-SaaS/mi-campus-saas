@@ -11,6 +11,7 @@ export interface AppConfig {
   jwtRefreshSecret: string;
   jwtRefreshExpiresIn: string;
   uploadDir: string;
+  httpCacheTtlSeconds: number;
   cors: {
     allowlist: string;
     allowServerToServer: boolean;
@@ -48,6 +49,7 @@ const configSchema = Joi.object({
     .pattern(/^\d+[mhd]$/)
     .default('7d'),
   UPLOAD_DIR: Joi.string().default('uploads'),
+  HTTP_CACHE_TTL_SECONDS: Joi.number().integer().min(1).max(86400).default(300),
   OTEL_ENABLED: Joi.boolean().default(true),
   OTEL_EXPORTER_OTLP_ENDPOINT: Joi.string().uri().default('http://localhost:4318/v1/traces'),
   OTEL_SERVICE_NAME: Joi.string().default('mi-campus-backend'),
@@ -87,6 +89,7 @@ interface ValidatedConfig {
   SMTP_FROM: string;
   CORS_ALLOWLIST?: string;
   CORS_ALLOW_SERVER_TO_SERVER?: boolean;
+  HTTP_CACHE_TTL_SECONDS: number;
 }
 
 export const loadConfiguration = (): AppConfig => {
@@ -115,6 +118,7 @@ export const loadConfiguration = (): AppConfig => {
     jwtRefreshSecret: validatedConfig.JWT_REFRESH_SECRET,
     jwtRefreshExpiresIn: validatedConfig.JWT_REFRESH_EXPIRES_IN,
     uploadDir: validatedConfig.UPLOAD_DIR,
+    httpCacheTtlSeconds: validatedConfig.HTTP_CACHE_TTL_SECONDS,
     otel: {
       enabled: validatedConfig.OTEL_ENABLED,
       endpoint: validatedConfig.OTEL_EXPORTER_OTLP_ENDPOINT,

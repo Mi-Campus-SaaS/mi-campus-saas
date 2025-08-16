@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 import { StudentWithGpa } from './dto/student-with-gpa.dto';
+import { HttpCacheService } from '../common/http-cache.service';
 
 interface RawStudentData {
   gpa?: string | number;
@@ -14,6 +15,7 @@ export class StudentsService {
   constructor(
     @InjectRepository(Student)
     private readonly studentsRepo: Repository<Student>,
+    private readonly httpCache: HttpCacheService,
   ) {}
 
   async findAll(query?: PaginationQueryDto): Promise<PaginatedResponse<StudentWithGpa>> {
@@ -61,6 +63,9 @@ export class StudentsService {
 
   create(data: Partial<Student>) {
     const s = this.studentsRepo.create(data);
-    return this.studentsRepo.save(s);
+    return this.studentsRepo.save(s).then((saved) => {
+      this.httpCache.invalidateByPrefix('http-cache:students');
+      return saved;
+    });
   }
 }

@@ -4,12 +4,14 @@ import { Like, Repository } from 'typeorm';
 import { Announcement } from './entities/announcement.entity';
 import { AnnouncementsQueueService, type JobStatus } from './announcements-queue.service';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
+import { HttpCacheService } from '../common/http-cache.service';
 
 @Injectable()
 export class AnnouncementsService {
   constructor(
     @InjectRepository(Announcement)
     private readonly announcementsRepo: Repository<Announcement>,
+    private readonly httpCache: HttpCacheService,
     @Optional() private readonly queueService?: AnnouncementsQueueService,
   ) {}
 
@@ -22,6 +24,8 @@ export class AnnouncementsService {
       await this.queueService.scheduleAnnouncement(saved);
     }
 
+    // Invalidate list caches
+    this.httpCache.invalidateByPrefix('http-cache:announcements');
     return saved;
   }
 
@@ -58,6 +62,8 @@ export class AnnouncementsService {
       }
     }
 
+    // Invalidate list caches
+    this.httpCache.invalidateByPrefix('http-cache:announcements');
     return updated;
   }
 
@@ -67,6 +73,7 @@ export class AnnouncementsService {
       await this.queueService.cancelScheduledAnnouncement(id);
     }
     await this.announcementsRepo.softRemove(existing);
+    this.httpCache.invalidateByPrefix('http-cache:announcements');
   }
 
   async getQueueMetrics() {

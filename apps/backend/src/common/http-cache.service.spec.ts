@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpCacheService } from './http-cache.service';
 import { Request, Response } from 'express';
+import { InMemoryCacheService } from './cache.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('HttpCacheService', () => {
   let service: HttpCacheService;
@@ -9,7 +11,14 @@ describe('HttpCacheService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [HttpCacheService],
+      providers: [
+        HttpCacheService,
+        InMemoryCacheService,
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn((key: string) => (key === 'httpCacheTtlSeconds' ? 300 : undefined)) },
+        },
+      ],
     }).compile();
 
     service = module.get<HttpCacheService>(HttpCacheService);

@@ -1,6 +1,6 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
 import { Reflector } from '@nestjs/core';
 import { HttpCacheService, CacheOptions } from './http-cache.service';
@@ -46,23 +46,45 @@ export class CacheInterceptor implements NestInterceptor {
       return next.handle();
     }
 
+    // Try server-side cache first
+    const endpointKey = `${request.originalUrl.split('?')[0]}`;
+    const paramsKey = request.query as Record<string, any>;
+    const cacheKey = this.httpCacheService.createCacheKey(endpointKey, paramsKey);
+
+    const cached = this.httpCacheService.getCachedResponse<unknown>(cacheKey);
+    if (cached !== undefined) {
+      const { shouldReturn304 } = this.httpCacheService.handleConditionalRequest(
+        request,
+        response,
+        cached as unknown,
+        cacheOptions,
+      );
+      if (shouldReturn304) {
+        this.httpCacheService.sendNotModified(response);
+        return of(undefined);
+      }
+
+      return of(cached).pipe(
+        tap((data) => {
+          // set headers for cached response
+          this.httpCacheService.handleConditionalRequest(request, response, data as unknown, cacheOptions);
+        }),
+      );
+    }
+
     return next.handle().pipe(
       map((data) => {
-        // Handle conditional request
         const { shouldReturn304 } = this.httpCacheService.handleConditionalRequest(
           request,
           response,
           data,
           cacheOptions,
         );
-
-        // If client cache is valid, send 304
         if (shouldReturn304) {
           this.httpCacheService.sendNotModified(response);
-          return; // Response will be sent as 304
+          return undefined;
         }
-
-        // Return data normally with cache headers set
+        this.httpCacheService.setCachedResponse(cacheKey, data, cacheOptions?.maxAge);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return data;
       }),
