@@ -16,16 +16,16 @@ export class Announcement {
   @ManyToOne(() => ClassEntity, { nullable: true })
   classEntity?: ClassEntity | null; // null = whole school
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 
   // When the announcement becomes visible
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
   publishAt!: Date;
 
-  @UpdateDateColumn({ type: 'datetime', nullable: true })
+  @UpdateDateColumn({ nullable: true })
   updatedAt?: Date | null;
 
-  @DeleteDateColumn({ type: 'datetime', nullable: true })
+  @DeleteDateColumn({ nullable: true })
   deletedAt?: Date | null;
 }

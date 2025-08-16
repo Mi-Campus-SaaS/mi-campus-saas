@@ -12,6 +12,6 @@ export class GpaSnapshot {
   @Column('float')
   gpa!: number;
 
-  @Column({ type: 'datetime' })
+  @Column()
   computedAt!: Date;
 }

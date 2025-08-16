@@ -26,7 +26,7 @@ export class RefreshToken {
   @Column({ type: 'varchar', length: 36, nullable: true })
   replacedByTokenId?: string | null;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn()
   createdAt!: Date;
 
   @Column({ type: 'varchar', length: 45, nullable: true })

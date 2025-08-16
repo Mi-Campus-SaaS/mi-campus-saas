@@ -34,6 +34,6 @@ export class Material {
   @Column({ type: 'int', nullable: true })
   size?: number;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
 }

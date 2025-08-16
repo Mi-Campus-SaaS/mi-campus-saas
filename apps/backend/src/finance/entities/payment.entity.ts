@@ -12,7 +12,7 @@ export class Payment {
   @Column('float')
   amount!: number;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
   paidAt!: Date;
 
   @Index('UQ_payment_reference', { unique: true })
