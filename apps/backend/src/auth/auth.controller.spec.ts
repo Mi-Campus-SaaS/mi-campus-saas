@@ -8,16 +8,39 @@ describe('AuthController throttling (e2e-lite)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    // Ensure required environment variables are set for testing
+    if (!process.env.JWT_SECRET) {
+      process.env.JWT_SECRET = 'test-jwt-secret-that-is-long-enough-for-validation-32-chars';
+    }
+    if (!process.env.JWT_REFRESH_SECRET) {
+      process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-that-is-long-enough-for-validation-32-chars';
+    }
+    if (!process.env.NODE_ENV) {
+      process.env.NODE_ENV = 'test';
+    }
+    if (!process.env.DATABASE_PATH) {
+      process.env.DATABASE_PATH = ':memory:';
+    }
+    if (!process.env.SMTP_USER) {
+      process.env.SMTP_USER = 'test-user';
+    }
+    if (!process.env.SMTP_PASS) {
+      process.env.SMTP_PASS = 'test-password';
+    }
+
+    // Override throttle settings for this specific test
     process.env.AUTH_THROTTLE_LIMIT = '2';
     process.env.AUTH_THROTTLE_TTL_SECONDS = '60';
+
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     await app.init();
-    // no-op
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it('limits login attempts', async () => {
