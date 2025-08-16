@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from './common/http-exception.filter';
 import helmet from 'helmet';
 import { initializeTracing } from './telemetry/tracing';
 import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,7 +29,7 @@ async function bootstrap() {
         useDefaults: true,
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
           imgSrc: ["'self'", 'data:', 'blob:'],
           connectSrc: ["'self'", ...allowedOrigins],
@@ -47,26 +48,49 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-      // Allow server-to-server or tools without an origin only if explicitly configured with '*'
-      if (!origin) {
-        if (allowedOrigins.includes('*')) {
-          callback(null, true);
-        } else {
-          callback(new Error('CORS: Origin not allowed'));
-        }
-        return;
-      }
-      const isAllowed = allowedOrigins.includes(origin);
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        callback(new Error('CORS: Origin not allowed'));
-      }
-    },
+    origin: true, // Allow all origins for development
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
   app.setGlobalPrefix('api');
+
+  // OpenAPI/Swagger documentation
+  const config = new DocumentBuilder()
+    .setTitle('MI Campus API')
+    .setDescription('API documentation for MI Campus management system')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('auth', 'Authentication endpoints')
+    .addTag('users', 'User management')
+    .addTag('students', 'Student management')
+    .addTag('teachers', 'Teacher management')
+    .addTag('grades', 'Grade management')
+    .addTag('attendance', 'Attendance tracking')
+    .addTag('materials', 'Educational materials')
+    .addTag('announcements', 'Announcements')
+    .addTag('finance', 'Financial management')
+    .addTag('schedule', 'Schedule management')
+    .addTag('classes', 'Class management')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customSiteTitle: 'MI Campus API Documentation',
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -82,6 +106,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();
