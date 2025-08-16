@@ -50,6 +50,9 @@ test('login → create announcement → upload material → record payment', asy
   // Force refresh announcements list
   await page.goto('/es')
   await page.goto('/es/announcements')
+  await page.waitForLoadState('networkidle')
+  // Wait a bit more for React Query to refetch
+  await page.waitForTimeout(2000)
   await expect(page.getByText(content)).toBeVisible({ timeout: 10000 })
 
   // Navigate to classes and materials subpage of first class

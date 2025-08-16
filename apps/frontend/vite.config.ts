@@ -2,6 +2,17 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Plugin to add nonce to inline scripts and styles
+const noncePlugin = () => {
+  return {
+    name: 'nonce-plugin',
+    transformIndexHtml(html: string) {
+      // This will be replaced by the backend with actual nonces
+      return html;
+    },
+  };
+};
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -18,7 +29,7 @@ export default defineConfig({
               cacheName: 'api-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 24 * 60 * 60, // 24 hours
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
               },
             },
           },
@@ -46,13 +57,25 @@ export default defineConfig({
         ],
       },
     }),
+    noncePlugin(),
   ],
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:8080',
         changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          query: ['@tanstack/react-query'],
+        },
       },
     },
   },

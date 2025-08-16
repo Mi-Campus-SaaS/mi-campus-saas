@@ -16,28 +16,9 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     initializeTracing(configService);
   }
-  // CORS allowlist from env (comma-separated). Fallback to FRONTEND_URL for backward compatibility
-  const allowlistEnv = process.env.CORS_ALLOWLIST || process.env.FRONTEND_URL || 'http://localhost:5173';
-  const allowedOrigins = allowlistEnv
-    .split(',')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-
+  // Configure Helmet with basic security headers (CSP is handled by CspMiddleware)
   app.use(
     helmet({
-      contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-          styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'blob:'],
-          connectSrc: ["'self'", ...allowedOrigins],
-          objectSrc: ["'none'"],
-          baseUri: ["'self'"],
-          frameAncestors: ["'self'"],
-        },
-      },
       crossOriginEmbedderPolicy: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
       referrerPolicy: { policy: 'no-referrer' },

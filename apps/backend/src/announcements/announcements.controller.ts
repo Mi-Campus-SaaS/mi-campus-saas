@@ -8,11 +8,11 @@ import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { ClassEntity } from '../classes/entities/class.entity';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('announcements')
 export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Post()
   create(@Body() body: CreateAnnouncementDto) {
@@ -28,6 +28,7 @@ export class AnnouncementsController {
     return this.announcementsService.list(query);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: UpdateAnnouncementDto) {
@@ -38,6 +39,7 @@ export class AnnouncementsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Delete(':id')
   async remove(@Param('id') id: string) {
@@ -45,18 +47,21 @@ export class AnnouncementsController {
     return { status: 'ok' };
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get('queue/metrics')
   getQueueMetrics() {
     return this.announcementsService.getQueueMetrics();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @Get(':id/queue/status')
   getJobStatus(@Param('id') id: string) {
     return this.announcementsService.getJobStatus(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Delete('queue/completed')
   async clearCompletedJobs() {
@@ -64,6 +69,7 @@ export class AnnouncementsController {
     return { cleared: count };
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Delete('queue/failed')
   async clearFailedJobs() {

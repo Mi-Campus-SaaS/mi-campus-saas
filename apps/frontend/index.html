@@ -5,17 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React + TS</title>
-    <script>
+    <script nonce="__NONCE__">
       (() => {
         try {
-          const saved = localStorage.getItem("theme");
-          const prefersDark =
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
-          const isDark = saved ? saved === "dark" : prefersDark;
+          const saved = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = saved ? saved === 'dark' : prefersDark;
           const root = document.documentElement;
-          if (isDark) root.classList.add("dark");
-          else root.classList.remove("dark");
+          if (isDark) root.classList.add('dark');
+          else root.classList.remove('dark');
         } catch {}
       })();
     </script>
