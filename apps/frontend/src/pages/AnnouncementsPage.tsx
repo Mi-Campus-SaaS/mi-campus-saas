@@ -4,12 +4,13 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createAnnouncement, deleteAnnouncement, listAnnouncements, updateAnnouncement } from '../api/announcements';
 import type { Announcement } from '../types/api';
 import { queryClient } from '../queryClient';
-import { useAuth } from '../auth/useAuth';
+
+import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { createAnnouncementSchema } from '../validation/schemas';
+import { Plus, Edit, Trash2 } from 'lucide-react';
 
 const AnnouncementsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const [showScheduled, setShowScheduled] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -52,28 +53,46 @@ const AnnouncementsPage: React.FC = () => {
   }>({});
 
   const canCreate = useMemo(() => newContent.trim().length > 0, [newContent]);
+
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">{t('announcements')}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold dark:text-white">{t('announcements')}</h1>
+        <FeatureGate feature="announcements.create">
+          <FeatureButton
+            feature="announcements.create"
+            onClick={() => console.log('Create announcement')}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {t('create')}
+          </FeatureButton>
+        </FeatureGate>
+      </div>
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm mb-1">{t('search')}</label>
+          <label className="block text-sm mb-1 dark:text-gray-300">{t('search')}</label>
           <input
-            className="border rounded p-2 w-full"
+            className="border rounded p-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('search')}
             aria-label={t('search')}
           />
         </div>
-        <label className="inline-flex items-center gap-2">
-          <input type="checkbox" checked={showScheduled} onChange={(e) => setShowScheduled(e.target.checked)} />
+        <label className="inline-flex items-center gap-2 dark:text-gray-300">
+          <input
+            type="checkbox"
+            checked={showScheduled}
+            onChange={(e) => setShowScheduled(e.target.checked)}
+            className="dark:bg-gray-700 dark:border-gray-600"
+          />
           <span>{t('show_scheduled')}</span>
         </label>
       </div>
 
-      {user && (user.role === 'admin' || user.role === 'teacher') && (
+      <FeatureGate feature="announcements.create">
         <form
           className="flex flex-wrap items-end gap-3"
           onSubmit={(e) => {
@@ -101,48 +120,48 @@ const AnnouncementsPage: React.FC = () => {
           }}
         >
           <div className="flex-1 min-w-[240px]">
-            <label className="block text-sm mb-1">{t('content')}</label>
+            <label className="block text-sm mb-1 dark:text-gray-300">{t('content')}</label>
             <input
-              className="border rounded p-2 w-full"
+              className="border rounded p-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
               placeholder={t('content')}
               aria-label={t('content')}
               required
             />
-            {errors.content && <div className="text-xs text-red-600">{errors.content}</div>}
+            {errors.content && <div className="text-xs text-red-600 dark:text-red-400">{errors.content}</div>}
           </div>
           <div>
-            <label className="block text-sm mb-1">{t('publish_at')}</label>
+            <label className="block text-sm mb-1 dark:text-gray-300">{t('publish_at')}</label>
             <input
               type="datetime-local"
-              className="border rounded p-2"
+              className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               value={newPublishAt}
               onChange={(e) => setNewPublishAt(e.target.value)}
               placeholder={t('publish_at')}
               aria-label={t('publish_at')}
             />
-            {errors.publishAt && <div className="text-xs text-red-600">{errors.publishAt}</div>}
+            {errors.publishAt && <div className="text-xs text-red-600 dark:text-red-400">{errors.publishAt}</div>}
           </div>
           <button
             disabled={!canCreate || createMut.isPending}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
           >
             {t('create')}
           </button>
         </form>
-      )}
+      </FeatureGate>
 
       <ul className="space-y-3">
         {data?.map((a) => (
-          <li key={a.id} className="card p-3 space-y-2">
-            <div className="text-sm text-gray-600">{new Date(a.publishAt).toLocaleString()}</div>
-            <div className="font-medium">{a.content}</div>
-            {user && (user.role === 'admin' || user.role === 'teacher') && (
-              <div className="flex gap-2">
-                <button
-                  className="px-3 py-1 rounded border"
+          <li key={a.id} className="card p-3 space-y-2 dark:bg-gray-800 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-400">{new Date(a.publishAt).toLocaleString()}</div>
+            <div className="font-medium dark:text-white">{a.content}</div>
+            <div className="flex gap-2">
+              <FeatureGate feature="announcements.edit">
+                <FeatureButton
+                  feature="announcements.edit"
                   onClick={() => {
                     const content = prompt(t('prompt_edit_content'), a.content) || '';
                     if (!content.trim()) return;
@@ -155,20 +174,30 @@ const AnnouncementsPage: React.FC = () => {
                       },
                     });
                   }}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
                 >
+                  <Edit className="w-3 h-3" />
                   {t('edit')}
-                </button>
-                <button
-                  className="px-3 py-1 rounded border border-red-300 text-red-700"
+                </FeatureButton>
+              </FeatureGate>
+              <FeatureGate feature="announcements.delete">
+                <FeatureButton
+                  feature="announcements.delete"
                   onClick={() => {
                     if (!confirm(t('confirm_delete_announcement'))) return;
                     deleteMut.mutate(a.id);
                   }}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
+                  <Trash2 className="w-3 h-3" />
                   {t('delete')}
-                </button>
-              </div>
-            )}
+                </FeatureButton>
+              </FeatureGate>
+            </div>
           </li>
         ))}
       </ul>

@@ -80,5 +80,10 @@
   "offline_cached_data": "Estás sin conexión. Mostrando datos en caché si están disponibles.",
   "install": "Instalar",
   "pwa_install_hint": "Agregar a la pantalla de inicio para acceso rápido",
-  "minutes": "min"
+  "minutes": "min",
+  "feature_flag_demo": "Demo del Sistema de Banderas de Características",
+  "current_user": "Usuario actual",
+  "available_features": "Características disponibles",
+  "test": "Probar",
+  "available_features_list": "Lista de Características Disponibles"
 }

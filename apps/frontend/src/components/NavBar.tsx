@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
+
+import { FeatureGate } from './FeatureGate';
 import NotificationsBell from './NotificationsBell';
 import { Sun, Moon } from 'lucide-react';
 
@@ -57,34 +59,46 @@ const NavBar: React.FC = () => {
             {t('app_title')}
           </Link>
         </li>
-        <li>
-          <Link className="hover:underline" to={`/${locale}/students`}>
-            {t('students')}
-          </Link>
-        </li>
-        <li>
-          <Link className="hover:underline" to={`/${locale}/classes`}>
-            {t('classes')}
-          </Link>
-        </li>
-        <li>
-          <Link className="hover:underline" to={`/${locale}/schedule`}>
-            {t('schedule')}
-          </Link>
-        </li>
-        <li>
-          <Link className="hover:underline" to={`/${locale}/announcements`}>
-            {t('announcements')}
-          </Link>
-        </li>
-        <li>
-          <Link className="hover:underline" to={`/${locale}/finance`}>
-            {t('finance')}
-          </Link>
-        </li>
+        <FeatureGate feature="students.view">
+          <li>
+            <Link className="hover:underline" to={`/${locale}/students`}>
+              {t('students')}
+            </Link>
+          </li>
+        </FeatureGate>
+        <FeatureGate feature="classes.view">
+          <li>
+            <Link className="hover:underline" to={`/${locale}/classes`}>
+              {t('classes')}
+            </Link>
+          </li>
+        </FeatureGate>
+        <FeatureGate feature="schedule.view">
+          <li>
+            <Link className="hover:underline" to={`/${locale}/schedule`}>
+              {t('schedule')}
+            </Link>
+          </li>
+        </FeatureGate>
+        <FeatureGate feature="announcements.view">
+          <li>
+            <Link className="hover:underline" to={`/${locale}/announcements`}>
+              {t('announcements')}
+            </Link>
+          </li>
+        </FeatureGate>
+        <FeatureGate feature="finance.view">
+          <li>
+            <Link className="hover:underline" to={`/${locale}/finance`}>
+              {t('finance')}
+            </Link>
+          </li>
+        </FeatureGate>
       </ul>
       <div className="flex items-center gap-3">
-        <NotificationsBell />
+        <FeatureGate feature="announcements.view">
+          <NotificationsBell />
+        </FeatureGate>
         <button
           className="inline-flex items-center gap-2 px-2 py-1 rounded border border-base hover-surface"
           onClick={() => setIsDark((d) => !d)}

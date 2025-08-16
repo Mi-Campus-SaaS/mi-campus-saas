@@ -83,5 +83,10 @@
   "offline_cached_data": "You're offline. Showing cached data if available.",
   "install": "Install",
   "pwa_install_hint": "Add to home screen for quick access",
-  "minutes": "min"
+  "minutes": "min",
+  "feature_flag_demo": "Feature Flag System Demo",
+  "current_user": "Current user",
+  "available_features": "Available features",
+  "test": "Test",
+  "available_features_list": "Available Features List"
 }
