@@ -34,7 +34,7 @@ export class LoggingMiddleware implements NestMiddleware {
       'http.method': req.method,
       'http.url': req.originalUrl,
       'http.user_agent': req.get('User-Agent'),
-      'http.client_ip': req.ip || req.connection.remoteAddress,
+      'http.client_ip': req.ip || req.socket.remoteAddress,
     });
 
     const startedAt = Date.now();

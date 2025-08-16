@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { initializeTracing } from './telemetry/tracing';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CorsService } from './common/cors.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,12 +29,17 @@ async function bootstrap() {
       hidePoweredBy: true,
     }),
   );
-  app.enableCors({
-    origin: true, // Allow all origins for development
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+  // Configure CORS with refined policy
+  const configService = app.get(ConfigService);
+  const corsService = app.get(CorsService);
+
+  if (configService.get<string>('nodeEnv') === 'development') {
+    // More permissive CORS for development
+    app.enableCors(corsService.createDevelopmentCorsOptions());
+  } else {
+    // Production CORS with allowlist and server-to-server support
+    app.enableCors(corsService.createCorsOptions());
+  }
   app.setGlobalPrefix('api');
 
   // OpenAPI/Swagger documentation

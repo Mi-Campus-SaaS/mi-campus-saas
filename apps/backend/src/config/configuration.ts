@@ -11,6 +11,10 @@ export interface AppConfig {
   jwtRefreshSecret: string;
   jwtRefreshExpiresIn: string;
   uploadDir: string;
+  cors: {
+    allowlist: string;
+    allowServerToServer: boolean;
+  };
   otel: {
     enabled: boolean;
     endpoint: string;
@@ -54,7 +58,8 @@ const configSchema = Joi.object({
   SMTP_USER: Joi.string().optional(),
   SMTP_PASS: Joi.string().optional(),
   SMTP_FROM: Joi.string().email().default('Mi Campus <noreply@micampus.local>'),
-  CORS_ALLOWLIST: Joi.string().optional(),
+  CORS_ALLOWLIST: Joi.string().default('http://localhost:5173,http://localhost:8080'),
+  CORS_ALLOW_SERVER_TO_SERVER: Joi.boolean().default(false),
   AUTH_THROTTLE_LIMIT: Joi.number().integer().min(1).max(100).default(5),
   AUTH_THROTTLE_TTL_SECONDS: Joi.number().integer().min(1).max(3600).default(60),
 });
@@ -80,6 +85,8 @@ interface ValidatedConfig {
   SMTP_USER?: string;
   SMTP_PASS?: string;
   SMTP_FROM: string;
+  CORS_ALLOWLIST?: string;
+  CORS_ALLOW_SERVER_TO_SERVER?: boolean;
 }
 
 export const loadConfiguration = (): AppConfig => {
@@ -113,6 +120,10 @@ export const loadConfiguration = (): AppConfig => {
       endpoint: validatedConfig.OTEL_EXPORTER_OTLP_ENDPOINT,
       serviceName: validatedConfig.OTEL_SERVICE_NAME,
       serviceVersion: validatedConfig.OTEL_SERVICE_VERSION,
+    },
+    cors: {
+      allowlist: validatedConfig.CORS_ALLOWLIST || 'http://localhost:5173,http://localhost:8080',
+      allowServerToServer: validatedConfig.CORS_ALLOW_SERVER_TO_SERVER || false,
     },
     smtp: {
       host: validatedConfig.SMTP_HOST,
