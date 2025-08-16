@@ -14,10 +14,10 @@ export class RefreshToken {
   @Column({ length: 64 })
   tokenHash!: string;
 
-  @Column('datetime')
+  @Column({ type: 'date' })
   expiresAt!: Date;
 
-  @Column('datetime', { nullable: true })
+  @Column({ type: 'date', nullable: true })
   revokedAt?: Date | null;
 
   @Column({ type: 'text', nullable: true })
