@@ -23,7 +23,9 @@ const config: PlaywrightTestConfig = {
     command: 'yarn dev',
     url: 'http://localhost:5173',
     timeout: 180_000,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true, // Always reuse existing server to avoid port conflicts
+    stderr: 'pipe',
+    stdout: 'pipe',
   },
   reporter: [['list']]
 };
