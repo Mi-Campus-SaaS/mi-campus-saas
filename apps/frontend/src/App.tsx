@@ -12,6 +12,7 @@ import { RequireRole } from './auth/RequireRole';
 import MaterialsPage from './pages/MaterialsPage';
 import AttendancePage from './pages/AttendancePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
@@ -40,6 +41,7 @@ const LocaleWrapper: React.FC = () => {
           </Route>
         </Routes>
       </ErrorBoundary>
+      <PWAInstallPrompt />
     </div>
   );
 };

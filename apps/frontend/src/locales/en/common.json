@@ -71,5 +71,17 @@
   "password": "Password",
   "prompt_edit_content": "Edit content",
   "prompt_edit_publish_at": "Edit publish datetime (ISO or empty)",
-  "confirm_delete_announcement": "Delete announcement?"
+  "confirm_delete_announcement": "Delete announcement?",
+  "offline": "Offline",
+  "online": "Online",
+  "offline_mode": "Offline Mode",
+  "offline_hint": "You're viewing cached schedule data. Some features may be limited.",
+  "todays_schedule": "Today's Schedule",
+  "no_classes_today": "No classes scheduled for today",
+  "no_schedule_data": "No schedule data available",
+  "failed_to_load_schedule": "Failed to load schedule",
+  "offline_cached_data": "You're offline. Showing cached data if available.",
+  "install": "Install",
+  "pwa_install_hint": "Add to home screen for quick access",
+  "minutes": "min"
 }

@@ -68,5 +68,17 @@
   "mark_selected": "Marcar seleccionados",
   "select_name": "Seleccionar {{name}}",
   "username": "Usuario",
-  "password": "Contraseña"
+  "password": "Contraseña",
+  "offline": "Sin conexión",
+  "online": "En línea",
+  "offline_mode": "Modo sin conexión",
+  "offline_hint": "Estás viendo datos del horario en caché. Algunas funciones pueden estar limitadas.",
+  "todays_schedule": "Horario de hoy",
+  "no_classes_today": "No hay clases programadas para hoy",
+  "no_schedule_data": "No hay datos de horario disponibles",
+  "failed_to_load_schedule": "Error al cargar el horario",
+  "offline_cached_data": "Estás sin conexión. Mostrando datos en caché si están disponibles.",
+  "install": "Instalar",
+  "pwa_install_hint": "Agregar a la pantalla de inicio para acceso rápido",
+  "minutes": "min"
 }
