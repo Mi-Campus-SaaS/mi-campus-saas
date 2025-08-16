@@ -43,7 +43,7 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     I18nModule.forRoot({
       fallbackLanguage: 'es',
-      loaderOptions: { path: join(__dirname, '..', 'i18n'), watch: true },
+      loaderOptions: { path: join(process.cwd(), 'src', 'i18n'), watch: true },
       resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
     }),
     UsersModule,
