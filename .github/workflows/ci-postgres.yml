@@ -1,13 +1,10 @@
-name: ci
+name: ci-postgres
 
 on:
-  push:
-    branches:
-      - '**'
-  pull_request:
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
+  test-postgres:
     runs-on: ubuntu-24.04
 
     services:
@@ -41,11 +38,16 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      # Tests default to SQLite per configuration; DB service is available if you want to run against Postgres.
-      - name: Test (SQLite default)
+      - name: Test (Postgres)
         run: yarn test
         env:
           NODE_ENV: test
+          DB_TYPE: postgres
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: micampus
 
       - name: Build
         run: yarn build
