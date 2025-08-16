@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { loadConfiguration } from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createTypeOrmConfig } from './database/typeorm.config';
+import { BullModule } from '@nestjs/bull';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { StudentsModule } from './students/students.module';
@@ -37,15 +38,31 @@ import { APP_GUARD } from '@nestjs/core';
       ],
     }),
     TypeOrmModule.forRootAsync({ useFactory: createTypeOrmConfig }),
+    ...(process.env.NODE_ENV !== 'test'
+      ? [
+          BullModule.forRoot({
+            redis: {
+              host: process.env.REDIS_HOST || 'localhost',
+              port: parseInt(process.env.REDIS_PORT || '6379'),
+              password: process.env.REDIS_PASSWORD,
+              db: parseInt(process.env.REDIS_DB || '0'),
+            },
+          }),
+        ]
+      : []),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
       serveRoot: '/files',
     }),
-    I18nModule.forRoot({
-      fallbackLanguage: 'es',
-      loaderOptions: { path: join(process.cwd(), 'src', 'i18n'), watch: true },
-      resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
-    }),
+    ...(process.env.NODE_ENV !== 'test'
+      ? [
+          I18nModule.forRoot({
+            fallbackLanguage: 'es',
+            loaderOptions: { path: join(process.cwd(), 'src', 'i18n'), watch: true },
+            resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
+          }),
+        ]
+      : []),
     UsersModule,
     AuthModule,
     StudentsModule,

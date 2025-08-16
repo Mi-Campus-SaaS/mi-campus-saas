@@ -14,7 +14,20 @@ module.exports = {
         formFactor: 'desktop',
         screenEmulation: { mobile: false },
         // GitHub Actions often needs these flags
-        chromeFlags: ['--no-sandbox', '--disable-setuid-sandbox', '--headless=new', '--disable-dev-shm-usage'],
+        chromeFlags: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--headless=new',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--disable-extensions',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-features=TranslateUI',
+          '--disable-ipc-flooding-protection',
+        ],
       },
     },
     assert: {

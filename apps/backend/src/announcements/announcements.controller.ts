@@ -44,4 +44,30 @@ export class AnnouncementsController {
     await this.announcementsService.remove(id);
     return { status: 'ok' };
   }
+
+  @Roles(UserRole.ADMIN)
+  @Get('queue/metrics')
+  getQueueMetrics() {
+    return this.announcementsService.getQueueMetrics();
+  }
+
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Get(':id/queue/status')
+  getJobStatus(@Param('id') id: string) {
+    return this.announcementsService.getJobStatus(id);
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Delete('queue/completed')
+  async clearCompletedJobs() {
+    const count = await this.announcementsService.clearCompletedJobs();
+    return { cleared: count };
+  }
+
+  @Roles(UserRole.ADMIN)
+  @Delete('queue/failed')
+  async clearFailedJobs() {
+    const count = await this.announcementsService.clearFailedJobs();
+    return { cleared: count };
+  }
 }

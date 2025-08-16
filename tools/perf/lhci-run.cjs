@@ -12,7 +12,12 @@ function run() {
     process.exit(1);
   }
 
-  const env = { ...process.env, CHROME_PATH: chromePath, GOOGLE_CHROME_PATH: chromePath };
+  const env = { 
+    ...process.env, 
+    CHROME_PATH: chromePath, 
+    GOOGLE_CHROME_PATH: chromePath,
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'
+  };
   const cmd = `lhci autorun --config=apps/frontend/lighthouserc.cjs`;
   const result = spawnSync(cmd, { stdio: 'inherit', env, shell: true });
 

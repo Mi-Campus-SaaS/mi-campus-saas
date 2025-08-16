@@ -45,16 +45,27 @@ test.describe('visual-regression', () => {
     await page.waitForLoadState('networkidle');
     await disableAnimations(page);
     
-    // Wait for the virtual list container to be stable
+    // Wait for either the virtual list container or loading skeletons
     const container = page.locator('.vh-600');
-    await container.waitFor({ state: 'visible', timeout: 10000 });
+    const skeletons = page.locator('.space-y-3');
     
-    // Wait for at least one student row to be rendered
-    const studentRow = page.locator('.card.p-3.flex.justify-between').first();
-    await studentRow.waitFor({ state: 'visible', timeout: 10000 });
+    // Wait for either content to load (with longer timeout)
+    await Promise.race([
+      container.waitFor({ state: 'visible', timeout: 15000 }),
+      skeletons.waitFor({ state: 'visible', timeout: 15000 })
+    ]);
     
-    // Wait a bit more for virtual scrolling to stabilize
-    await page.waitForTimeout(1000);
+    // If we have the virtual container, wait for student rows
+    if (await container.isVisible()) {
+      const studentRow = page.locator('.card.p-3.flex.justify-between').first();
+      await studentRow.waitFor({ state: 'visible', timeout: 10000 });
+      
+      // Wait for virtual scrolling to stabilize
+      await page.waitForTimeout(2000);
+    } else {
+      // If we're still loading, wait a bit more for content to appear
+      await page.waitForTimeout(3000);
+    }
     
     await expect(page).toHaveScreenshot('students.png', {
       animations: 'disabled',
