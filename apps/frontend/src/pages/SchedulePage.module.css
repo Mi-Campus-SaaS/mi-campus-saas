@@ -1,0 +1,39 @@
+.icon {
+  color: var(--fg);
+}
+
+.title {
+  color: var(--fg);
+}
+
+.cardHeader {
+  border-color: var(--card-border);
+}
+
+.cardHeaderContent {
+  color: var(--muted);
+}
+
+.scheduleItem {
+  background-color: var(--hover-bg);
+}
+
+.timeText {
+  color: var(--fg);
+}
+
+.durationText {
+  color: var(--muted);
+}
+
+.subjectText {
+  color: var(--fg);
+}
+
+.metaText {
+  color: var(--muted);
+}
+
+.emptyStateText {
+  color: var(--muted);
+}

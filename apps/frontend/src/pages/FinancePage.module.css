@@ -1,0 +1,69 @@
+.icon {
+  color: var(--fg);
+}
+
+.title {
+  color: var(--fg);
+}
+
+.label {
+  color: var(--muted);
+}
+
+.input {
+  border-color: var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--fg);
+}
+
+.studentName {
+  color: var(--fg);
+}
+
+.studentId {
+  color: var(--muted);
+}
+
+.sectionTitle {
+  color: var(--fg);
+}
+
+.feeAmount {
+  color: var(--fg);
+}
+
+.feeDueDate {
+  color: var(--muted);
+}
+
+.feeStatus {
+  color: var(--muted);
+}
+
+.paymentAmount {
+  color: var(--fg);
+}
+
+.paymentDate {
+  color: var(--muted);
+}
+
+.paymentMethod {
+  color: var(--muted);
+}
+
+.balanceLabel {
+  color: var(--muted);
+}
+
+.balanceAmount {
+  color: var(--fg);
+}
+
+.balanceStatus {
+  color: var(--muted);
+}
+
+.hoverBg {
+  background-color: var(--hover-bg);
+}

@@ -1,0 +1,36 @@
+.icon {
+  color: var(--fg);
+}
+
+.title {
+  color: var(--fg);
+}
+
+.vlistOuter {
+  height: var(--total-size);
+}
+
+.loaderStyle {
+  --y: var(--start-y);
+}
+
+.yStyle {
+  --y: var(--start-y);
+}
+
+.virtualRow {
+  border-color: var(--card-border);
+  background-color: var(--hover-bg);
+}
+
+.subjectName {
+  color: var(--fg);
+}
+
+.classInfo {
+  color: var(--muted);
+}
+
+.teacherName {
+  color: var(--muted);
+}

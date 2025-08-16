@@ -1,0 +1,34 @@
+.icon {
+  color: var(--fg);
+}
+
+.title {
+  color: var(--fg);
+}
+
+.cardHeader {
+  border-color: var(--card-border);
+}
+
+.sortLabel {
+  color: var(--muted);
+}
+
+.sortSelect {
+  border-color: var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--fg);
+}
+
+.virtualItem {
+  border-color: var(--card-border);
+  background-color: var(--hover-bg);
+}
+
+.studentName {
+  color: var(--fg);
+}
+
+.studentGpa {
+  color: var(--muted);
+}

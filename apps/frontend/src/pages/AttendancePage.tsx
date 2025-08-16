@@ -7,6 +7,7 @@ import { submitSessionAttendance, type AttendanceRecordInput } from '../api/atte
 import { queryClient } from '../queryClient';
 import { queryKeys } from '../api/queryKeys';
 import { ClipboardCheck } from 'lucide-react';
+import styles from './AttendancePage.module.css';
 
 const AttendancePage: React.FC = () => {
   const { classId = '', sessionId = '' } = useParams();
@@ -55,44 +56,24 @@ const AttendancePage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <ClipboardCheck className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-        <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-          {t('attendance')}
-        </h1>
+        <ClipboardCheck className={`w-6 h-6 ${styles.icon}`} />
+        <h1 className={`text-xl font-semibold ${styles.title}`}>{t('attendance')}</h1>
       </div>
 
       <div className="card rounded-lg shadow-sm p-4 mb-4">
         <div className="flex items-center gap-3">
           <button
-            className="px-3 py-1 border rounded"
-            style={{
-              borderColor: 'var(--card-border)',
-              color: 'var(--muted)',
-              backgroundColor: 'var(--hover-bg)',
-            }}
+            className={`px-3 py-1 border rounded ${styles.button}`}
             onClick={() => setSelectedIds(new Set((studentsQ.data?.data ?? []).map((s) => s.id)))}
           >
             {t('select_all')}
           </button>
-          <button
-            className="px-3 py-1 border rounded"
-            style={{
-              borderColor: 'var(--card-border)',
-              color: 'var(--muted)',
-              backgroundColor: 'var(--hover-bg)',
-            }}
-            onClick={() => setSelectedIds(new Set())}
-          >
+          <button className={`px-3 py-1 border rounded ${styles.button}`} onClick={() => setSelectedIds(new Set())}>
             {t('clear')}
           </button>
           <select
             aria-label={t('mark_as')}
-            className="border rounded px-3 py-1"
-            style={{
-              borderColor: 'var(--card-border)',
-              backgroundColor: 'var(--card-bg)',
-              color: 'var(--fg)',
-            }}
+            className={`border rounded px-3 py-1 ${styles.select}`}
             value={present ? 'present' : 'absent'}
             onChange={(e) => setPresent(e.target.value === 'present')}
           >
@@ -100,11 +81,7 @@ const AttendancePage: React.FC = () => {
             <option value="absent">{t('absent')}</option>
           </select>
           <button
-            className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              borderColor: 'var(--card-border)',
-              backgroundColor: 'var(--hover-bg)',
-            }}
+            className={`px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed ${styles.bulkButton}`}
             disabled={selectedIds.size === 0 || mutation.isPending}
             onClick={bulkMark}
           >
@@ -128,27 +105,21 @@ const AttendancePage: React.FC = () => {
       )}
 
       <div className="card rounded-lg shadow-sm">
-        <div className="p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
-          <h2 className="text-lg font-medium" style={{ color: 'var(--fg)' }}>
-            {t('students')}
-          </h2>
+        <div className={`p-4 border-b ${styles.cardHeader}`}>
+          <h2 className={`text-lg font-medium ${styles.cardTitle}`}>{t('students')}</h2>
         </div>
-        <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
+        <div className={`divide-y ${styles.cardDivider}`}>
           {(studentsQ.data?.data ?? []).map((s) => (
-            <div
-              key={s.id}
-              className="p-4 flex items-center gap-3 transition-colors"
-              style={{ backgroundColor: 'var(--hover-bg)' }}
-            >
+            <div key={s.id} className={`p-4 flex items-center gap-3 transition-colors ${styles.studentRow}`}>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   aria-label={t('select_name', { name: `${s.firstName} ${s.lastName}` })}
                   type="checkbox"
                   checked={selectedIds.has(s.id)}
                   onChange={() => toggleId(s.id)}
-                  style={{ borderColor: 'var(--card-border)' }}
+                  className={styles.checkbox}
                 />
-                <span style={{ color: 'var(--fg)' }}>
+                <span className={styles.studentName}>
                   {s.firstName} {s.lastName}
                 </span>
               </label>

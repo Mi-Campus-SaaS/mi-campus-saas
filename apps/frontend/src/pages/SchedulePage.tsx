@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Calendar, Wifi, WifiOff, Clock, MapPin, User } from 'lucide-react';
 import { api } from '../api/client';
 import { queryKeys } from '../api/queryKeys';
+import styles from './SchedulePage.module.css';
 
 interface ScheduleItem {
   id: string;
@@ -51,8 +52,8 @@ const SchedulePage: React.FC = () => {
     return (
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+          <Calendar className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-xl font-semibold ${styles.title}`}>
             {t('schedule')}
           </h1>
         </div>
@@ -72,8 +73,8 @@ const SchedulePage: React.FC = () => {
     return (
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+          <Calendar className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-xl font-semibold ${styles.title}`}>
             {t('schedule')}
           </h1>
         </div>
@@ -92,8 +93,8 @@ const SchedulePage: React.FC = () => {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Calendar className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
+          <Calendar className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-xl font-semibold ${styles.title}`}>
             {t('schedule')}
           </h1>
         </div>
@@ -113,8 +114,8 @@ const SchedulePage: React.FC = () => {
       </div>
 
       <div className="card rounded-lg shadow-sm">
-        <div className="p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
-          <div className="flex items-center gap-2" style={{ color: 'var(--muted)' }}>
+        <div className={`p-4 border-b ${styles.cardHeader}`}>
+          <div className={`flex items-center gap-2 ${styles.cardHeaderContent}`}>
             <Clock className="w-4 h-4" />
             <span className="text-sm font-medium">{t('todays_schedule')}</span>
           </div>
@@ -126,22 +127,21 @@ const SchedulePage: React.FC = () => {
                 data.map((item: ScheduleItem) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                    style={{ backgroundColor: 'var(--hover-bg)' }}
+                    className={`flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors ${styles.scheduleItem}`}
                   >
                     <div className="flex-shrink-0 w-20 text-center">
-                      <div className="text-sm font-medium" style={{ color: 'var(--fg)' }}>
+                      <div className={`text-sm font-medium ${styles.timeText}`}>
                         {formatTime(item.time)}
                       </div>
-                      <div className="text-xs" style={{ color: 'var(--muted)' }}>
+                      <div className={`text-xs ${styles.durationText}`}>
                         {item.duration} {t('minutes')}
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium" style={{ color: 'var(--fg)' }}>
+                      <div className={`font-medium ${styles.subjectText}`}>
                         {item.subject}
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm" style={{ color: 'var(--muted)' }}>
+                      <div className={`flex items-center gap-4 mt-1 text-sm ${styles.metaText}`}>
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />
                           <span>{item.teacher}</span>
@@ -155,14 +155,14 @@ const SchedulePage: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8" style={{ color: 'var(--muted)' }}>
+                <div className={`text-center py-8 ${styles.emptyStateText}`}>
                   <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
                   <p>{t('no_classes_today')}</p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="text-center py-8" style={{ color: 'var(--muted)' }}>
+            <div className={`text-center py-8 ${styles.emptyStateText}`}>
               <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
               <p>{t('no_schedule_data')}</p>
             </div>

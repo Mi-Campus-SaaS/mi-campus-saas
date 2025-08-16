@@ -1,0 +1,29 @@
+.icon {
+  color: var(--fg);
+}
+
+.title {
+  color: var(--fg);
+}
+
+.label {
+  color: var(--muted);
+}
+
+.input {
+  border-color: var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--fg);
+}
+
+.materialTitle {
+  color: var(--fg);
+}
+
+.materialDescription {
+  color: var(--muted);
+}
+
+.materialInfo {
+  color: var(--muted);
+}

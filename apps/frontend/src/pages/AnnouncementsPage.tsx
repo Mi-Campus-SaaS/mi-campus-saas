@@ -8,6 +8,7 @@ import { queryClient } from '../queryClient';
 import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { createAnnouncementSchema } from '../validation/schemas';
 import { Plus, Edit, Trash2, Megaphone } from 'lucide-react';
+import styles from './AnnouncementsPage.module.css';
 
 const AnnouncementsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -58,10 +59,8 @@ const AnnouncementsPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Megaphone className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-            {t('announcements')}
-          </h1>
+          <Megaphone className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-xl font-semibold ${styles.title}`}>{t('announcements')}</h1>
         </div>
         <FeatureGate feature="announcements.create">
           <FeatureButton
@@ -78,31 +77,21 @@ const AnnouncementsPage: React.FC = () => {
       <div className="card rounded-lg shadow-sm p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
-              {t('search')}
-            </label>
+            <label className={`block text-sm mb-1 ${styles.label}`}>{t('search')}</label>
             <input
-              className="border rounded p-2 w-full"
-              style={{
-                borderColor: 'var(--card-border)',
-                backgroundColor: 'var(--card-bg)',
-                color: 'var(--fg)',
-              }}
+              className={`border rounded p-2 w-full ${styles.input}`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('search')}
               aria-label={t('search')}
             />
           </div>
-          <label className="inline-flex items-center gap-2" style={{ color: 'var(--muted)' }}>
+          <label className={`inline-flex items-center gap-2 ${styles.label}`}>
             <input
               type="checkbox"
               checked={showScheduled}
               onChange={(e) => setShowScheduled(e.target.checked)}
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                borderColor: 'var(--card-border)',
-              }}
+              className={styles.checkbox}
             />
             <span>{t('show_scheduled')}</span>
           </label>
@@ -138,16 +127,9 @@ const AnnouncementsPage: React.FC = () => {
             }}
           >
             <div className="flex-1 min-w-[240px]">
-              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
-                {t('content')}
-              </label>
+              <label className={`block text-sm mb-1 ${styles.label}`}>{t('content')}</label>
               <input
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}
                 placeholder={t('content')}
@@ -157,17 +139,10 @@ const AnnouncementsPage: React.FC = () => {
               {errors.content && <div className="text-xs text-red-600 dark:text-red-400">{errors.content}</div>}
             </div>
             <div>
-              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
-                {t('publish_at')}
-              </label>
+              <label className={`block text-sm mb-1 ${styles.label}`}>{t('publish_at')}</label>
               <input
                 type="datetime-local"
-                className="border rounded p-2"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 ${styles.input}`}
                 value={newPublishAt}
                 onChange={(e) => setNewPublishAt(e.target.value)}
                 placeholder={t('publish_at')}
@@ -189,12 +164,8 @@ const AnnouncementsPage: React.FC = () => {
       <div className="space-y-3">
         {data?.map((a) => (
           <div key={a.id} className="card rounded-lg shadow-sm p-4 space-y-2">
-            <div className="text-sm" style={{ color: 'var(--muted)' }}>
-              {new Date(a.publishAt).toLocaleString()}
-            </div>
-            <div className="font-medium" style={{ color: 'var(--fg)' }}>
-              {a.content}
-            </div>
+            <div className={`text-sm ${styles.timestamp}`}>{new Date(a.publishAt).toLocaleString()}</div>
+            <div className={`font-medium ${styles.content}`}>{a.content}</div>
             <div className="flex gap-2">
               <FeatureGate feature="announcements.edit">
                 <FeatureButton
@@ -228,7 +199,7 @@ const AnnouncementsPage: React.FC = () => {
                   }}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  className={`flex items-center gap-1 ${styles.deleteButton}`}
                 >
                   <Trash2 className="w-3 h-3" />
                   {t('delete')}

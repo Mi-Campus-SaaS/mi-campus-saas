@@ -7,6 +7,7 @@ import { queryClient } from '../queryClient';
 import { useAuth } from '../auth/useAuth';
 import { uploadMaterialSchema } from '../validation/schemas';
 import { FileText } from 'lucide-react';
+import styles from './MaterialsPage.module.css';
 
 const MaterialsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -34,10 +35,8 @@ const MaterialsPage: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-2 mb-6">
-        <FileText className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-        <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-          {t('materials')}
-        </h1>
+        <FileText className={`w-6 h-6 ${styles.icon}`} />
+        <h1 className={`text-xl font-semibold ${styles.title}`}>{t('materials')}</h1>
       </div>
 
       {user && (user.role === 'admin' || user.role === 'teacher') && (
@@ -66,16 +65,9 @@ const MaterialsPage: React.FC = () => {
             }}
           >
             <div>
-              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
-                {t('title')}
-              </label>
+              <label className={`block text-sm mb-1 ${styles.label}`}>{t('title')}</label>
               <input
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={t('title')}
@@ -85,16 +77,9 @@ const MaterialsPage: React.FC = () => {
               {errors.title && <div className="text-xs text-red-600 dark:text-red-400">{errors.title}</div>}
             </div>
             <div>
-              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
-                {t('description')}
-              </label>
+              <label className={`block text-sm mb-1 ${styles.label}`}>{t('description')}</label>
               <input
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t('description')}
@@ -103,17 +88,10 @@ const MaterialsPage: React.FC = () => {
               {errors.description && <div className="text-xs text-red-600 dark:text-red-400">{errors.description}</div>}
             </div>
             <div>
-              <label className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
-                {t('file')}
-              </label>
+              <label className={`block text-sm mb-1 ${styles.label}`}>{t('file')}</label>
               <input
                 type="file"
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                 aria-label={t('file')}
                 required
@@ -151,15 +129,9 @@ const MaterialsPage: React.FC = () => {
         {data?.map((m: ClassMaterial) => (
           <div key={m.id} className="card rounded-lg shadow-sm p-4 flex items-center justify-between">
             <div>
-              <div className="font-medium" style={{ color: 'var(--fg)' }}>
-                {m.title}
-              </div>
-              {m.description && (
-                <div className="text-sm" style={{ color: 'var(--muted)' }}>
-                  {m.description}
-                </div>
-              )}
-              <div className="text-xs" style={{ color: 'var(--muted)' }}>
+              <div className={`font-medium ${styles.materialTitle}`}>{m.title}</div>
+              {m.description && <div className={`text-sm ${styles.materialDescription}`}>{m.description}</div>}
+              <div className={`text-xs ${styles.materialInfo}`}>
                 {m.originalName || m.filePath}
                 {m.size ? ` • ${(m.size / 1024).toFixed(1)} KB` : ''}
               </div>

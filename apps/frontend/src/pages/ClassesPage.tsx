@@ -6,6 +6,7 @@ import { Skeleton } from '../components/Skeleton';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
+import styles from './ClassesPage.module.css';
 
 const ClassesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -30,17 +31,15 @@ const ClassesPage: React.FC = () => {
     estimateSize: () => 64,
     overscan: 10,
   });
-  type CSSVarStyle = React.CSSProperties & { ['--y']?: string };
+
   const { locale = 'es' } = useParams();
 
   if (isError) {
     return (
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <BookOpen className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-            {t('classes')}
-          </h1>
+          <BookOpen className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-xl font-semibold ${styles.title}`}>{t('classes')}</h1>
         </div>
         <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div className="flex items-center justify-between">
@@ -60,10 +59,8 @@ const ClassesPage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <BookOpen className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-        <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-          {t('classes')}
-        </h1>
+        <BookOpen className={`w-6 h-6 ${styles.icon}`} />
+        <h1 className={`text-xl font-semibold ${styles.title}`}>{t('classes')}</h1>
       </div>
 
       {isLoading ? (
@@ -78,44 +75,39 @@ const ClassesPage: React.FC = () => {
       ) : (
         <div className="card rounded-lg shadow-sm">
           <div ref={containerRef} className="relative overflow-auto max-h-96">
-            <div className="vlist-outer" style={{ height: rowVirtualizer.getTotalSize() } as React.CSSProperties}>
+            <div
+              className={`vlist-outer ${styles.vlistOuter}`}
+              style={{ '--total-size': `${rowVirtualizer.getTotalSize()}px` } as React.CSSProperties}
+            >
               {rowVirtualizer.getVirtualItems().map((vi) => {
                 if (vi.index > flatRows.length - 1) {
                   if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
-                  const loaderStyle: CSSVarStyle = { ['--y']: `${vi.start}px` };
                   return (
                     <div
                       key={vi.key}
-                      className="p-4 flex items-center justify-center vlist-abs vlist-item"
-                      style={loaderStyle}
+                      className={`p-4 flex items-center justify-center vlist-abs vlist-item ${styles.loaderStyle}`}
+                      style={{ '--start-y': `${vi.start}px` } as React.CSSProperties}
                     >
                       <Skeleton className="w-32 h-4" />
                     </div>
                   );
                 }
                 const c = flatRows[vi.index];
-                const yStyle: CSSVarStyle = { ['--y']: `${vi.start}px` };
                 return (
                   <div
                     key={vi.key}
-                    className="p-4 border-b vlist-abs-narrow vlist-item transition-colors"
-                    style={{
-                      ...yStyle,
-                      borderColor: 'var(--card-border)',
-                      backgroundColor: 'var(--hover-bg)',
-                    }}
+                    className={`p-4 border-b vlist-abs-narrow vlist-item transition-colors ${styles.virtualRow} ${styles.yStyle}`}
+                    style={{ '--start-y': `${vi.start}px` } as React.CSSProperties}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium" style={{ color: 'var(--fg)' }}>
-                          {c.subjectName}
-                        </div>
-                        <div className="text-sm" style={{ color: 'var(--muted)' }}>
+                        <div className={`font-medium ${styles.subjectName}`}>{c.subjectName}</div>
+                        <div className={`text-sm ${styles.classInfo}`}>
                           {t('classes')} • {c.gradeLevel}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="text-sm" style={{ color: 'var(--muted)' }}>
+                        <div className={`text-sm ${styles.teacherName}`}>
                           {c.teacher
                             ? `${c.teacher.firstName ?? ''} ${c.teacher.lastName ?? ''}`.trim()
                             : t('unassigned')}

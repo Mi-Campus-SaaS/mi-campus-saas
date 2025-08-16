@@ -3,6 +3,7 @@ import { useAuth } from '../auth/useAuth';
 import { useTranslation } from 'react-i18next';
 import { loginSchema } from '../validation/schemas';
 import { LogIn } from 'lucide-react';
+import styles from './LoginPage.module.css';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -31,28 +32,21 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: 'var(--bg)' }}>
+    <div className={`min-h-screen flex items-center justify-center p-6 ${styles.container}`}>
       <div className="card rounded-lg shadow-sm p-8 w-full max-w-sm">
         <div className="flex items-center gap-2 mb-6">
-          <LogIn className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-2xl font-semibold" style={{ color: 'var(--fg)' }}>
-            {t('login')}
-          </h1>
+          <LogIn className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-2xl font-semibold ${styles.title}`}>{t('login')}</h1>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label htmlFor="username" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+            <label htmlFor="username" className={`block text-sm mb-1 ${styles.label}`}>
               {t('username')}
             </label>
             <input
               id="username"
-              className="border rounded p-2 w-full"
-              style={{
-                borderColor: 'var(--card-border)',
-                backgroundColor: 'var(--card-bg)',
-                color: 'var(--fg)',
-              }}
+              className={`border rounded p-2 w-full ${styles.input}`}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder={t('username')}
@@ -62,17 +56,12 @@ const LoginPage: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+            <label htmlFor="password" className={`block text-sm mb-1 ${styles.label}`}>
               {t('password')}
             </label>
             <input
               id="password"
-              className="border rounded p-2 w-full"
-              style={{
-                borderColor: 'var(--card-border)',
-                backgroundColor: 'var(--card-bg)',
-                color: 'var(--fg)',
-              }}
+              className={`border rounded p-2 w-full ${styles.input}`}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

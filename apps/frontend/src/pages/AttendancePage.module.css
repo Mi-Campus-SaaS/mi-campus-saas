@@ -1,0 +1,48 @@
+.icon {
+  color: var(--fg);
+}
+
+.title {
+  color: var(--fg);
+}
+
+.button {
+  border-color: var(--card-border);
+  color: var(--muted);
+  background-color: var(--hover-bg);
+}
+
+.select {
+  border-color: var(--card-border);
+  background-color: var(--card-bg);
+  color: var(--fg);
+}
+
+.bulkButton {
+  border-color: var(--card-border);
+  background-color: var(--hover-bg);
+}
+
+.cardHeader {
+  border-color: var(--card-border);
+}
+
+.cardTitle {
+  color: var(--fg);
+}
+
+.cardDivider {
+  border-color: var(--card-border);
+}
+
+.studentRow {
+  background-color: var(--hover-bg);
+}
+
+.checkbox {
+  border-color: var(--card-border);
+}
+
+.studentName {
+  color: var(--fg);
+}

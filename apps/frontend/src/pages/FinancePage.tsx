@@ -7,6 +7,7 @@ import type { Paginated, Student } from '../types/api';
 import { queryClient } from '../queryClient';
 import { Skeleton } from '../components/Skeleton';
 import { createFeeSchema, recordPaymentSchema } from '../validation/schemas';
+import styles from './FinancePage.module.css';
 import { DollarSign } from 'lucide-react';
 
 const FinancePage: React.FC = () => {
@@ -91,26 +92,19 @@ const FinancePage: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-2 mb-6">
-        <DollarSign className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-        <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-          {t('finance')}
-        </h1>
+        <DollarSign className={`w-6 h-6 ${styles.icon}`} />
+        <h1 className={`text-xl font-semibold ${styles.title}`}>{t('finance')}</h1>
       </div>
 
       <div className="card rounded-lg shadow-sm p-4">
         <div className="flex items-end gap-3 relative max-w-lg">
           <div className="w-full">
-            <label htmlFor="studentSearch" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+            <label htmlFor="studentSearch" className={`block text-sm mb-1 ${styles.label}`}>
               {t('student')}
             </label>
             <input
               id="studentSearch"
-              className="border rounded p-2 w-full"
-              style={{
-                borderColor: 'var(--card-border)',
-                backgroundColor: 'var(--card-bg)',
-                color: 'var(--fg)',
-              }}
+              className={`border rounded p-2 w-full ${styles.input}`}
               value={studentSearch}
               onChange={(e) => {
                 setStudentSearch(e.target.value);
@@ -138,12 +132,10 @@ const FinancePage: React.FC = () => {
                           setShowStudentList(false);
                         }}
                       >
-                        <span className="mr-2" style={{ color: 'var(--fg)' }}>
+                        <span className={`mr-2 ${styles.studentName}`}>
                           {s.firstName} {s.lastName}
                         </span>
-                        <span className="text-xs" style={{ color: 'var(--muted)' }}>
-                          {s.id}
-                        </span>
+                        <span className={`text-xs ${styles.studentId}`}>{s.id}</span>
                       </button>
                     </li>
                   ))
@@ -156,9 +148,7 @@ const FinancePage: React.FC = () => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="card rounded-lg shadow-sm p-4">
-          <h2 className="font-semibold mb-4" style={{ color: 'var(--fg)' }}>
-            {t('fees')}
-          </h2>
+          <h2 className={`font-semibold mb-4 ${styles.sectionTitle}`}>{t('fees')}</h2>
           <form
             className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-4"
             onSubmit={(e) => {
@@ -195,17 +185,12 @@ const FinancePage: React.FC = () => {
             }}
           >
             <div>
-              <label htmlFor="feeAmount" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              <label htmlFor="feeAmount" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('amount')}
               </label>
               <input
                 id="feeAmount"
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 type="number"
                 min="0"
                 step="0.01"
@@ -217,17 +202,12 @@ const FinancePage: React.FC = () => {
               {feeErrors.amount && <div className="text-xs text-red-600 dark:text-red-400">{feeErrors.amount}</div>}
             </div>
             <div>
-              <label htmlFor="feeDue" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              <label htmlFor="feeDue" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('due_date')}
               </label>
               <input
                 id="feeDue"
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
@@ -260,7 +240,7 @@ const FinancePage: React.FC = () => {
           {feesQ.isLoading ? (
             <div className="space-y-3">
               {['a', 'b', 'c'].map((k) => (
-                <div key={`fees-sk-${k}`} className="border rounded p-3" style={{ borderColor: 'var(--card-border)' }}>
+                <div key={`fees-sk-${k}`} className={`border rounded p-3 ${styles.input}`}>
                   <Skeleton className="w-40 h-3" />
                   <Skeleton className="w-32 h-3 mt-2" />
                 </div>
@@ -271,23 +251,17 @@ const FinancePage: React.FC = () => {
               {feesQ.data?.data?.map((f: FeeInvoice) => (
                 <li
                   key={f.id}
-                  className="border rounded p-3 flex items-center justify-between"
-                  style={{
-                    borderColor: 'var(--card-border)',
-                    backgroundColor: 'var(--hover-bg)',
-                  }}
+                  className={`border rounded p-3 flex items-center justify-between ${styles.input} ${styles.hoverBg}`}
                 >
                   <div>
-                    <div className="font-medium" style={{ color: 'var(--fg)' }}>
+                    <div className={`font-medium ${styles.feeAmount}`}>
                       ${f.amount.toFixed(2)} ({f.status})
                     </div>
-                    <div className="text-sm" style={{ color: 'var(--muted)' }}>
+                    <div className={`text-sm ${styles.feeDueDate}`}>
                       {`${t('due')}:`} {new Date(f.dueDate).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="text-xs" style={{ color: 'var(--muted)' }}>
-                    {f.id}
-                  </div>
+                  <div className={`text-xs ${styles.feeStatus}`}>{f.id}</div>
                 </li>
               ))}
             </ul>
@@ -295,9 +269,7 @@ const FinancePage: React.FC = () => {
         </div>
 
         <div className="card rounded-lg shadow-sm p-4">
-          <h2 className="font-semibold mb-4" style={{ color: 'var(--fg)' }}>
-            {t('payments')}
-          </h2>
+          <h2 className={`font-semibold mb-4 ${styles.sectionTitle}`}>{t('payments')}</h2>
           <form
             className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end mb-4"
             onSubmit={(e) => {
@@ -321,17 +293,12 @@ const FinancePage: React.FC = () => {
             }}
           >
             <div className="md:col-span-2">
-              <label htmlFor="invoiceId" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              <label htmlFor="invoiceId" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('invoice_id')}
               </label>
               <input
                 id="invoiceId"
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 value={payInvoiceId}
                 onChange={(e) => setPayInvoiceId(e.target.value)}
                 placeholder={t('invoice_id')}
@@ -342,17 +309,12 @@ const FinancePage: React.FC = () => {
               )}
             </div>
             <div>
-              <label htmlFor="payAmount" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              <label htmlFor="payAmount" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('amount')}
               </label>
               <input
                 id="payAmount"
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 type="number"
                 min="0"
                 step="0.01"
@@ -364,17 +326,12 @@ const FinancePage: React.FC = () => {
               {payErrors.amount && <div className="text-xs text-red-600 dark:text-red-400">{payErrors.amount}</div>}
             </div>
             <div>
-              <label htmlFor="payRef" className="block text-sm mb-1" style={{ color: 'var(--muted)' }}>
+              <label htmlFor="payRef" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('reference')}
               </label>
               <input
                 id="payRef"
-                className="border rounded p-2 w-full"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded p-2 w-full ${styles.input}`}
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
                 placeholder={t('reference')}
@@ -406,7 +363,7 @@ const FinancePage: React.FC = () => {
           {paymentsQ.isLoading ? (
             <div className="space-y-3">
               {['a', 'b', 'c'].map((k) => (
-                <div key={`pay-sk-${k}`} className="border rounded p-3" style={{ borderColor: 'var(--card-border)' }}>
+                <div key={`pay-sk-${k}`} className={`border rounded p-3 ${styles.input}`}>
                   <Skeleton className="w-30 h-3" />
                   <Skeleton className="w-40 h-3 mt-2" />
                 </div>
@@ -417,23 +374,13 @@ const FinancePage: React.FC = () => {
               {paymentsQ.data?.map((p: Payment) => (
                 <li
                   key={p.id}
-                  className="border rounded p-3 flex items-center justify-between"
-                  style={{
-                    borderColor: 'var(--card-border)',
-                    backgroundColor: 'var(--hover-bg)',
-                  }}
+                  className={`border rounded p-3 flex items-center justify-between ${styles.input} ${styles.hoverBg}`}
                 >
                   <div>
-                    <div className="font-medium" style={{ color: 'var(--fg)' }}>
-                      ${p.amount.toFixed(2)}
-                    </div>
-                    <div className="text-sm" style={{ color: 'var(--muted)' }}>
-                      {new Date(p.paidAt).toLocaleString()}
-                    </div>
+                    <div className={`font-medium ${styles.paymentAmount}`}>${p.amount.toFixed(2)}</div>
+                    <div className={`text-sm ${styles.paymentDate}`}>{new Date(p.paidAt).toLocaleString()}</div>
                   </div>
-                  <div className="text-xs" style={{ color: 'var(--muted)' }}>
-                    {p.reference}
-                  </div>
+                  <div className={`text-xs ${styles.paymentMethod}`}>{p.reference}</div>
                 </li>
               ))}
             </ul>
