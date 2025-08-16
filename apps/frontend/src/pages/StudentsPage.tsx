@@ -8,6 +8,7 @@ import { Skeleton } from '../components/Skeleton';
 import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { queryKeys } from '../api/queryKeys';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
+import styles from './StudentsPage.module.css';
 
 const StudentsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -40,10 +41,8 @@ const StudentsPage: React.FC = () => {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Users className="w-6 h-6" style={{ color: 'var(--fg)' }} />
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-            {t('students')}
-          </h1>
+          <Users className={`w-6 h-6 ${styles.icon}`} />
+          <h1 className={`text-xl font-semibold ${styles.title}`}>{t('students')}</h1>
         </div>
         <FeatureGate feature="students.create">
           <FeatureButton
@@ -82,19 +81,12 @@ const StudentsPage: React.FC = () => {
         </div>
       ) : (
         <div className="card rounded-lg shadow-sm">
-          <div className="p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
+          <div className={`p-4 border-b ${styles.cardHeader}`}>
             <div className="flex items-center gap-3">
-              <label className="text-sm" style={{ color: 'var(--muted)' }}>
-                {t('sortBy')}
-              </label>
+              <label className={`text-sm ${styles.sortLabel}`}>{t('sortBy')}</label>
               <select
                 aria-label={t('sortBy')}
-                className="border rounded px-3 py-1"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded px-3 py-1 ${styles.sortSelect}`}
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'lastName' | 'gpa')}
               >
@@ -103,12 +95,7 @@ const StudentsPage: React.FC = () => {
               </select>
               <select
                 aria-label={t('sortDirection')}
-                className="border rounded px-3 py-1"
-                style={{
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  color: 'var(--fg)',
-                }}
+                className={`border rounded px-3 py-1 ${styles.sortSelect}`}
                 value={sortDir}
                 onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
               >
@@ -136,20 +123,18 @@ const StudentsPage: React.FC = () => {
                 return (
                   <div
                     key={vi.key}
-                    className="p-4 flex justify-between items-center border-b vlist-abs-narrow vlist-item transition-colors"
+                    className={`p-4 flex justify-between items-center border-b vlist-abs-narrow vlist-item transition-colors ${styles.virtualItem}`}
                     style={
                       {
                         ['--y']: `${vi.start}px`,
-                        borderColor: 'var(--card-border)',
-                        backgroundColor: 'var(--hover-bg)',
                       } as YStyle
                     }
                   >
                     <div className="flex-1">
-                      <span className="font-medium" style={{ color: 'var(--fg)' }}>
+                      <span className={`font-medium ${styles.studentName}`}>
                         {s.firstName} {s.lastName}
                       </span>
-                      <span className="text-sm ml-4" style={{ color: 'var(--muted)' }}>
+                      <span className={`text-sm ml-4 ${styles.studentGpa}`}>
                         {t('gpa')}: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}
                       </span>
                     </div>

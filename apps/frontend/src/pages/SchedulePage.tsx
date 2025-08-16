@@ -53,9 +53,7 @@ const SchedulePage: React.FC = () => {
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className={`w-6 h-6 ${styles.icon}`} />
-          <h1 className={`text-xl font-semibold ${styles.title}`}>
-            {t('schedule')}
-          </h1>
+          <h1 className={`text-xl font-semibold ${styles.title}`}>{t('schedule')}</h1>
         </div>
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
@@ -74,9 +72,7 @@ const SchedulePage: React.FC = () => {
       <div className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className={`w-6 h-6 ${styles.icon}`} />
-          <h1 className={`text-xl font-semibold ${styles.title}`}>
-            {t('schedule')}
-          </h1>
+          <h1 className={`text-xl font-semibold ${styles.title}`}>{t('schedule')}</h1>
         </div>
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
@@ -94,9 +90,7 @@ const SchedulePage: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Calendar className={`w-6 h-6 ${styles.icon}`} />
-          <h1 className={`text-xl font-semibold ${styles.title}`}>
-            {t('schedule')}
-          </h1>
+          <h1 className={`text-xl font-semibold ${styles.title}`}>{t('schedule')}</h1>
         </div>
         <div className="flex items-center gap-2">
           {isOnline ? (
@@ -130,17 +124,13 @@ const SchedulePage: React.FC = () => {
                     className={`flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors ${styles.scheduleItem}`}
                   >
                     <div className="flex-shrink-0 w-20 text-center">
-                      <div className={`text-sm font-medium ${styles.timeText}`}>
-                        {formatTime(item.time)}
-                      </div>
+                      <div className={`text-sm font-medium ${styles.timeText}`}>{formatTime(item.time)}</div>
                       <div className={`text-xs ${styles.durationText}`}>
                         {item.duration} {t('minutes')}
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className={`font-medium ${styles.subjectText}`}>
-                        {item.subject}
-                      </div>
+                      <div className={`font-medium ${styles.subjectText}`}>{item.subject}</div>
                       <div className={`flex items-center gap-4 mt-1 text-sm ${styles.metaText}`}>
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />
