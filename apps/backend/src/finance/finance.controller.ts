@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
@@ -13,6 +13,7 @@ import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
 import { Throttle } from '@nestjs/throttler';
+import { CacheInterceptor, HttpCache } from '../common/cache.interceptor';
 
 const FINANCE_LIMIT = Number(process.env.FINANCE_THROTTLE_LIMIT ?? 30);
 const FINANCE_TTL = Number(process.env.FINANCE_THROTTLE_TTL_SECONDS ?? 60);
@@ -23,6 +24,8 @@ export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
   @Roles(UserRole.ADMIN, UserRole.PARENT)
+  @UseInterceptors(CacheInterceptor)
+  @HttpCache({ maxAge: 600 }) // Cache for 10 minutes (financial data changes less frequently)
   @Get('fees')
   @Ownership({ type: 'studentQuery', key: 'studentId' })
   @Throttle({

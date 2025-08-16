@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Roles } from '../common/roles.decorator';
@@ -8,6 +8,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 import { StudentWithGpa } from './dto/student-with-gpa.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { CacheInterceptor, HttpCache } from '../common/cache.interceptor';
 
 @ApiTags('students')
 @ApiBearerAuth('JWT-auth')
@@ -21,9 +22,12 @@ export class StudentsController {
     description: 'Retrieve paginated list of students with GPA calculation. Requires ADMIN or TEACHER role.',
   })
   @ApiResponse({ status: 200, description: 'Students retrieved successfully' })
+  @ApiResponse({ status: 304, description: 'Not Modified - cached response is still valid' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @UseInterceptors(CacheInterceptor)
+  @HttpCache({ maxAge: 300 }) // Cache for 5 minutes
   @Get()
   findAll(@Query() query: PaginationQueryDto): Promise<PaginatedResponse<StudentWithGpa>> {
     return this.studentsService.findAll(query);

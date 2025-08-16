@@ -12,11 +12,30 @@ import { InMemoryCacheService } from './cache.service';
 import { CspService } from './csp.service';
 import { CspMiddleware } from './csp.middleware';
 import { CorsService } from './cors.service';
+import { HttpCacheService } from './http-cache.service';
+import { CacheInterceptor } from './cache.interceptor';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent])],
-  providers: [OwnershipGuard, AuditLogger, InMemoryCacheService, CspService, CspMiddleware, CorsService],
-  exports: [OwnershipGuard, AuditLogger, InMemoryCacheService, CspService, CorsService],
+  providers: [
+    OwnershipGuard,
+    AuditLogger,
+    InMemoryCacheService,
+    CspService,
+    CspMiddleware,
+    CorsService,
+    HttpCacheService,
+    CacheInterceptor,
+  ],
+  exports: [
+    OwnershipGuard,
+    AuditLogger,
+    InMemoryCacheService,
+    CspService,
+    CorsService,
+    HttpCacheService,
+    CacheInterceptor,
+  ],
 })
 export class CommonModule {
   configure(consumer: MiddlewareConsumer) {

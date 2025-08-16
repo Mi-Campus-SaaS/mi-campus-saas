@@ -54,6 +54,7 @@ If `reuseExistingServer: true` doesn't resolve the issue, consider:
    ```
 
 3. **Pre-test Cleanup** (in CI scripts):
+
    ```bash
    # Kill any existing processes on ports before running tests
    lsof -ti:5173 | xargs kill -9 || true

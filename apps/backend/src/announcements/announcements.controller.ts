@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AnnouncementsService } from './announcements.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
@@ -7,6 +7,7 @@ import { UserRole } from '../common/roles.enum';
 import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { ClassEntity } from '../classes/entities/class.entity';
 import { UpdateAnnouncementDto } from './dto/update-announcement.dto';
+import { CacheInterceptor, HttpCache } from '../common/cache.interceptor';
 
 @Controller('announcements')
 export class AnnouncementsController {
@@ -23,6 +24,8 @@ export class AnnouncementsController {
     });
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @HttpCache({ maxAge: 180 }) // Cache for 3 minutes (announcements change more frequently)
   @Get()
   list(@Query() query: import('../common/dto/pagination.dto').PaginationQueryDto) {
     return this.announcementsService.list(query);
