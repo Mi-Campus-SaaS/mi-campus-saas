@@ -9,6 +9,12 @@ export interface AppConfig {
   jwtRefreshSecret: string;
   jwtRefreshExpiresIn: string;
   uploadDir: string;
+  otel: {
+    enabled: boolean;
+    endpoint: string;
+    serviceName: string;
+    serviceVersion: string;
+  };
   smtp: {
     host: string;
     port: number;
@@ -30,6 +36,12 @@ export const loadConfiguration = (): AppConfig => ({
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret_change_me',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   uploadDir: process.env.UPLOAD_DIR || 'uploads',
+  otel: {
+    enabled: (process.env.OTEL_ENABLED || 'true') === 'true',
+    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces',
+    serviceName: process.env.OTEL_SERVICE_NAME || 'mi-campus-backend',
+    serviceVersion: process.env.OTEL_SERVICE_VERSION || process.env.npm_package_version || '1.0.0',
+  },
   smtp: {
     host: process.env.SMTP_HOST || 'localhost',
     port: parseInt(process.env.SMTP_PORT || '1025', 10),

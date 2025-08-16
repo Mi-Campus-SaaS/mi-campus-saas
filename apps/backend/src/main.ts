@@ -4,9 +4,17 @@ import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import helmet from 'helmet';
+import { initializeTracing } from './telemetry/tracing';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Initialize OpenTelemetry tracing
+  if (process.env.NODE_ENV !== 'test') {
+    const configService = app.get(ConfigService);
+    initializeTracing(configService);
+  }
   // CORS allowlist from env (comma-separated). Fallback to FRONTEND_URL for backward compatibility
   const allowlistEnv = process.env.CORS_ALLOWLIST || process.env.FRONTEND_URL || 'http://localhost:5173';
   const allowedOrigins = allowlistEnv

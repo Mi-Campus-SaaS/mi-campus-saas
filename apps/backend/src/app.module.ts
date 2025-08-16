@@ -24,6 +24,7 @@ import { join } from 'path';
 import { LoggingMiddleware } from './common/logging.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { TelemetryModule } from './telemetry/telemetry.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { APP_GUARD } from '@nestjs/core';
     ScheduleModule,
     ClassesModule,
     ParentsModule,
+    TelemetryModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

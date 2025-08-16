@@ -10,6 +10,8 @@
     "dev": "concurrently -n frontend,backend -c \"cyan,magenta\" \"yarn --cwd apps/frontend dev\" \"yarn --cwd apps/backend start:dev\"",
     "dev:frontend": "yarn --cwd apps/frontend dev",
     "dev:backend": "yarn --cwd apps/backend start:dev",
+    "dev:otel": "docker-compose -f docker-compose.otel.yml up -d",
+    "dev:full": "yarn dev:otel && yarn dev",
     "build": "yarn --cwd apps/frontend build && yarn --cwd apps/backend build",
     "test": "yarn --cwd apps/backend test",
     "test:e2e": "playwright test",

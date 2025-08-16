@@ -9,6 +9,12 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './auth/AuthContext';
 import { queryClient } from './queryClient';
 import { Toaster } from 'sonner';
+import { initializeTracing } from './telemetry/tracing';
+
+// Initialize OpenTelemetry tracing
+if (import.meta.env.MODE !== 'test') {
+  initializeTracing();
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

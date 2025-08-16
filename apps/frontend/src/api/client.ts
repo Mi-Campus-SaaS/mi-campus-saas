@@ -1,4 +1,5 @@
 import axios, { AxiosHeaders, type AxiosError, type AxiosRequestConfig } from 'axios';
+import { injectTraceHeaders } from '../telemetry/tracing';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
@@ -54,17 +55,31 @@ export function setLogoutHandler(handler: () => void) {
 api.interceptors.request.use((config) => {
   const saved = getStoredAuth();
   const token = saved?.access_token;
-  if (!token) return config;
+
+  // Add trace headers to all requests
+  const traceHeaders = injectTraceHeaders();
+
   if (config.headers instanceof AxiosHeaders) {
-    if (!config.headers.has('Authorization')) config.headers.set('Authorization', `Bearer ${token}`);
+    if (!config.headers.has('Authorization') && token) {
+      config.headers.set('Authorization', `Bearer ${token}`);
+    }
+    Object.entries(traceHeaders).forEach(([key, value]) => {
+      config.headers.set(key, value);
+    });
     return config;
   }
+
   if (!config.headers) {
-    config.headers = new AxiosHeaders({ Authorization: `Bearer ${token}` });
+    config.headers = new AxiosHeaders({
+      Authorization: token ? `Bearer ${token}` : undefined,
+      ...traceHeaders,
+    });
     return config;
   }
+
   const h = config.headers as unknown as Record<string, string>;
-  if (!('Authorization' in h)) h['Authorization'] = `Bearer ${token}`;
+  if (!('Authorization' in h) && token) h['Authorization'] = `Bearer ${token}`;
+  Object.assign(h, traceHeaders);
   return config;
 });
 
