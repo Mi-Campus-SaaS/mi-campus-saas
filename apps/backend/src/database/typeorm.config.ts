@@ -22,7 +22,7 @@ export const createTypeOrmConfig = (): TypeOrmModuleOptions => {
           type: 'postgres',
           url,
           ssl: sslEnabled ? { rejectUnauthorized: false } : undefined,
-          synchronize: false,
+          synchronize: process.env.NODE_ENV === 'test',
           ...common,
         }
       : {
@@ -33,7 +33,7 @@ export const createTypeOrmConfig = (): TypeOrmModuleOptions => {
           password: process.env.PGPASSWORD || 'postgres',
           database: process.env.PGDATABASE || 'micampus',
           ssl: sslEnabled ? { rejectUnauthorized: false } : undefined,
-          synchronize: false,
+          synchronize: process.env.NODE_ENV === 'test',
           ...common,
         };
     return cfg;

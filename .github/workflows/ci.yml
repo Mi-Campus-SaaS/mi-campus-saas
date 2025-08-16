@@ -1,15 +1,34 @@
-name: ci
-
-on:
-  push:
-    branches:
-      - '**'
-  pull_request:
-
+name: CI
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  build-and-test:
-    runs-on: ubuntu-24.04
+  lint:
+    name: Lint (FE + BE)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run lint
+        run: yarn lint
 
+  test-backend:
+    name: Test Backend (Jest)
+    runs-on: ubuntu-latest
+    needs: [lint]
     services:
       postgres:
         image: postgres:17
@@ -23,31 +42,147 @@ jobs:
           --health-cmd="pg_isready -U postgres -d micampus"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=30
-
+          --health-retries=10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
-
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
-      - name: Lint
-        run: yarn lint
-
-      # Tests default to SQLite per configuration; DB service is available if you want to run against Postgres.
-      - name: Test (SQLite default)
-        run: yarn test
+      - name: Run backend unit tests
         env:
           NODE_ENV: test
+          DB_TYPE: postgres
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: micampus
+        run: yarn --cwd apps/backend test --ci --runInBand
 
-      - name: Build
-        run: yarn build
+  typecheck-frontend:
+    name: Typecheck Frontend (TS)
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Type check
+        run: yarn --cwd apps/frontend run tsc -b --pretty false
+
+  e2e:
+    name: Playwright Tests (E2E + Visual)
+    runs-on: ubuntu-latest
+    needs: [lint, test-backend, typecheck-frontend]
+    timeout-minutes: 30
+    env:
+      # Backend configuration
+      PORT: 8080
+      JWT_SECRET: your-super-secret-jwt-key-at-least-32-characters-long-for-testing
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-at-least-32-characters-long-for-testing
+      DATABASE_PATH: ./data/dev.sqlite
+      UPLOAD_DIR: uploads
+      OTEL_ENABLED: false
+      CORS_ALLOWLIST: http://localhost:5173,http://localhost:8080
+      # Frontend configuration
+      VITE_API_URL: http://localhost:8080/api
+      VITE_OTEL_ENDPOINT: http://localhost:4318/v1/traces
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Seed database
+        run: yarn --cwd apps/backend seed:dev
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Start backend server
+        run: |
+          cd apps/backend
+          yarn start:dev &
+          sleep 10
+          curl -f http://localhost:8080/api/health || exit 1
+      - name: Start frontend server
+        run: |
+          cd apps/frontend
+          yarn dev &
+          sleep 10
+          curl -f http://localhost:5173 || exit 1
+      - name: Run functional Playwright tests
+        run: yarn test:e2e tests/e2e/happy-path.spec.ts
+      - name: Run visual regression tests
+        run: yarn test:visual
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          if-no-files-found: ignore
+      - name: Upload screenshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diffs
+          path: test-results
+          if-no-files-found: ignore
+
+  budgets:
+    name: Budgets (Bundle + Perf)
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck-frontend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run bundle budgets
+        run: yarn budgets:bundle
+      - name: Run performance budgets
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'
+          CHROME_PATH: $(node -e "console.log(require('puppeteer').executablePath())")
+        run: yarn budgets:perf
 
 
