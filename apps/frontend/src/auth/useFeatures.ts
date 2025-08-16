@@ -1,6 +1,8 @@
 import { useAuth } from './useAuth';
 import { checkFeature, getFeatureMessage, getAvailableFeatures, type FeatureKey } from './features';
 
+export type { FeatureKey };
+
 export const useFeature = (feature: FeatureKey): boolean => {
   const { user } = useAuth();
   return checkFeature(feature, user?.role);

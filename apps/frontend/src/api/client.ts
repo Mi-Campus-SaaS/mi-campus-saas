@@ -70,10 +70,11 @@ api.interceptors.request.use((config) => {
   }
 
   if (!config.headers) {
-    config.headers = new AxiosHeaders({
-      Authorization: token ? `Bearer ${token}` : undefined,
-      ...traceHeaders,
-    });
+    const headers: Record<string, string> = { ...traceHeaders };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    config.headers = new AxiosHeaders(headers);
     return config;
   }
 
