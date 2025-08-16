@@ -12,9 +12,16 @@ export type ClassMaterial = {
   createdAt?: string | Date | null;
 };
 
+export type PaginatedResponse<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
 export async function listClassMaterials(classId: string): Promise<ClassMaterial[]> {
-  const res = await api.get<ClassMaterial[]>(`/classes/${classId}/materials`);
-  return res.data;
+  const res = await api.get<PaginatedResponse<ClassMaterial>>(`/classes/${classId}/materials`);
+  return res.data.data || [];
 }
 
 export async function uploadClassMaterial(

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { listClassMaterials, uploadClassMaterial, type ClassMaterial } from '../api/materials';
+import { listClassMaterials, uploadClassMaterial, type ClassMaterial, type PaginatedResponse } from '../api/materials';
 import { queryClient } from '../queryClient';
 import { useAuth } from '../auth/useAuth';
 import { uploadMaterialSchema } from '../validation/schemas';
@@ -31,6 +31,19 @@ const MaterialsPage: React.FC = () => {
     mutationFn: (vars: { title: string; description?: string; file: File }) => uploadClassMaterial(classId, vars),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['materials', 'class', classId] }),
   });
+
+  // Handle both array and paginated response formats
+  const materials = useMemo(() => {
+    if (!data) return [];
+    // If data is an array, use it directly
+    if (Array.isArray(data)) return data;
+    // If data has a data property (paginated response), use that
+    if (data && typeof data === 'object' && 'data' in data) {
+      const paginatedData = data as PaginatedResponse<ClassMaterial>;
+      return paginatedData.data || [];
+    }
+    return [];
+  }, [data]);
 
   return (
     <div className="p-6 space-y-6">
@@ -126,7 +139,7 @@ const MaterialsPage: React.FC = () => {
       )}
 
       <div className="space-y-3">
-        {data?.map((m: ClassMaterial) => (
+        {materials.map((m: ClassMaterial) => (
           <div key={m.id} className="card rounded-lg shadow-sm p-4 flex items-center justify-between">
             <div>
               <div className={`font-medium ${styles.materialTitle}`}>{m.title}</div>
