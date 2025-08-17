@@ -74,7 +74,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException();
     const accessToken = await this.generateAccessToken(user);
     const { token: refreshToken } = await this.issueRefreshToken(user, ip);
-    this.audit?.log({ type: 'auth.login', userId: user.id, ip: ip ?? undefined });
+    void this.audit?.log({ type: 'auth.login', userId: user.id, ip: ip ?? undefined });
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -113,7 +113,7 @@ export class AuthService {
       access_token: accessToken,
       refresh_token: newRefresh,
     };
-    this.audit?.log({ type: 'auth.refresh', userId: user.id, ip: ip ?? undefined });
+    void this.audit?.log({ type: 'auth.refresh', userId: user.id, ip: ip ?? undefined });
     return result;
   }
 
@@ -129,6 +129,6 @@ export class AuthService {
     token.revokedReason = 'logout';
     token.revokedByIp = ip ?? null;
     await this.refreshTokenRepo.save(token);
-    this.audit?.log({ type: 'auth.logout', userId: token.user?.id, ip: ip ?? undefined });
+    void this.audit?.log({ type: 'auth.logout', userId: token.user?.id, ip: ip ?? undefined });
   }
 }

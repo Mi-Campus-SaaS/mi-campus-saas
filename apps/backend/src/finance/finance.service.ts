@@ -35,7 +35,7 @@ export class FinanceService {
   createFee(data: Partial<FeeInvoice>) {
     const f = this.feeRepo.create(data);
     return this.feeRepo.save(f).then((saved) => {
-      this.audit.log({
+      void this.audit.log({
         type: 'finance.create_fee',
         // actorId omitted without request context; could be added via interceptor
         studentId: (saved.student as unknown as Student).id,
@@ -51,7 +51,7 @@ export class FinanceService {
     const p = this.paymentRepo.create({ invoice: { id: invoiceId } as unknown as FeeInvoice, amount, reference });
     return this.paymentRepo.save(p).then(async (res) => {
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
-      this.audit.log({ type: 'finance.record_payment', invoiceId, amount });
+      void this.audit.log({ type: 'finance.record_payment', invoiceId, amount });
       this.httpCache.invalidateByPrefix('http-cache:fees');
       return res;
     });
