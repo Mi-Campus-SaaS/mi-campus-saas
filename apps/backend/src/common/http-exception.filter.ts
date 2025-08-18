@@ -108,6 +108,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     const { status, body } = buildStandardError(exception);
+    if (response.headersSent || (response as unknown as { writableEnded?: boolean }).writableEnded) {
+      return;
+    }
     response.status(status).json({ code: body.code, message: body.message, details: body.details ?? null });
   }
 }

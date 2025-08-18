@@ -24,6 +24,12 @@ import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
 import { Throttle } from '@nestjs/throttler';
+import {
+  getAllowedExtensionsFromEnv,
+  hasDangerousDoubleExtension,
+  isAllowedExtension,
+  extensionToMime,
+} from '../common/upload.util';
 
 const MATERIALS_LIMIT = Number(process.env.MATERIALS_THROTTLE_LIMIT ?? 20);
 const MATERIALS_TTL = Number(process.env.MATERIALS_THROTTLE_TTL_SECONDS ?? 60);
@@ -61,20 +67,31 @@ export class MaterialsController {
         filename: (req, file, cb) => {
           const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = (file.originalname.split('.').pop() || '').toLowerCase();
-          cb(null, `${unique}.${ext}`);
+          // Normalize extension for jpg/jpeg
+          const normalizedExt = ext === 'jpeg' ? 'jpg' : ext;
+          cb(null, `${unique}.${normalizedExt}`);
         },
       }),
       fileFilter: (req, file, cb) => {
-        const allowed = (process.env.ALLOWED_MATERIAL_MIME || 'application/pdf,image/png,image/jpeg,application/zip')
-          .split(',')
-          .map((s) => s.trim().toLowerCase())
-          .filter(Boolean);
-        const isAllowed = allowed.includes(file.mimetype.toLowerCase());
-        if (!isAllowed) return cb(new Error('Invalid file type'), false);
+        const original = file.originalname || '';
+        if (hasDangerousDoubleExtension(original)) {
+          return cb(new Error('Invalid filename'), false);
+        }
+        const allowedExt = getAllowedExtensionsFromEnv();
+        if (!isAllowedExtension(original, allowedExt)) {
+          return cb(new Error('Invalid file extension'), false);
+        }
+        // Compare declared mimetype with extension-derived mime when possible
+        const ext = (original.split('.').pop() || '').toLowerCase();
+        const expectedMime = extensionToMime(ext);
+        if (expectedMime && expectedMime !== file.mimetype.toLowerCase()) {
+          return cb(new Error('MIME type mismatch'), false);
+        }
         return cb(null, true);
       },
       limits: {
         fileSize: parseInt(process.env.MAX_MATERIAL_SIZE_BYTES || String(10 * 1024 * 1024), 10),
+        files: 1,
       },
     }),
   )

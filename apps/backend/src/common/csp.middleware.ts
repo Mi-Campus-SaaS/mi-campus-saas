@@ -31,6 +31,8 @@ export class CspMiddleware implements NestMiddleware {
         return `${directive} ${(values as string[]).join(' ')}`;
       });
 
+    // Prevent MIME sniffing for downloads
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Content-Security-Policy', cspParts.join('; '));
 
     next();

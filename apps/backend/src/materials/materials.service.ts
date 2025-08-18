@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { sniffMimeFromFile } from '../common/upload.util';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository, FindOptionsWhere } from 'typeorm';
 import { Material } from './entities/material.entity';
@@ -30,6 +31,10 @@ export class MaterialsService {
   }
 
   saveUpload(classId: string, title: string, description: string | undefined, file: Express.Multer.File) {
+    const sniffed = sniffMimeFromFile(file.path);
+    if (sniffed !== 'unknown' && sniffed !== file.mimetype) {
+      throw new BadRequestException('File content type does not match declared type');
+    }
     const uploadDir = process.env.UPLOAD_DIR || 'uploads';
     const relativePath = join(uploadDir, file.filename);
     const entity = this.materialsRepo.create({

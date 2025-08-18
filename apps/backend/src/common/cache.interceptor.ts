@@ -1,5 +1,5 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
+import { Observable, of, EMPTY } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
 import { Reflector } from '@nestjs/core';
@@ -61,7 +61,7 @@ export class CacheInterceptor implements NestInterceptor {
       );
       if (shouldReturn304) {
         this.httpCacheService.sendNotModified(response);
-        return of(undefined);
+        return EMPTY;
       }
 
       return of(cached).pipe(
