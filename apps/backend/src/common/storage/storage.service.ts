@@ -21,17 +21,24 @@ export class StorageService {
     this.localDir = process.env.UPLOAD_DIR || 'uploads';
     if (this.mode === 's3') {
       this.bucket = process.env.S3_BUCKET || '';
+      const endpointPart = process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT } : {};
+      const pathStylePart = process.env.S3_FORCE_PATH_STYLE === 'true' ? { forcePathStyle: true as const } : {};
+      const credsPart: Partial<S3ClientConfig> =
+        process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY
+          ? {
+              credentials: {
+                accessKeyId: String(process.env.S3_ACCESS_KEY_ID),
+                secretAccessKey: String(process.env.S3_SECRET_ACCESS_KEY),
+              },
+            }
+          : {};
       const config: S3ClientConfig = {
         region: process.env.S3_REGION || 'us-east-1',
+        ...endpointPart,
+        ...pathStylePart,
+        ...credsPart,
       };
-      if (process.env.S3_ENDPOINT) config.endpoint = process.env.S3_ENDPOINT;
-      if (process.env.S3_FORCE_PATH_STYLE === 'true') config.forcePathStyle = true;
-      if (process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY) {
-        config.credentials = {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID,
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-        };
-      }
+
       this.s3 = new S3Client(config);
     }
   }
@@ -40,14 +47,15 @@ export class StorageService {
     if (this.mode === 's3' && this.s3 && this.bucket) {
       const key = destKey;
       const body = createReadStream(tempPath);
-      await this.s3.send(
-        new PutObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-          Body: body,
-          ContentType: contentType,
-        }),
-      );
+
+      const put = new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+      });
+
+      await this.s3.send(put);
       try {
         unlinkSync(tempPath);
       } catch {
@@ -61,8 +69,9 @@ export class StorageService {
 
   async getSignedUrl(key: string, expiresInSeconds = 300): Promise<string> {
     if (this.mode === 's3' && this.s3 && this.bucket) {
-      const cmd = new GetObjectCommand({ Bucket: this.bucket, Key: key });
-      return getSignedUrl(this.s3, cmd, { expiresIn: expiresInSeconds });
+      const get = new GetObjectCommand({ Bucket: this.bucket, Key: key });
+
+      return getSignedUrl(this.s3, get, { expiresIn: expiresInSeconds });
     }
     // local: return a relative URL under /files (served by ServeStaticModule)
     const base = process.env.PUBLIC_BASE_URL || '';

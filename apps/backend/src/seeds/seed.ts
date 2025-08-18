@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+import { DataSource, type DataSourceOptions } from 'typeorm';
 import { config as dotenvConfig } from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
@@ -19,10 +19,9 @@ import { UserRole } from '../common/roles.enum';
 
 dotenvConfig();
 
-const AppDataSource = new DataSource({
-  type: 'sqlite',
-  database: process.env.DATABASE_PATH || './data/dev.sqlite',
-  entities: [
+function createSeedDataSource(): DataSource {
+  const dbType = (process.env.DB_TYPE || 'sqlite').toLowerCase();
+  const entities = [
     User,
     Student,
     Teacher,
@@ -36,11 +35,45 @@ const AppDataSource = new DataSource({
     Announcement,
     FeeInvoice,
     Payment,
-  ],
-  synchronize: true,
-});
+  ];
+  const common: Pick<DataSourceOptions, 'entities'> = { entities };
+
+  if (dbType === 'postgres' || process.env.DATABASE_URL) {
+    if (process.env.DATABASE_URL) {
+      return new DataSource({
+        type: 'postgres',
+        url: process.env.DATABASE_URL,
+        ssl:
+          process.env.PG_SSL === 'true' || process.env.DATABASE_SSL === 'true'
+            ? { rejectUnauthorized: false }
+            : undefined,
+        synchronize: false,
+        ...common,
+      });
+    }
+    return new DataSource({
+      type: 'postgres',
+      host: process.env.PGHOST || 'localhost',
+      port: Number(process.env.PGPORT || 5432),
+      username: process.env.PGUSER || 'postgres',
+      password: process.env.PGPASSWORD || 'postgres',
+      database: process.env.PGDATABASE || 'micampus',
+      ssl: process.env.PG_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+      synchronize: false,
+      ...common,
+    });
+  }
+
+  return new DataSource({
+    type: 'sqlite',
+    database: process.env.DATABASE_PATH || './data/dev.sqlite',
+    synchronize: true,
+    ...common,
+  });
+}
 
 async function run() {
+  const AppDataSource = createSeedDataSource();
   await AppDataSource.initialize();
   const userRepo = AppDataSource.getRepository(User);
   const studentRepo = AppDataSource.getRepository(Student);

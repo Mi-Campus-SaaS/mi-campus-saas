@@ -35,7 +35,7 @@ export class StudentsService {
       .createQueryBuilder('student')
       .leftJoin('student.grades', 'grade')
       .select(['student.id', 'student.firstName', 'student.lastName'])
-      .addSelect('ROUND(AVG(grade.score * 1.0 / grade.maxScore) * 4, 2)', 'gpa')
+      .addSelect('ROUND(CAST(AVG(grade.score * 1.0 / grade.maxScore) * 4 AS numeric), 2)', 'gpa')
       .groupBy('student.id');
 
     if (q) {

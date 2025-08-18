@@ -5,8 +5,8 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP HTTP receiver
+      - "14317:4317"   # OTLP gRPC receiver (host 14317)
+      - "14318:4318"   # OTLP HTTP receiver (host 14318)
       - "55679:55679" # zpages extension
     networks:
       - otel-network
@@ -22,6 +22,22 @@ services:
     networks:
       - otel-network
 
+  postgres:
+    image: postgres:17
+    container_name: micampus-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=micampus
+    ports:
+      - "5432:5432"
+    volumes:
+      - micampus-pgdata:/var/lib/postgresql/data
+    networks:
+      - otel-network
+
 networks:
   otel-network:
     driver: bridge
+volumes:
+  micampus-pgdata:

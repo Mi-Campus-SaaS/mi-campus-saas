@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { FeeInvoice } from './entities/fee.entity';
 import { Payment } from './entities/payment.entity';
 import { Student } from '../students/entities/student.entity';
@@ -44,7 +44,7 @@ export class FinanceService {
           dueDate: String(saved.dueDate),
         })
         .catch(() => {});
-      this.httpCache.invalidateByPrefix('http-cache:fees');
+      this.httpCache.invalidateByPrefix('http-cache:/api/fees');
       return saved;
     });
   }
@@ -54,7 +54,7 @@ export class FinanceService {
     return this.paymentRepo.save(p).then(async (res) => {
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
       this.audit.log({ type: 'finance.record_payment', invoiceId, amount }).catch(() => {});
-      this.httpCache.invalidateByPrefix('http-cache:fees');
+      this.httpCache.invalidateByPrefix('http-cache:/api/fees');
       return res;
     });
   }
@@ -63,6 +63,6 @@ export class FinanceService {
     const invoices = await this.feeRepo.find({ where: { student: { id: studentId } as unknown as Student } });
     const ids = invoices.map((i) => i.id);
     if (ids.length === 0) return [] as Payment[];
-    return this.paymentRepo.find({ where: { invoice: { id: ids as unknown as string } as unknown as FeeInvoice } });
+    return this.paymentRepo.find({ where: { invoice: { id: In(ids) } as unknown as FeeInvoice } });
   }
 }
