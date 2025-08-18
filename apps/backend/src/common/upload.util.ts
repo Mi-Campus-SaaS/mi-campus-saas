@@ -76,7 +76,7 @@ export function sniffMimeFromFile(filePath: string): string {
 }
 
 export function sniffMimeFromBuffer(buffer: Buffer): string {
-  if (buffer.length >= 5 && buffer.slice(0, 5).toString('ascii') === '%PDF-') return 'application/pdf';
+  if (buffer.length >= 5 && buffer.subarray(0, 5).toString('ascii') === '%PDF-') return 'application/pdf';
   if (
     buffer.length >= 8 &&
     buffer[0] === 0x89 &&

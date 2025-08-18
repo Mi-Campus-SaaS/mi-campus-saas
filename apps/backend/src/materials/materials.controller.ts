@@ -24,6 +24,7 @@ import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { OwnershipGuard } from '../common/ownership.guard';
 import { Ownership } from '../common/ownership.decorator';
 import { Throttle } from '@nestjs/throttler';
+import { StorageService } from '../common/storage/storage.service';
 import {
   getAllowedExtensionsFromEnv,
   hasDangerousDoubleExtension,
@@ -37,7 +38,10 @@ const MATERIALS_TTL = Number(process.env.MATERIALS_THROTTLE_TTL_SECONDS ?? 60);
 @UseGuards(JwtAuthGuard, RolesGuard, OwnershipGuard)
 @Controller('classes/:id/materials')
 export class MaterialsController {
-  constructor(private readonly materialsService: MaterialsService) {}
+  constructor(
+    private readonly materialsService: MaterialsService,
+    private readonly storage: StorageService,
+  ) {}
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
   @Ownership({ type: 'classParam', key: 'id' })
@@ -101,5 +105,16 @@ export class MaterialsController {
     @Body() body: UploadMaterialDto,
   ) {
     return this.materialsService.saveUpload(classId, body.title, body.description, file);
+  }
+
+  @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
+  @Ownership({ type: 'classParam', key: 'id' })
+  @Get(':materialId/signed-url')
+  async getSignedUrl(
+    @Param('id', ParseUUIDPipe) classId: string,
+    @Param('materialId', ParseUUIDPipe) materialId: string,
+  ) {
+    const url = await this.materialsService.getSignedUrlForMaterial(classId, materialId);
+    return { url };
   }
 }

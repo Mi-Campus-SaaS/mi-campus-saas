@@ -2,9 +2,6 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
   <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
@@ -28,7 +25,7 @@
 ## Project setup
 
 ```bash
-$ yarn install
+yarn install
 ```
 
 ## Compile and run the project
@@ -64,8 +61,8 @@ When you're ready to deploy your NestJS application to production, there are som
 If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+yarn install -g @nestjs/mau
+mau deploy
 ```
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
@@ -94,5 +91,36 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
+
+## File uploads
+
+Uploads are stored under `UPLOAD_DIR` and served from `/files` by default. You can switch to S3/MinIO storage.
+
+Environment:
+
+```env
+UPLOAD_DIR=uploads
+STORAGE_MODE=local # or s3
+# If STORAGE_MODE=s3 (MinIO example)
+# S3_ENDPOINT=http://localhost:9000
+# S3_REGION=us-east-1
+# S3_BUCKET=materials
+# S3_ACCESS_KEY_ID=minioadmin
+# S3_SECRET_ACCESS_KEY=minioadmin
+# S3_FORCE_PATH_STYLE=true
+# Optional base URL for local signed URLs
+# PUBLIC_BASE_URL=http://localhost:8080
+
+# Upload security
+ALLOWED_MATERIAL_EXT=pdf,png,jpg,jpeg,zip
+MAX_MATERIAL_SIZE_BYTES=10485760
+MATERIALS_THROTTLE_LIMIT=20
+MATERIALS_THROTTLE_TTL_SECONDS=60
+```
+
+Signed URLs:
+
+- When using S3/MinIO, signed URLs are generated via AWS SDK (default 5 minutes).
+- In local mode, signed URLs resolve to `/files/<key>` using `PUBLIC_BASE_URL` if set.
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

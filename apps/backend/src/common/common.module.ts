@@ -15,6 +15,7 @@ import { CspMiddleware } from './csp.middleware';
 import { CorsService } from './cors.service';
 import { HttpCacheService } from './http-cache.service';
 import { CacheInterceptor } from './cache.interceptor';
+import { StorageService } from './storage/storage.service';
 
 @Module({
   imports: [ConfigModule, TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent])],
@@ -27,6 +28,7 @@ import { CacheInterceptor } from './cache.interceptor';
     CorsService,
     HttpCacheService,
     CacheInterceptor,
+    StorageService,
   ],
   exports: [
     OwnershipGuard,
@@ -36,6 +38,7 @@ import { CacheInterceptor } from './cache.interceptor';
     CorsService,
     HttpCacheService,
     CacheInterceptor,
+    StorageService,
   ],
 })
 export class CommonModule {
