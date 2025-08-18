@@ -74,7 +74,8 @@ export class AuthService {
     if (!user) throw new UnauthorizedException();
     const accessToken = await this.generateAccessToken(user);
     const { token: refreshToken } = await this.issueRefreshToken(user, ip);
-    void this.audit?.log({ type: 'auth.login', userId: user.id, ip: ip ?? undefined });
+    // Fire-and-forget audit logging; errors are intentionally not blocking auth flow
+    this.audit?.log({ type: 'auth.login', userId: user.id, ip: ip ?? undefined }).catch(() => {});
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -113,7 +114,7 @@ export class AuthService {
       access_token: accessToken,
       refresh_token: newRefresh,
     };
-    void this.audit?.log({ type: 'auth.refresh', userId: user.id, ip: ip ?? undefined });
+    this.audit?.log({ type: 'auth.refresh', userId: user.id, ip: ip ?? undefined }).catch(() => {});
     return result;
   }
 
@@ -129,6 +130,6 @@ export class AuthService {
     token.revokedReason = 'logout';
     token.revokedByIp = ip ?? null;
     await this.refreshTokenRepo.save(token);
-    void this.audit?.log({ type: 'auth.logout', userId: token.user?.id, ip: ip ?? undefined });
+    this.audit?.log({ type: 'auth.logout', userId: token.user?.id, ip: ip ?? undefined }).catch(() => {});
   }
 }

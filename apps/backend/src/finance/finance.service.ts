@@ -35,13 +35,15 @@ export class FinanceService {
   createFee(data: Partial<FeeInvoice>) {
     const f = this.feeRepo.create(data);
     return this.feeRepo.save(f).then((saved) => {
-      void this.audit.log({
-        type: 'finance.create_fee',
-        // actorId omitted without request context; could be added via interceptor
-        studentId: (saved.student as unknown as Student).id,
-        amount: saved.amount,
-        dueDate: String(saved.dueDate),
-      });
+      this.audit
+        .log({
+          type: 'finance.create_fee',
+          // actorId omitted without request context; could be added via interceptor
+          studentId: (saved.student as unknown as Student).id,
+          amount: saved.amount,
+          dueDate: String(saved.dueDate),
+        })
+        .catch(() => {});
       this.httpCache.invalidateByPrefix('http-cache:fees');
       return saved;
     });
@@ -51,7 +53,7 @@ export class FinanceService {
     const p = this.paymentRepo.create({ invoice: { id: invoiceId } as unknown as FeeInvoice, amount, reference });
     return this.paymentRepo.save(p).then(async (res) => {
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
-      void this.audit.log({ type: 'finance.record_payment', invoiceId, amount });
+      this.audit.log({ type: 'finance.record_payment', invoiceId, amount }).catch(() => {});
       this.httpCache.invalidateByPrefix('http-cache:fees');
       return res;
     });
