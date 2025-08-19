@@ -1,6 +1,7 @@
-import { IsDateString, IsIn, IsInt, IsOptional, IsPositive, IsString, Max, Min } from 'class-validator';
+import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { PaginationQueryDto } from '../../common/dto/pagination.dto';
 
-export class QueryAuditDto {
+export class QueryAuditDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   type?: string;
@@ -20,19 +21,4 @@ export class QueryAuditDto {
   @IsOptional()
   @IsDateString()
   to?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  page?: number = 1;
-
-  @IsOptional()
-  @IsInt()
-  @IsPositive()
-  @Max(100)
-  limit?: number = 20;
-
-  @IsOptional()
-  @IsIn(['asc', 'desc'])
-  sortDir?: 'asc' | 'desc' = 'desc';
 }

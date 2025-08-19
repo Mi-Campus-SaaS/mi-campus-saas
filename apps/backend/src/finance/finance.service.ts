@@ -59,10 +59,19 @@ export class FinanceService {
     });
   }
 
-  async listPaymentsForStudent(studentId: string) {
+  async listPaymentsForStudent(studentId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<Payment>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 20;
     const invoices = await this.feeRepo.find({ where: { student: { id: studentId } as unknown as Student } });
     const ids = invoices.map((i) => i.id);
-    if (ids.length === 0) return [] as Payment[];
-    return this.paymentRepo.find({ where: { invoice: { id: In(ids) } as unknown as FeeInvoice } });
+    if (ids.length === 0) return { data: [], total: 0, page, limit };
+    const [rows, total] = await this.paymentRepo.findAndCount({
+      where: { invoice: { id: In(ids) } as unknown as FeeInvoice },
+      order: { paidAt: (query?.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: { invoice: true },
+    });
+    return { data: rows, total, page, limit };
   }
 }

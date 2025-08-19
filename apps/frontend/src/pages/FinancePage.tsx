@@ -371,7 +371,7 @@ const FinancePage: React.FC = () => {
             </div>
           ) : (
             <ul className="space-y-2">
-              {paymentsQ.data?.map((p: Payment) => (
+              {paymentsQ.data?.data?.map((p: Payment) => (
                 <li
                   key={p.id}
                   className={`border rounded p-3 flex items-center justify-between ${styles.input} ${styles.hoverBg}`}

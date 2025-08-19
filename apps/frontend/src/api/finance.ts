@@ -21,8 +21,8 @@ export async function listFees(studentId: string): Promise<Paginated<FeeInvoice>
   return res.data;
 }
 
-export async function listPayments(studentId: string): Promise<Payment[]> {
-  const res = await api.get<Payment[]>(`/payments`, { params: { studentId } });
+export async function listPayments(studentId: string): Promise<Paginated<Payment>> {
+  const res = await api.get<Paginated<Payment>>(`/payments`, { params: { studentId } });
   return res.data;
 }
 

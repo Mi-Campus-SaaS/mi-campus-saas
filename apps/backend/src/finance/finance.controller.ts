@@ -78,7 +78,7 @@ export class FinanceController {
       ttl: FINANCE_TTL,
     },
   })
-  listPayments(@Query('studentId') studentId: string) {
-    return this.financeService.listPaymentsForStudent(studentId);
+  listPayments(@Query() query: { studentId: string } & PaginationQueryDto) {
+    return this.financeService.listPaymentsForStudent(query.studentId, query);
   }
 }

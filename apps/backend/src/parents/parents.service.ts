@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Parent } from './entities/parent.entity';
 import { Student } from '../students/entities/student.entity';
+import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class ParentsService {
@@ -11,10 +12,16 @@ export class ParentsService {
     @InjectRepository(Student) private readonly studentsRepo: Repository<Student>,
   ) {}
 
-  async listChildren(parentId: string) {
+  async listChildren(parentId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<Student>> {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 20;
     const parent = await this.parentsRepo.findOne({ where: { id: parentId }, relations: { children: true } });
     if (!parent) throw new NotFoundException('Parent not found');
-    return parent.children ?? [];
+    const children = parent.children ?? [];
+    const total = children.length;
+    const start = (page - 1) * limit;
+    const data = children.slice(start, start + limit);
+    return { data, total, page, limit };
   }
 
   async linkChild(parentId: string, studentId: string) {
