@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand, GetObjectCommand, type S3ClientConfig } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  type S3ClientConfig,
+  HeadBucketCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { createReadStream, unlinkSync } from 'fs';
+import { createReadStream, unlinkSync, promises as fsPromises, constants as fsConstants } from 'fs';
 import { join } from 'path';
 
 export interface UploadTarget {
@@ -77,5 +83,23 @@ export class StorageService {
     const base = process.env.PUBLIC_BASE_URL || '';
     const cleanedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     return `${cleanedBase}/files/${key}`;
+  }
+
+  async isReady(): Promise<boolean> {
+    if (this.mode === 's3') {
+      if (!this.s3 || !this.bucket) return false;
+      try {
+        await this.s3.send(new HeadBucketCommand({ Bucket: this.bucket }));
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    try {
+      await fsPromises.access(this.localDir, fsConstants.R_OK | fsConstants.W_OK);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

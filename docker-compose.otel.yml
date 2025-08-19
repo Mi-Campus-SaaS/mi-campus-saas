@@ -36,8 +36,20 @@ services:
     networks:
       - otel-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: micampus-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - micampus-redis-data:/data
+    networks:
+      - otel-network
+
 networks:
   otel-network:
     driver: bridge
 volumes:
   micampus-pgdata:
+  micampus-redis-data:
