@@ -49,14 +49,34 @@ export class FinanceService {
     });
   }
 
-  recordPayment(invoiceId: string, amount: number, reference?: string) {
-    const p = this.paymentRepo.create({ invoice: { id: invoiceId } as unknown as FeeInvoice, amount, reference });
-    return this.paymentRepo.save(p).then(async (res) => {
+  async recordPayment(
+    invoiceId: string,
+    amount: number,
+    reference: string | undefined,
+    idempotencyKey: string,
+  ): Promise<Payment> {
+    // Fast-path: return existing if idempotency key was used before
+    const existing = await this.paymentRepo.findOne({ where: { idempotencyKey }, relations: { invoice: true } });
+    if (existing) return existing;
+
+    const p = this.paymentRepo.create({
+      invoice: { id: invoiceId } as unknown as FeeInvoice,
+      amount,
+      reference,
+      idempotencyKey,
+    });
+    try {
+      const saved = await this.paymentRepo.save(p);
       await this.feeRepo.update({ id: invoiceId }, { status: 'paid' });
       this.audit.log({ type: 'finance.record_payment', invoiceId, amount }).catch(() => {});
       this.httpCache.invalidateByPrefix('http-cache:/api/fees');
-      return res;
-    });
+      return saved;
+    } catch (error) {
+      // Handle race: another request saved the same idempotency key concurrently
+      const fallback = await this.paymentRepo.findOne({ where: { idempotencyKey }, relations: { invoice: true } });
+      if (fallback) return fallback;
+      throw error;
+    }
   }
 
   async listPaymentsForStudent(studentId: string, query?: PaginationQueryDto): Promise<PaginatedResponse<Payment>> {

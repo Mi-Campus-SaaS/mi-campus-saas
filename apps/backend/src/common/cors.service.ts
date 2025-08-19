@@ -28,7 +28,14 @@ export class CorsService {
             origin: false,
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+            allowedHeaders: [
+              'Content-Type',
+              'Authorization',
+              'X-Requested-With',
+              'Idempotency-Key',
+              'idempotency-key',
+              'X-Idempotency-Key',
+            ],
           });
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
@@ -45,7 +52,14 @@ export class CorsService {
           origin: true,
           credentials: true,
           methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-          allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+          allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'X-Requested-With',
+            'Idempotency-Key',
+            'idempotency-key',
+            'X-Idempotency-Key',
+          ],
         });
       } else {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -114,7 +128,14 @@ export class CorsService {
       origin: true, // Allow all origins in development
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'Idempotency-Key',
+        'idempotency-key',
+        'X-Idempotency-Key',
+      ],
     };
   }
 }

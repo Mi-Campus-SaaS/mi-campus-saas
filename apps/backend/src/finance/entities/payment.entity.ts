@@ -18,4 +18,8 @@ export class Payment {
   @Index('UQ_payment_reference', { unique: true })
   @Column({ nullable: true })
   reference?: string;
+
+  @Index('UQ_payment_idempotency', { unique: true })
+  @Column({ nullable: true, length: 128, select: false })
+  idempotencyKey!: string;
 }

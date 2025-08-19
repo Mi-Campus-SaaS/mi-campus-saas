@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  Headers,
+  BadRequestException,
+} from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
@@ -65,8 +75,12 @@ export class FinanceController {
       ttl: FINANCE_TTL,
     },
   })
-  pay(@Body() body: RecordPaymentDto) {
-    return this.financeService.recordPayment(body.invoiceId, body.amount, body.reference);
+  pay(@Body() body: RecordPaymentDto, @Headers() headers: Record<string, string | undefined>) {
+    const headerKey = headers['idempotency-key'] || headers['Idempotency-Key'] || headers['x-idempotency-key'];
+    if (!headerKey) {
+      throw new BadRequestException('Missing Idempotency-Key header');
+    }
+    return this.financeService.recordPayment(body.invoiceId, body.amount, body.reference, headerKey);
   }
 
   @Roles(UserRole.ADMIN, UserRole.PARENT)

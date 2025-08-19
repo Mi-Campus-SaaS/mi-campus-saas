@@ -41,6 +41,9 @@ export async function recordPayment(input: {
   amount: number;
   reference?: string;
 }): Promise<Payment> {
-  const res = await api.post<Payment>(`/payments`, input);
+  const idem = `inv:${input.invoiceId}|amt:${input.amount}|ref:${input.reference || ''}`;
+  const res = await api.post<Payment>(`/payments`, input, {
+    headers: { 'Idempotency-Key': idem },
+  });
   return res.data;
 }
