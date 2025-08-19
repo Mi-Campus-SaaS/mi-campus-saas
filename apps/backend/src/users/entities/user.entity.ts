@@ -1,10 +1,11 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { UserRole } from '../../common/roles.enum';
 import { Student } from '../../students/entities/student.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
 
 @Entity()
-export class User {
+export class User extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

@@ -1,9 +1,10 @@
-import { Column, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { ClassEntity } from '../../classes/entities/class.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
 
 @Entity()
-export class Announcement {
+export class Announcement extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -16,16 +17,11 @@ export class Announcement {
   @ManyToOne(() => ClassEntity, { nullable: true })
   classEntity?: ClassEntity | null; // null = whole school
 
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  createdAt!: Date;
+  // createdAt inherited
 
   // When the announcement becomes visible
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   publishAt!: Date;
 
-  @UpdateDateColumn({ nullable: true })
-  updatedAt?: Date | null;
-
-  @DeleteDateColumn({ nullable: true })
-  deletedAt?: Date | null;
+  // updatedAt/deletedAt inherited
 }

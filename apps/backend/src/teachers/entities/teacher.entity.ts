@@ -1,9 +1,10 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { ClassEntity } from '../../classes/entities/class.entity';
 
 @Entity()
-export class Teacher {
+export class Teacher extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

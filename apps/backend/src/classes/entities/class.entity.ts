@@ -1,10 +1,11 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
 import { Enrollment } from './enrollment.entity';
 import { ClassSession } from './class-session.entity';
 
 @Entity()
-export class ClassEntity {
+export class ClassEntity extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

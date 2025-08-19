@@ -1,9 +1,10 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { ClassEntity } from '../../classes/entities/class.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
 
 @Entity()
-export class Material {
+export class Material extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -34,6 +35,5 @@ export class Material {
   @Column({ type: 'int', nullable: true })
   size?: number;
 
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  createdAt!: Date;
+  // createdAt/updatedAt/deletedAt inherited
 }

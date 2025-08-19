@@ -1,8 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { ClassEntity } from './class.entity';
 
 @Entity()
-export class ClassSession {
+export class ClassSession extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

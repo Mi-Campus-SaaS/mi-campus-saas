@@ -1,8 +1,9 @@
 import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { FeeInvoice } from './fee.entity';
 
 @Entity()
-export class Payment {
+export class Payment extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

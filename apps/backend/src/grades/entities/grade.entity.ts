@@ -1,11 +1,12 @@
 import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 import { Student } from '../../students/entities/student.entity';
 import { ClassEntity } from '../../classes/entities/class.entity';
 
 @Entity()
 @Index('IDX_grade_student', ['student'])
 @Index('IDX_grade_class', ['classEntity'])
-export class Grade {
+export class Grade extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 

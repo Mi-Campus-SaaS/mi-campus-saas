@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { TimestampedEntity } from '../../common/entities/base.entity';
 
 @Entity()
-export class RefreshToken {
+export class RefreshToken extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -26,9 +27,7 @@ export class RefreshToken {
   @Column({ type: 'varchar', length: 36, nullable: true })
   replacedByTokenId?: string | null;
 
-  @CreateDateColumn()
-  createdAt!: Date;
-
+  // createdAt inherited from TimestampedEntity
   @Column({ type: 'varchar', length: 45, nullable: true })
   createdByIp?: string | null;
 
