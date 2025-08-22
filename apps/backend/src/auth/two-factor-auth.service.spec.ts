@@ -54,11 +54,14 @@ describe('TwoFactorAuthService', () => {
       const mockSecret = {
         base32: 'JBSWY3DPEHPK3PXP',
         otpauth_url: 'otpauth://totp/MI%20Campus%20(admin)?secret=JBSWY3DPEHPK3PXP&issuer=MI%20Campus',
+        ascii: 'mock-ascii',
+        hex: 'mock-hex',
+        google_auth_qr: 'mock-google-auth-qr',
       };
       const mockQrCode = 'data:image/png;base64,mock-qr-code';
 
-      jest.spyOn(speakeasy, 'generateSecret').mockReturnValue(mockSecret);
-      jest.spyOn(QRCode, 'toDataURL').mockResolvedValue(mockQrCode);
+      jest.spyOn(speakeasy, 'generateSecret').mockReturnValue(mockSecret as any);
+      (QRCode.toDataURL as jest.Mock).mockResolvedValue(mockQrCode);
 
       const result = await service.generateSecret(mockUser);
 
@@ -67,7 +70,7 @@ describe('TwoFactorAuthService', () => {
         issuer: 'MI Campus',
         length: 32,
       });
-      expect(QRCode.toDataURL).toHaveBeenCalledWith(mockSecret.otpauth_url);
+      expect(QRCode.toDataURL as jest.Mock).toHaveBeenCalledWith(mockSecret.otpauth_url);
       expect(result).toEqual({
         secret: mockSecret.base32,
         qrCode: mockQrCode,
