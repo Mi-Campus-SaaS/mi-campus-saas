@@ -3,5 +3,5 @@
 # Run lint-staged first (for staged files only)
 npx lint-staged
 
-# Run full pre-commit checks (fast version - skips tests)
-yarn pre-commit:fast
+# Run full pre-commit checks (including tests)
+yarn pre-commit

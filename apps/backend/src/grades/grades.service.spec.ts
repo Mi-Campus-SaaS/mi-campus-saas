@@ -56,7 +56,7 @@ describe('GradesService GPA snapshots', () => {
       Object.assign(created, payload);
       return payload as GpaSnapshot;
     });
-    snapshotsRepo.save.mockImplementation(async (s: GpaSnapshot) => ({ id: 'snap-1', ...s }) as GpaSnapshot);
+    snapshotsRepo.save.mockImplementation(async (s: GpaSnapshot) => ({ ...s, id: 'snap-1' }) as GpaSnapshot);
 
     const result = await service.snapshotStudentGpa('student-1');
     expect(result.gpa).toBe(4);

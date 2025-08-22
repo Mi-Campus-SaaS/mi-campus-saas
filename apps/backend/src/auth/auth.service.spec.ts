@@ -96,6 +96,10 @@ describe('AuthService', () => {
         role: UserRole.ADMIN,
         student: null,
         teacher: null,
+        failedLoginAttempts: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
       };
       const res = await service.login(user, '127.0.0.1');
       expect(res.access_token).toBe('access');
