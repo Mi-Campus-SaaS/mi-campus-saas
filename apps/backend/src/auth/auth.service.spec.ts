@@ -4,34 +4,56 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { RefreshToken } from './entities/refresh-token.entity';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { RefreshToken } from './entities/refresh-token.entity';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from '../common/roles.enum';
+import { UnauthorizedException, BadRequestException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { AccountLockoutService } from './account-lockout.service';
+import { AuditLogger } from '../common/audit.logger';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let users: Pick<UsersService, 'findByUsername'>;
-  let jwt: Pick<JwtService, 'signAsync'>;
-  let config: Pick<ConfigService, 'get'>;
-  let refreshRepo: Pick<Repository<RefreshToken>, 'save' | 'findOne' | 'create'> & {
-    save: jest.MockedFunction<Repository<RefreshToken>['save']>;
-    findOne: jest.MockedFunction<Repository<RefreshToken>['findOne']>;
-    create: jest.MockedFunction<Repository<RefreshToken>['create']>;
-  };
+  let users: Partial<UsersService>;
+  let jwt: Partial<JwtService>;
+  let config: Partial<ConfigService>;
+  let refreshRepo: Partial<Repository<RefreshToken>>;
+  let lockoutService: Partial<AccountLockoutService>;
+  let auditLogger: Partial<AuditLogger>;
 
   beforeEach(async () => {
-    users = { findByUsername: jest.fn<Promise<User | null>, [string]>() };
-    jwt = { signAsync: jest.fn() };
-    config = { get: jest.fn() };
+    users = {
+      findByUsername: jest.fn(),
+    };
+
+    jwt = {
+      signAsync: jest.fn(),
+      verifyAsync: jest.fn(),
+    };
+
+    config = {
+      get: jest.fn(),
+    };
+
+    lockoutService = {
+      checkAccountLocked: jest.fn(),
+      getRemainingLockoutTime: jest.fn(),
+      recordSuccessfulLogin: jest.fn(),
+      recordFailedLogin: jest.fn(),
+      getFailedAttemptsRemaining: jest.fn(),
+    };
+
+    auditLogger = {
+      log: jest.fn().mockReturnValue(Promise.resolve()),
+    };
+
     refreshRepo = {
-      save: jest.fn() as unknown as typeof refreshRepo.save,
-      findOne: jest.fn() as unknown as typeof refreshRepo.findOne,
-      create: jest.fn() as unknown as typeof refreshRepo.create,
-    } as unknown as typeof refreshRepo;
+      save: jest.fn(),
+      findOne: jest.fn(),
+      create: jest.fn(),
+    };
 
     const module = await Test.createTestingModule({
       providers: [
@@ -40,6 +62,8 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: jwt as unknown as JwtService },
         { provide: ConfigService, useValue: config as unknown as ConfigService },
         { provide: getRepositoryToken(RefreshToken), useValue: refreshRepo as unknown as Repository<RefreshToken> },
+        { provide: AccountLockoutService, useValue: lockoutService as unknown as AccountLockoutService },
+        { provide: AuditLogger, useValue: auditLogger as unknown as AuditLogger },
       ],
     }).compile();
 
@@ -55,16 +79,24 @@ describe('AuthService', () => {
 
     it('returns user when password matches', async () => {
       const passwordHash = await bcrypt.hash('secret', 1);
-      (users.findByUsername as jest.Mock).mockResolvedValue({ id: '1', username: 'u', passwordHash } as User);
+      const user = { id: '1', username: 'u', passwordHash } as User;
+      (users.findByUsername as jest.Mock).mockResolvedValue(user);
+      (lockoutService.checkAccountLocked as jest.Mock).mockResolvedValue(false);
+      (lockoutService.recordSuccessfulLogin as jest.Mock).mockResolvedValue(undefined);
+
       const res = await service.validateUser('u', 'secret');
       expect(res?.username).toBe('u');
     });
 
     it('returns null when password mismatch', async () => {
       const passwordHash = await bcrypt.hash('secret', 1);
-      (users.findByUsername as jest.Mock).mockResolvedValue({ id: '1', username: 'u', passwordHash } as User);
-      const res = await service.validateUser('u', 'nope');
-      expect(res).toBeNull();
+      const user = { id: '1', username: 'u', passwordHash } as User;
+      (users.findByUsername as jest.Mock).mockResolvedValue(user);
+      (lockoutService.checkAccountLocked as jest.Mock).mockResolvedValue(false);
+      (lockoutService.recordFailedLogin as jest.Mock).mockResolvedValue(undefined);
+      (lockoutService.getFailedAttemptsRemaining as jest.Mock).mockReturnValue(2);
+
+      await expect(service.validateUser('u', 'nope')).rejects.toBeInstanceOf(UnauthorizedException);
     });
   });
 
@@ -87,7 +119,7 @@ describe('AuthService', () => {
         replacedByTokenId: null,
         user: {} as User,
       } as RefreshToken;
-      refreshRepo.save.mockResolvedValueOnce(dummyToken);
+      (refreshRepo.save as jest.Mock).mockResolvedValueOnce(dummyToken);
       const user: User = {
         id: 'u1',
         username: 'u',
@@ -115,9 +147,11 @@ describe('AuthService', () => {
 
     it('rotates refresh token and returns new tokens', async () => {
       (jwt.signAsync as jest.Mock).mockResolvedValue('new_access');
+      const rawToken = 'rawtoken';
+      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
       const token: RefreshToken = {
         id: 'id1',
-        tokenHash: '',
+        tokenHash: tokenHash,
         expiresAt: new Date(Date.now() + 60_000),
         createdAt: new Date(),
         createdByIp: null,
@@ -133,26 +167,30 @@ describe('AuthService', () => {
           role: UserRole.ADMIN,
           student: null,
           teacher: null,
+          failedLoginAttempts: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
         } as User,
       } as RefreshToken;
-      // construct a valid token string: id.raw
-      const raw = 'rawtoken';
-      // compute expected hash
-      const hash = crypto.createHash('sha256').update(raw).digest('hex');
-      token.tokenHash = hash;
-      refreshRepo.findOne.mockResolvedValue(token);
-      refreshRepo.save.mockResolvedValueOnce(token); // saving revocation
-      refreshRepo.save.mockResolvedValueOnce({ ...token, id: 'id2' }); // saving new token
+      (refreshRepo.findOne as jest.Mock).mockResolvedValue(token);
+      (refreshRepo.save as jest.Mock).mockResolvedValueOnce(token);
+      (refreshRepo.save as jest.Mock).mockResolvedValueOnce(token);
 
-      const res = await service.refresh(`${token.id}.${raw}`, '127.0.0.1');
+      const res = await service.refresh(`id1.${rawToken}`);
       expect(res.access_token).toBe('new_access');
       expect(res.refresh_token).toBeDefined();
     });
   });
 
   describe('revoke', () => {
-    it('silently returns on invalid token format', async () => {
-      await expect(service.revoke('nope')).rejects.toBeInstanceOf(BadRequestException);
+    it('throws on invalid token format', async () => {
+      await expect(service.revoke('badtoken')).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('silently returns when token not found', async () => {
+      (refreshRepo.findOne as jest.Mock).mockResolvedValue(null);
+      await expect(service.revoke('valid.id')).resolves.toBeUndefined();
     });
   });
 });

@@ -65,21 +65,52 @@ powershell -ExecutionPolicy Bypass -File scripts/pre-commit.ps1
 powershell -ExecutionPolicy Bypass -File scripts/pre-commit.ps1 -SkipTests
 ```
 
-## Integration with Git Hooks
+## Git Hook Integration
 
-To automatically run these checks before each commit, you can set up a Git pre-commit hook:
+The pre-commit script is automatically integrated with Git hooks using Husky. Two hooks are available:
 
-1. Create `.git/hooks/pre-commit` (or use Husky if already configured)
+### Default Pre-commit Hook (`.husky/pre-commit`)
+
+- Runs `lint-staged` first (for staged files only)
+- Then runs `yarn pre-commit:fast` (skips tests for speed)
+- **Recommended for daily development**
+
+### Full Pre-commit Hook (`.husky/pre-commit-full`)
+
+- Runs `lint-staged` first (for staged files only)
+- Then runs `yarn pre-commit` (includes all tests)
+- **Use for important commits or before merging**
+
+### Switching Between Hooks
+
+To use the full checks (including tests) for a specific commit:
+
+```bash
+# Temporarily rename the default hook
+mv .husky/pre-commit .husky/pre-commit-fast
+mv .husky/pre-commit-full .husky/pre-commit
+
+# Make your commit
+git commit -m "your message"
+
+# Restore the default hook
+mv .husky/pre-commit .husky/pre-commit-full
+mv .husky/pre-commit-fast .husky/pre-commit
+```
+
+### Manual Git Hook Setup (Alternative)
+
+If you prefer to set up hooks manually:
+
+1. Create `.git/hooks/pre-commit`
 2. Add the appropriate script call based on your OS
-
-### Example Git Hook
 
 ```bash
 #!/bin/bash
 # .git/hooks/pre-commit
 
 # Run pre-commit checks
-yarn pre-commit
+yarn pre-commit:fast
 
 # Exit with the same code as the pre-commit script
 exit $?

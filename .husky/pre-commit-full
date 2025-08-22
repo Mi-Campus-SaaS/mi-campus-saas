@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-
-# Run lint-staged first (for staged files only)
-npx lint-staged
-
-# Run full pre-commit checks (including tests)
-yarn pre-commit
