@@ -9,15 +9,17 @@ import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { TwoFactorAuth } from './entities/two-factor-auth.entity';
 import { User } from '../users/entities/user.entity';
 import { AccountLockoutService } from './account-lockout.service';
 import { PasswordPolicyService } from './password-policy.service';
+import { TwoFactorAuthService } from './two-factor-auth.service';
 import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
-    TypeOrmModule.forFeature([RefreshToken, User]),
+    TypeOrmModule.forFeature([RefreshToken, TwoFactorAuth, User]),
     PassportModule,
     CommonModule,
     JwtModule.registerAsync({
@@ -31,7 +33,14 @@ import { CommonModule } from '../common/common.module';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy, AccountLockoutService, PasswordPolicyService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    LocalStrategy,
+    AccountLockoutService,
+    PasswordPolicyService,
+    TwoFactorAuthService,
+  ],
   controllers: [AuthController],
   exports: [AuthService, PasswordPolicyService],
 })

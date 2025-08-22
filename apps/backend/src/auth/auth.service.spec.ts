@@ -13,6 +13,8 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { AccountLockoutService } from './account-lockout.service';
 import { AuditLogger } from '../common/audit.logger';
+import { TwoFactorAuthService } from './two-factor-auth.service';
+import { TwoFactorAuth } from './entities/two-factor-auth.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -20,6 +22,8 @@ describe('AuthService', () => {
   let jwt: Partial<JwtService>;
   let config: Partial<ConfigService>;
   let refreshRepo: Partial<Repository<RefreshToken>>;
+  let twoFactorAuthRepo: Partial<Repository<TwoFactorAuth>>;
+  let twoFactorAuthService: Partial<TwoFactorAuthService>;
   let lockoutService: Partial<AccountLockoutService>;
   let auditLogger: Partial<AuditLogger>;
 
@@ -55,6 +59,22 @@ describe('AuthService', () => {
       create: jest.fn(),
     };
 
+    twoFactorAuthRepo = {
+      findOne: jest.fn(),
+      save: jest.fn(),
+      create: jest.fn(),
+    };
+
+    twoFactorAuthService = {
+      generateSecret: jest.fn(),
+      enrollUser: jest.fn(),
+      enable2fa: jest.fn(),
+      disable2fa: jest.fn(),
+      verify2fa: jest.fn(),
+      generateNewBackupCodes: jest.fn(),
+      get2faStatus: jest.fn(),
+    };
+
     const module = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -62,7 +82,12 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: jwt as unknown as JwtService },
         { provide: ConfigService, useValue: config as unknown as ConfigService },
         { provide: getRepositoryToken(RefreshToken), useValue: refreshRepo as unknown as Repository<RefreshToken> },
+        {
+          provide: getRepositoryToken(TwoFactorAuth),
+          useValue: twoFactorAuthRepo as unknown as Repository<TwoFactorAuth>,
+        },
         { provide: AccountLockoutService, useValue: lockoutService as unknown as AccountLockoutService },
+        { provide: TwoFactorAuthService, useValue: twoFactorAuthService },
         { provide: AuditLogger, useValue: auditLogger as unknown as AuditLogger },
       ],
     }).compile();
@@ -120,6 +145,7 @@ describe('AuthService', () => {
         user: {} as User,
       } as RefreshToken;
       (refreshRepo.save as jest.Mock).mockResolvedValueOnce(dummyToken);
+      (twoFactorAuthService.get2faStatus as jest.Mock).mockResolvedValue({ isEnabled: false });
       const user: User = {
         id: 'u1',
         username: 'u',

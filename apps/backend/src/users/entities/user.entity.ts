@@ -3,6 +3,7 @@ import { TimestampedEntity } from '../../common/entities/base.entity';
 import { UserRole } from '../../common/roles.enum';
 import { Student } from '../../students/entities/student.entity';
 import { Teacher } from '../../teachers/entities/teacher.entity';
+import { TwoFactorAuth } from '../../auth/entities/two-factor-auth.entity';
 
 @Entity()
 export class User extends TimestampedEntity {
@@ -39,4 +40,7 @@ export class User extends TimestampedEntity {
 
   @OneToOne(() => Teacher, (teacher) => teacher.user, { nullable: true })
   teacher?: Teacher | null;
+
+  @OneToOne(() => TwoFactorAuth, (twoFactorAuth) => twoFactorAuth.user, { nullable: true })
+  twoFactorAuth?: TwoFactorAuth | null;
 }

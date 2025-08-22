@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { AuditLogger } from '../common/audit.logger';
 import { AccountLockoutService } from './account-lockout.service';
+import { TwoFactorAuthService } from './two-factor-auth.service';
+import { UserRole } from '../common/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
     private readonly lockoutService: AccountLockoutService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
     @Optional() private readonly audit?: AuditLogger,
   ) {}
 
@@ -97,6 +100,22 @@ export class AuthService {
 
   async login(user: User, ip?: string | null) {
     if (!user) throw new UnauthorizedException();
+
+    const requires2fa = user.role === UserRole.ADMIN;
+    const twoFactorStatus = await this.twoFactorAuthService.get2faStatus(user);
+
+    if (requires2fa && twoFactorStatus.isEnabled) {
+      return {
+        requires2fa: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          displayName: user.displayName,
+        },
+      };
+    }
+
     const accessToken = await this.generateAccessToken(user);
     const { token: refreshToken } = await this.issueRefreshToken(user, ip);
     // Fire-and-forget audit logging; errors are intentionally not blocking auth flow
@@ -111,6 +130,17 @@ export class AuthService {
         displayName: user.displayName,
       },
     };
+  }
+
+  async verify2faAndLogin(user: User, code: string, ip?: string | null) {
+    if (!user) throw new UnauthorizedException();
+
+    const isValid = await this.twoFactorAuthService.verify2fa(user, code);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid 2FA code');
+    }
+
+    return this.login(user, ip);
   }
 
   async refresh(oldToken: string, ip?: string | null) {
