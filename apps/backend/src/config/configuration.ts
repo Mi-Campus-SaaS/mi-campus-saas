@@ -30,6 +30,17 @@ export interface AppConfig {
     pass?: string;
     from: string;
   };
+  auth: {
+    maxFailedAttempts: number;
+    lockoutDurationMinutes: number;
+    passwordPolicy: {
+      minLength: number;
+      requireUppercase: boolean;
+      requireLowercase: boolean;
+      requireNumbers: boolean;
+      requireSpecialChars: boolean;
+    };
+  };
 }
 
 const configSchema = Joi.object({
@@ -64,6 +75,13 @@ const configSchema = Joi.object({
   CORS_ALLOW_SERVER_TO_SERVER: Joi.boolean().default(false),
   AUTH_THROTTLE_LIMIT: Joi.number().integer().min(1).max(100).default(5),
   AUTH_THROTTLE_TTL_SECONDS: Joi.number().integer().min(1).max(3600).default(60),
+  AUTH_MAX_FAILED_ATTEMPTS: Joi.number().integer().min(1).max(10).default(5),
+  AUTH_LOCKOUT_DURATION_MINUTES: Joi.number().integer().min(1).max(1440).default(30),
+  AUTH_PASSWORD_MIN_LENGTH: Joi.number().integer().min(6).max(128).default(8),
+  AUTH_PASSWORD_REQUIRE_UPPERCASE: Joi.boolean().default(true),
+  AUTH_PASSWORD_REQUIRE_LOWERCASE: Joi.boolean().default(true),
+  AUTH_PASSWORD_REQUIRE_NUMBERS: Joi.boolean().default(true),
+  AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS: Joi.boolean().default(true),
 });
 
 interface ValidatedConfig {
@@ -90,6 +108,13 @@ interface ValidatedConfig {
   CORS_ALLOWLIST?: string;
   CORS_ALLOW_SERVER_TO_SERVER?: boolean;
   HTTP_CACHE_TTL_SECONDS: number;
+  AUTH_MAX_FAILED_ATTEMPTS: number;
+  AUTH_LOCKOUT_DURATION_MINUTES: number;
+  AUTH_PASSWORD_MIN_LENGTH: number;
+  AUTH_PASSWORD_REQUIRE_UPPERCASE: boolean;
+  AUTH_PASSWORD_REQUIRE_LOWERCASE: boolean;
+  AUTH_PASSWORD_REQUIRE_NUMBERS: boolean;
+  AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS: boolean;
 }
 
 export const loadConfiguration = (): AppConfig => {
@@ -136,6 +161,17 @@ export const loadConfiguration = (): AppConfig => {
       user: validatedConfig.SMTP_USER,
       pass: validatedConfig.SMTP_PASS,
       from: validatedConfig.SMTP_FROM,
+    },
+    auth: {
+      maxFailedAttempts: validatedConfig.AUTH_MAX_FAILED_ATTEMPTS,
+      lockoutDurationMinutes: validatedConfig.AUTH_LOCKOUT_DURATION_MINUTES,
+      passwordPolicy: {
+        minLength: validatedConfig.AUTH_PASSWORD_MIN_LENGTH,
+        requireUppercase: validatedConfig.AUTH_PASSWORD_REQUIRE_UPPERCASE,
+        requireLowercase: validatedConfig.AUTH_PASSWORD_REQUIRE_LOWERCASE,
+        requireNumbers: validatedConfig.AUTH_PASSWORD_REQUIRE_NUMBERS,
+        requireSpecialChars: validatedConfig.AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS,
+      },
     },
   };
 };

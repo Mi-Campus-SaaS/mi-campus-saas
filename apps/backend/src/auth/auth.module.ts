@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
@@ -9,12 +9,17 @@ import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { User } from '../users/entities/user.entity';
+import { AccountLockoutService } from './account-lockout.service';
+import { PasswordPolicyService } from './password-policy.service';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
-    UsersModule,
-    TypeOrmModule.forFeature([RefreshToken]),
+    forwardRef(() => UsersModule),
+    TypeOrmModule.forFeature([RefreshToken, User]),
     PassportModule,
+    CommonModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -26,8 +31,8 @@ import { RefreshToken } from './entities/refresh-token.entity';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy, AccountLockoutService, PasswordPolicyService],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, PasswordPolicyService],
 })
 export class AuthModule {}

@@ -9,6 +9,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { AuditLogger } from '../common/audit.logger';
+import { AccountLockoutService } from './account-lockout.service';
 
 @Injectable()
 export class AuthService {
@@ -18,15 +19,39 @@ export class AuthService {
     private readonly configService: ConfigService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
+    private readonly lockoutService: AccountLockoutService,
     @Optional() private readonly audit?: AuditLogger,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<User | null> {
+  async validateUser(username: string, pass: string, ip?: string): Promise<User | null> {
     const user = await this.usersService.findByUsername(username);
     if (!user) return null;
+
+    const isLocked = await this.lockoutService.checkAccountLocked(user);
+    if (isLocked) {
+      const remainingTime = this.lockoutService.getRemainingLockoutTime(user);
+      throw new UnauthorizedException(
+        `Account is locked. Please try again in ${Math.ceil(remainingTime / 60000)} minutes.`,
+      );
+    }
+
     const match = await bcrypt.compare(pass, user.passwordHash);
-    if (match) return user;
-    return null;
+    if (match) {
+      await this.lockoutService.recordSuccessfulLogin(user, ip || 'unknown');
+      return user;
+    }
+
+    await this.lockoutService.recordFailedLogin(user, ip || 'unknown');
+    const remainingAttempts = this.lockoutService.getFailedAttemptsRemaining(user);
+
+    if (remainingAttempts === 0) {
+      const lockoutDuration = this.configService.get<number>('auth.lockoutDurationMinutes') || 30;
+      throw new UnauthorizedException(
+        `Account locked due to too many failed attempts. Please try again in ${lockoutDuration} minutes.`,
+      );
+    }
+
+    throw new UnauthorizedException(`Invalid credentials. ${remainingAttempts} attempts remaining.`);
   }
 
   private hashToken(rawToken: string): string {

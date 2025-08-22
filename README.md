@@ -20,7 +20,7 @@ Environment variables (backend)
 
 Create `apps/backend/.env` and set as needed (defaults shown):
 
-```
+```bash
 PORT=3000
 FRONTEND_URL=http://localhost:5173
 DATABASE_PATH=./data/dev.sqlite
@@ -34,13 +34,52 @@ THROTTLE_TTL_SECONDS=60
 THROTTLE_LIMIT=100
 AUTH_THROTTLE_TTL_SECONDS=60
 AUTH_THROTTLE_LIMIT=5
+# Account Lockout
+AUTH_MAX_FAILED_ATTEMPTS=5
+AUTH_LOCKOUT_DURATION_MINUTES=30
+# Password Policy
+AUTH_PASSWORD_MIN_LENGTH=8
+AUTH_PASSWORD_REQUIRE_UPPERCASE=true
+AUTH_PASSWORD_REQUIRE_LOWERCASE=true
+AUTH_PASSWORD_REQUIRE_NUMBERS=true
+AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS=true
 ```
 
 Database
 
-- SQLite file at `./apps/backend/data/dev.sqlite` (relative to repo root) by default
+- **Development and Production**: PostgreSQL via Docker Compose
 - TypeORM synchronize is enabled for development
 - Seed with: `yarn --cwd apps/backend seed:dev`
+
+Docker Setup
+
+For production-like environment with PostgreSQL, Redis, and observability:
+
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+Services included:
+
+- **PostgreSQL**: Database (port 5432)
+- **Redis**: Caching (port 6379)
+- **Jaeger**: Distributed tracing UI (port 16686)
+- **OTEL Collector**: OpenTelemetry data collection
+
+API Endpoints
+
+Security endpoints:
+
+- `GET /api/auth/password-requirements` - Get current password policy
+- `POST /api/auth/unlock-account` - Admin unlock locked accounts (requires admin role)
+- `POST /api/users` - Create users with password validation (requires admin role)
 
 Frontend setup
 
@@ -51,7 +90,7 @@ Environment variables (frontend)
 
 Create `apps/frontend/.env` (or `.env.local`) as needed:
 
-```
+```bash
 VITE_API_URL=http://localhost:3000/api
 ```
 
@@ -60,6 +99,14 @@ Default users
 - admin/admin123 (admin)
 - prof.juana/teacher123 (teacher)
 - alumno.pedro/student123 (student)
+
+Security Features
+
+- **Account Lockout**: Accounts are locked after 5 failed login attempts for 30 minutes
+- **Password Policy**: Enforces minimum length, uppercase, lowercase, numbers, and special characters
+- **Admin Unlock**: Admins can unlock locked accounts via API
+- **Audit Logging**: All security events are logged for monitoring
+- **IP Tracking**: Failed login attempts are tracked by IP address
 
 Testing
 
@@ -71,7 +118,8 @@ Testing
 Local dev flow
 
 1. Install dependencies: `yarn`
-2. Start backend: `yarn dev:backend` (ensure `.env` is set); seed: `yarn --cwd apps/backend seed:dev`
-3. Start frontend: `yarn dev:frontend`
-4. Login with default users and explore
-5. Before pushing: `yarn format && yarn lint && yarn --cwd apps/backend test`
+2. **Option A - SQLite (simpler)**: Start backend: `yarn dev:backend` (ensure `.env` is set); seed: `yarn --cwd apps/backend seed:dev`
+3. **Option B - PostgreSQL (production-like)**: Start services: `docker-compose up -d`; start backend: `yarn dev:backend`
+4. Start frontend: `yarn dev:frontend`
+5. Login with default users and explore
+6. Before pushing: `yarn format && yarn lint && yarn --cwd apps/backend test`

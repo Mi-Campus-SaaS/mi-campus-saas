@@ -5,6 +5,9 @@ type AuditEvent =
   | { type: 'auth.login'; userId?: string; requestId?: string; ip?: string }
   | { type: 'auth.refresh'; userId?: string; requestId?: string; ip?: string }
   | { type: 'auth.logout'; userId?: string; requestId?: string; ip?: string }
+  | { type: 'auth.account_locked'; userId?: string; requestId?: string; ip?: string; metadata?: Record<string, any> }
+  | { type: 'auth.login_success'; userId?: string; requestId?: string; ip?: string }
+  | { type: 'auth.account_unlocked'; userId?: string; requestId?: string; metadata?: Record<string, any> }
   | {
       type: 'user.role_change';
       actorId?: string;
@@ -43,7 +46,23 @@ export class AuditLogger {
       case 'auth.login':
       case 'auth.refresh':
       case 'auth.logout':
+      case 'auth.login_success':
         await this.auditService.append({ ...base, actorUserId: event.userId, ip: event.ip });
+        break;
+      case 'auth.account_locked':
+        await this.auditService.append({
+          ...base,
+          actorUserId: event.userId,
+          ip: event.ip,
+          meta: event.metadata,
+        });
+        break;
+      case 'auth.account_unlocked':
+        await this.auditService.append({
+          ...base,
+          actorUserId: event.userId,
+          meta: event.metadata,
+        });
         break;
       case 'user.role_change':
         await this.auditService.append({

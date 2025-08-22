@@ -10,14 +10,14 @@
     "dev": "concurrently -n frontend,backend -c \"cyan,magenta\" \"yarn --cwd apps/frontend dev\" \"yarn --cwd apps/backend start:dev\"",
     "dev:frontend": "yarn --cwd apps/frontend dev",
     "dev:backend": "yarn --cwd apps/backend start:dev",
-    "dev:otel": "docker-compose -f docker-compose.otel.yml up -d",
-    "dev:full": "yarn dev:otel && yarn dev",
+    "dev:docker": "docker-compose up -d",
+    "dev:full": "yarn dev:docker && yarn dev",
     "build": "yarn --cwd apps/frontend build && yarn --cwd apps/backend build",
     "test": "yarn --cwd apps/backend test",
     "test:e2e": "playwright test",
     "test:visual": "playwright test -g visual-regression",
-    "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint",
-    "format": "yarn --cwd apps/frontend format && yarn --cwd apps/backend format",
+    "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint && npx markdownlint *.md apps/frontend/*.md apps/backend/*.md .cursor/rules/*.mdc",
+    "format": "yarn --cwd apps/frontend format && yarn --cwd apps/backend format && npx markdownlint --fix *.md apps/frontend/*.md apps/backend/*.md .cursor/rules/*.mdc",
     "budgets:bundle": "yarn --cwd apps/frontend build && size-limit",
     "budgets:perf": "node tools/perf/lhci-run.cjs",
     "ci:budgets": "yarn budgets:bundle && yarn budgets:perf",
@@ -25,13 +25,14 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.14.0",
+    "@size-limit/file": "^10.0.0",
     "concurrently": "^9.0.1",
     "husky": "^9.0.0",
     "lint-staged": "^15.2.8",
+    "markdownlint-cli": "^0.45.0",
     "prettier": "^3.4.2",
-    "@lhci/cli": "^0.14.0",
     "puppeteer": "^23.7.0",
-    "@size-limit/file": "^10.0.0",
     "size-limit": "^10.0.0"
   },
   "lint-staged": {
@@ -41,7 +42,15 @@
     "apps/backend/**/*.ts": [
       "yarn --cwd apps/backend eslint --fix"
     ],
-    "**/*.{json,md,css,scss,html,mdx}": [
+    "**/*.{json,css,scss,html,mdx}": [
+      "prettier --write"
+    ],
+    "**/*.md": [
+      "npx markdownlint --fix",
+      "prettier --write"
+    ],
+    ".cursor/rules/*.mdc": [
+      "npx markdownlint --fix",
       "prettier --write"
     ]
   },

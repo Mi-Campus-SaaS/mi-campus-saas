@@ -25,6 +25,15 @@ export class User extends TimestampedEntity {
   @Column({ type: 'text' })
   role!: UserRole;
 
+  @Column({ default: 0 })
+  failedLoginAttempts!: number;
+
+  @Column({ nullable: true })
+  lockedUntil?: Date;
+
+  @Column({ nullable: true })
+  lastFailedLoginAt?: Date;
+
   @OneToOne(() => Student, (student) => student.user, { nullable: true })
   student?: Student | null;
 
