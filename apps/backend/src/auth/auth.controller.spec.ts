@@ -7,12 +7,13 @@ import { AuthService } from './auth.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 import { AccountLockoutService } from './account-lockout.service';
 import { PasswordPolicyService } from './password-policy.service';
+import { EmailVerificationService } from './email-verification.service';
+import { PasswordResetService } from './password-reset.service';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from '../common/roles.enum';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { RolesGuard } from '../common/roles.guard';
-import { PassportModule } from '@nestjs/passport';
-import { AuthGuard } from '@nestjs/passport';
+import { PassportModule, AuthGuard } from '@nestjs/passport';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -81,6 +82,21 @@ describe('AuthController (e2e)', () => {
           provide: PasswordPolicyService,
           useValue: {
             getPasswordRequirements: jest.fn(),
+          },
+        },
+        {
+          provide: EmailVerificationService,
+          useValue: {
+            requestEmailVerification: jest.fn(),
+            verifyEmail: jest.fn(),
+            resendEmailVerification: jest.fn(),
+          },
+        },
+        {
+          provide: PasswordResetService,
+          useValue: {
+            requestPasswordReset: jest.fn(),
+            resetPassword: jest.fn(),
           },
         },
       ],

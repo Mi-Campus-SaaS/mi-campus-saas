@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Ip, Post, Request, UseGuards, Get } from '@
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginDto } from './dto/login.dto';
-import { Request as ExpressRequest } from 'express';
+import type { Request as ExpressRequest } from 'express';
 import { User } from '../users/entities/user.entity';
 import { RefreshDto } from './dto/refresh.dto';
 import { LogoutDto } from './dto/logout.dto';
@@ -16,8 +16,12 @@ import { UserRole } from '../common/roles.enum';
 import { AccountLockoutService } from './account-lockout.service';
 import { PasswordPolicyService } from './password-policy.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
+import { EmailVerificationService } from './email-verification.service';
+import { PasswordResetService } from './password-reset.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Verify2faDto, Enable2faDto, Disable2faDto, GenerateBackupCodesDto } from './dto/enroll-2fa.dto';
+import { RequestEmailVerificationDto, VerifyEmailDto, ResendEmailVerificationDto } from './dto/email-verification.dto';
+import { RequestPasswordResetDto, ResetPasswordDto } from './dto/password-reset.dto';
 
 const AUTH_LIMIT = Number(process.env.AUTH_THROTTLE_LIMIT ?? 5);
 const AUTH_TTL = Number(process.env.AUTH_THROTTLE_TTL_SECONDS ?? 60);
@@ -30,6 +34,8 @@ export class AuthController {
     private readonly lockoutService: AccountLockoutService,
     private readonly passwordPolicyService: PasswordPolicyService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
+    private readonly emailVerificationService: EmailVerificationService,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   @ApiOperation({ summary: 'User login', description: 'Authenticate user with username/email and password' })
@@ -182,5 +188,100 @@ export class AuthController {
   @HttpCode(200)
   async get2faStatus(@Request() req: ExpressRequest & { user: User }) {
     return this.twoFactorAuthService.get2faStatus(req.user);
+  }
+
+  @ApiOperation({ summary: 'Request email verification', description: 'Send email verification link to user' })
+  @ApiResponse({ status: 200, description: 'Email verification sent successfully' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  @Post('email-verification/request')
+  @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: 3,
+      ttl: 300, // 5 minutes
+    },
+  })
+  async requestEmailVerification(
+    @Body() body: RequestEmailVerificationDto,
+    @Ip() ip: string,
+    @Request() req: ExpressRequest,
+  ) {
+    const userAgent = req.headers['user-agent'];
+    await this.emailVerificationService.requestEmailVerification(body, ip, userAgent);
+    return { message: 'If the email exists and is not verified, a verification link has been sent' };
+  }
+
+  @ApiOperation({ summary: 'Verify email', description: 'Verify email address using token' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  @Post('email-verification/verify')
+  @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 300, // 5 minutes
+    },
+  })
+  async verifyEmail(@Body() body: VerifyEmailDto, @Ip() ip: string, @Request() req: ExpressRequest) {
+    const userAgent = req.headers['user-agent'];
+    await this.emailVerificationService.verifyEmail(body, ip, userAgent);
+    return { message: 'Email verified successfully' };
+  }
+
+  @ApiOperation({ summary: 'Resend email verification', description: 'Resend email verification link' })
+  @ApiResponse({ status: 200, description: 'Email verification resent successfully' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  @Post('email-verification/resend')
+  @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: 3,
+      ttl: 300, // 5 minutes
+    },
+  })
+  async resendEmailVerification(
+    @Body() body: ResendEmailVerificationDto,
+    @Ip() ip: string,
+    @Request() req: ExpressRequest,
+  ) {
+    const userAgent = req.headers['user-agent'];
+    await this.emailVerificationService.resendEmailVerification(body, ip, userAgent);
+    return { message: 'If the email exists and is not verified, a verification link has been resent' };
+  }
+
+  @ApiOperation({ summary: 'Request password reset', description: 'Send password reset link to user' })
+  @ApiResponse({ status: 200, description: 'Password reset email sent successfully' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  @Post('password-reset/request')
+  @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: 3,
+      ttl: 900, // 15 minutes
+    },
+  })
+  async requestPasswordReset(@Body() body: RequestPasswordResetDto, @Ip() ip: string, @Request() req: ExpressRequest) {
+    const userAgent = req.headers['user-agent'];
+    await this.passwordResetService.requestPasswordReset(body, ip, userAgent);
+    return { message: 'If the email exists, a password reset link has been sent' };
+  }
+
+  @ApiOperation({ summary: 'Reset password', description: 'Reset password using token' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token, or password does not meet requirements' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  @Post('password-reset/reset')
+  @HttpCode(200)
+  @Throttle({
+    default: {
+      limit: 5,
+      ttl: 300, // 5 minutes
+    },
+  })
+  async resetPassword(@Body() body: ResetPasswordDto, @Ip() ip: string, @Request() req: ExpressRequest) {
+    const userAgent = req.headers['user-agent'];
+    await this.passwordResetService.resetPassword(body, ip, userAgent);
+    return { message: 'Password reset successfully' };
   }
 }

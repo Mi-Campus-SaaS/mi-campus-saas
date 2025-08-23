@@ -94,6 +94,17 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000;
+  console.log(`Attempting to start server on port ${port}...`);
+
+  try {
+    await app.listen(port);
+    console.log(`✅ Application is running on: http://localhost:${port}`);
+    console.log(`📖 API Documentation: http://localhost:${port}/docs`);
+    console.log(`🔍 Health Check: http://localhost:${port}/api/healthz`);
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 }
 void bootstrap();

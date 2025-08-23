@@ -10,18 +10,23 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { TwoFactorAuth } from './entities/two-factor-auth.entity';
+import { VerificationToken } from './entities/verification-token.entity';
 import { User } from '../users/entities/user.entity';
 import { AccountLockoutService } from './account-lockout.service';
 import { PasswordPolicyService } from './password-policy.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
+import { EmailVerificationService } from './email-verification.service';
+import { PasswordResetService } from './password-reset.service';
 import { CommonModule } from '../common/common.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
-    TypeOrmModule.forFeature([RefreshToken, TwoFactorAuth, User]),
+    TypeOrmModule.forFeature([RefreshToken, TwoFactorAuth, VerificationToken, User]),
     PassportModule,
     CommonModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -40,6 +45,8 @@ import { CommonModule } from '../common/common.module';
     AccountLockoutService,
     PasswordPolicyService,
     TwoFactorAuthService,
+    EmailVerificationService,
+    PasswordResetService,
   ],
   controllers: [AuthController],
   exports: [AuthService, PasswordPolicyService],

@@ -60,4 +60,13 @@ export class UsersService {
 
     return this.usersRepo.save(user);
   }
+
+  async update(id: string, userData: Partial<User>): Promise<User> {
+    await this.usersRepo.update(id, userData);
+    const updatedUser = await this.findById(id);
+    if (!updatedUser) {
+      throw new BadRequestException(`User with id ${id} not found`);
+    }
+    return updatedUser;
+  }
 }

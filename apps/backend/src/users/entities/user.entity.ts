@@ -17,6 +17,12 @@ export class User extends TimestampedEntity {
   @Column({ nullable: true })
   email?: string;
 
+  @Column({ default: false })
+  emailVerified!: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifiedAt?: Date;
+
   @Column()
   displayName!: string;
 

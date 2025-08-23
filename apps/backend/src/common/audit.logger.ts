@@ -9,6 +9,76 @@ type AuditEvent =
   | { type: 'auth.login_success'; userId?: string; requestId?: string; ip?: string }
   | { type: 'auth.account_unlocked'; userId?: string; requestId?: string; metadata?: Record<string, any> }
   | {
+      type: 'auth.email_verification_requested';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.email_verification_success';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.email_verification_replay_attempt';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.email_verification_expired';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.email_verification_resent';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.password_reset_requested';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.password_reset_success';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.password_reset_replay_attempt';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.password_reset_expired';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
+      type: 'auth.password_reset_policy_violation';
+      userId?: string;
+      requestId?: string;
+      ip?: string;
+      metadata?: Record<string, any>;
+    }
+  | {
       type: 'user.role_change';
       actorId?: string;
       targetUserId: string;
@@ -50,6 +120,16 @@ export class AuditLogger {
         await this.auditService.append({ ...base, actorUserId: event.userId, ip: event.ip });
         break;
       case 'auth.account_locked':
+      case 'auth.email_verification_requested':
+      case 'auth.email_verification_success':
+      case 'auth.email_verification_replay_attempt':
+      case 'auth.email_verification_expired':
+      case 'auth.email_verification_resent':
+      case 'auth.password_reset_requested':
+      case 'auth.password_reset_success':
+      case 'auth.password_reset_replay_attempt':
+      case 'auth.password_reset_expired':
+      case 'auth.password_reset_policy_violation':
         await this.auditService.append({
           ...base,
           actorUserId: event.userId,
