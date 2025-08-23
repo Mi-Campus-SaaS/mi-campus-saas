@@ -149,7 +149,24 @@ async function main() {
 
     printSuccess('Build check complete');
 
-    // 6. Optional: Check for uncommitted changes
+    // 6. Security scanning (quick check)
+    printStatus('Running security scan...');
+    try {
+      // Quick secret scan on staged files
+      const stagedFiles = execSync('git diff --cached --name-only', { encoding: 'utf8' });
+      if (stagedFiles.trim()) {
+        printStatus('  Scanning staged files for secrets...');
+        await runCommand('yarn', ['security:scan']);
+        printSuccess('  Security scan passed');
+      } else {
+        printWarning('  No staged files to scan');
+      }
+    } catch (error) {
+      printWarning('  Security scan failed or gitleaks not available');
+      printStatus('  Please run "yarn security:check" manually');
+    }
+
+    // 7. Optional: Check for uncommitted changes
     try {
       const gitStatus = execSync('git status --porcelain', { encoding: 'utf8' });
       if (gitStatus.trim()) {

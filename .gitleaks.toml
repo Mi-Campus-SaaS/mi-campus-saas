@@ -1,0 +1,101 @@
+# Gitleaks configuration for MI Campus SaaS
+# Detects secrets, API keys, tokens, and other sensitive data
+
+[global]
+# Scan all files by default
+entropy_threshold = 7.0
+# Allowlist patterns for false positives
+allowlist = [
+    # Test files and fixtures
+    '''tests?/.*''',
+    '''.*\.test\.''',
+    '''.*\.spec\.''',
+    '''.*\.e2e-spec\.''',
+    '''test-results/.*''',
+    '''fixtures/.*''',
+    
+    # Documentation and examples
+    '''.*\.md''',
+    '''.*\.txt''',
+    '''docs?/.*''',
+    '''examples?/.*''',
+    
+    # Configuration files with known patterns
+    '''\.env\.example''',
+    '''\.env\.template''',
+    '''docker-compose\.yml''',
+    '''docker-compose\.override\.yml''',
+    
+    # Generated files
+    '''node_modules/.*''',
+    '''dist/.*''',
+    '''build/.*''',
+    '''coverage/.*''',
+    '''\.next/.*''',
+    '''\.nuxt/.*''',
+    
+    # Lock files
+    '''yarn\.lock''',
+    '''package-lock\.json''',
+    '''pnpm-lock\.yaml''',
+    
+    # IDE and editor files
+    '''\.vscode/.*''',
+    '''\.idea/.*''',
+    '''\.cursor/.*''',
+    
+    # OS files
+    '''\.DS_Store''',
+    '''Thumbs\.db''',
+    
+    # Git files
+    '''\.git/.*''',
+    '''\.gitignore''',
+    '''\.gitattributes''',
+    
+    # CI/CD files (but scan for actual secrets)
+    '''\.github/workflows/.*''',
+    
+    # Allowlist specific patterns that are false positives
+    # Test JWT secrets in CI
+    '''JWT_SECRET.*your-super-secret.*''',
+    '''JWT_REFRESH_SECRET.*your-super-secret.*''',
+    
+    # Example/template values
+    '''postgres''',
+    '''localhost''',
+    '''127\.0\.0\.1''',
+    '''example\.com''',
+    '''test@example\.com''',
+    
+    # Common test patterns
+    '''test.*password''',
+    '''demo.*key''',
+    '''sample.*token''',
+]
+
+# Custom rules for project-specific patterns
+[[rules]]
+id = "mi-campus-test-jwt"
+description = "MI Campus test JWT secrets"
+regex = '''JWT_SECRET.*your-super-secret.*'''
+tags = ["test", "jwt", "mi-campus"]
+allowlist = [
+    '''JWT_SECRET.*your-super-secret-jwt-key-at-least-32-characters-long-for-testing''',
+    '''JWT_REFRESH_SECRET.*your-super-secret-refresh-key-at-least-32-characters-long-for-testing''',
+]
+
+[[rules]]
+id = "mi-campus-db-connection"
+description = "MI Campus database connection strings"
+regex = '''DATABASE_URL.*postgresql://.*'''
+tags = ["database", "postgresql", "mi-campus"]
+
+[[rules]]
+id = "mi-campus-api-keys"
+description = "MI Campus API keys and tokens"
+regex = '''(api[_-]?key|token|secret).*=.*[a-zA-Z0-9]{20,}'''
+tags = ["api", "key", "token", "mi-campus"]
+
+# Include standard Gitleaks rules
+# These will be automatically included by Gitleaks

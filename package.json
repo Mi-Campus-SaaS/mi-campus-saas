@@ -24,6 +24,9 @@
     "budgets:perf": "node tools/perf/lhci-run.cjs",
     "ci:budgets": "yarn budgets:bundle && yarn budgets:perf",
     "ci:visual": "yarn test:visual",
+    "security:scan": "gitleaks detect --config .gitleaks.toml --report-format sarif --report-path gitleaks-report.sarif",
+    "security:audit": "yarn audit --level high",
+    "security:check": "yarn security:scan && yarn security:audit",
     "prepare": "husky"
   },
   "devDependencies": {

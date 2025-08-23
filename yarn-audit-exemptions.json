@@ -1,0 +1,26 @@
+{
+  "exemptions": [],
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-23",
+    "reviewSchedule": "quarterly",
+    "nextReview": "2025-04-23"
+  },
+  "guidelines": {
+    "critical": "No exemptions allowed",
+    "high": "Exemptions require security team approval and must be resolved within 24 hours",
+    "moderate": "Exemptions require justification and must be resolved within 1 week",
+    "low": "Exemptions require justification and must be resolved within 1 month"
+  },
+  "template": {
+    "package": "package-name",
+    "version": "affected-version",
+    "vulnerability": "CVE-YYYY-NNNNN",
+    "severity": "high|moderate|low",
+    "justification": "Detailed explanation of why this exemption is necessary",
+    "mitigation": "Steps taken to mitigate the risk",
+    "expiration": "YYYY-MM-DD",
+    "approvedBy": "security-team-member",
+    "approvedAt": "YYYY-MM-DD"
+  }
+}

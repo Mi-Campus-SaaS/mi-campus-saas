@@ -1,0 +1,126 @@
+name: Security Scan
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  secret-scan:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaks.toml
+          fail-on: true
+          format: sarif
+          output-file: gitleaks-report.sarif
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: gitleaks-report.sarif
+
+  dependency-audit:
+    name: Dependency Audit (Yarn Audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Yarn 1.x (classic)
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Run Yarn Audit
+        run: yarn audit --level high --json > yarn-audit-report.json || true
+      - name: Check for High/Critical Vulnerabilities
+        run: |
+          if [ -s yarn-audit-report.json ]; then
+            echo "## Security Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Check for critical vulnerabilities
+            CRITICAL=$(jq -r '.advisories | to_entries[] | select(.value.severity == "critical") | "**CRITICAL**: \(.value.title) in \(.value.module_name)@\(.value.vulnerable_versions)"' yarn-audit-report.json | sort -u)
+            if [ -n "$CRITICAL" ]; then
+              echo "### Critical Vulnerabilities" >> $GITHUB_STEP_SUMMARY
+              echo "$CRITICAL" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Check for high vulnerabilities
+            HIGH=$(jq -r '.advisories | to_entries[] | select(.value.severity == "high") | "**HIGH**: \(.value.title) in \(.value.module_name)@\(.value.vulnerable_versions)"' yarn-audit-report.json | sort -u)
+            if [ -n "$HIGH" ]; then
+              echo "### High Vulnerabilities" >> $GITHUB_STEP_SUMMARY
+              echo "$HIGH" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Check for moderate vulnerabilities
+            MODERATE=$(jq -r '.advisories | to_entries[] | select(.value.severity == "moderate") | "**MODERATE**: \(.value.title) in \(.value.module_name)@\(.value.vulnerable_versions)"' yarn-audit-report.json | sort -u)
+            if [ -n "$MODERATE" ]; then
+              echo "### Moderate Vulnerabilities" >> $GITHUB_STEP_SUMMARY
+              echo "$MODERATE" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Fail on critical/high
+            if [ -n "$CRITICAL" ] || [ -n "$HIGH" ]; then
+              echo "Found critical or high severity vulnerabilities"
+              echo "Please review yarn-audit-exemptions.json for allowed exemptions"
+              exit 1
+            fi
+          else
+            echo "## ✅ No High/Critical Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
+          fi
+        shell: bash
+
+  security-report:
+    name: Security Report
+    runs-on: ubuntu-latest
+    needs: [secret-scan, dependency-audit]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate Security Report
+        run: |
+          echo "## Security Scan Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.secret-scan.result }}" == "success" ]; then
+            echo "### ✅ Secret Scanning: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Secret Scanning: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.dependency-audit.result }}" == "success" ]; then
+            echo "### ✅ Dependency Audit: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Dependency Audit: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "For more information, see [SECURITY.md](SECURITY.md)" >> $GITHUB_STEP_SUMMARY

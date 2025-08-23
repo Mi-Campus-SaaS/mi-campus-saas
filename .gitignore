@@ -72,3 +72,8 @@ node_modules/
 .cursor/
 .cursor/rules/
 .cursorignore
+
+# --- Security Scan Reports ---
+gitleaks-report.sarif
+yarn-audit-report.json
+*.sarif
