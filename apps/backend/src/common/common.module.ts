@@ -16,9 +16,14 @@ import { CorsService } from './cors.service';
 import { HttpCacheService } from './http-cache.service';
 import { CacheInterceptor } from './cache.interceptor';
 import { StorageService } from './storage/storage.service';
+import { RateLimitModule } from './rate-limit.module';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent])],
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([Student, Teacher, ClassEntity, Enrollment, FeeInvoice, Parent]),
+    RateLimitModule,
+  ],
   providers: [
     OwnershipGuard,
     AuditLogger,
@@ -39,6 +44,7 @@ import { StorageService } from './storage/storage.service';
     HttpCacheService,
     CacheInterceptor,
     StorageService,
+    RateLimitModule,
   ],
 })
 export class CommonModule {

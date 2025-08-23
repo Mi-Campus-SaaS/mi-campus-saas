@@ -41,6 +41,17 @@ export interface AppConfig {
       requireSpecialChars: boolean;
     };
   };
+  rateLimit: {
+    enabled: boolean;
+    defaultLimit: number;
+    defaultWindowMs: number;
+    userLimit: number;
+    userWindowMs: number;
+    ipLimit: number;
+    ipWindowMs: number;
+    routeLimit: number;
+    routeWindowMs: number;
+  };
 }
 
 const configSchema = Joi.object({
@@ -82,6 +93,15 @@ const configSchema = Joi.object({
   AUTH_PASSWORD_REQUIRE_LOWERCASE: Joi.boolean().default(true),
   AUTH_PASSWORD_REQUIRE_NUMBERS: Joi.boolean().default(true),
   AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS: Joi.boolean().default(true),
+  RATE_LIMIT_ENABLED: Joi.boolean().default(true),
+  RATE_LIMIT_DEFAULT_LIMIT: Joi.number().integer().min(1).max(1000).default(100),
+  RATE_LIMIT_DEFAULT_WINDOW_MS: Joi.number().integer().min(1000).max(3600000).default(60000),
+  RATE_LIMIT_USER_LIMIT: Joi.number().integer().min(1).max(1000).default(200),
+  RATE_LIMIT_USER_WINDOW_MS: Joi.number().integer().min(1000).max(3600000).default(60000),
+  RATE_LIMIT_IP_LIMIT: Joi.number().integer().min(1).max(1000).default(150),
+  RATE_LIMIT_IP_WINDOW_MS: Joi.number().integer().min(1000).max(3600000).default(60000),
+  RATE_LIMIT_ROUTE_LIMIT: Joi.number().integer().min(1).max(1000).default(300),
+  RATE_LIMIT_ROUTE_WINDOW_MS: Joi.number().integer().min(1000).max(3600000).default(60000),
 });
 
 interface ValidatedConfig {
@@ -115,6 +135,15 @@ interface ValidatedConfig {
   AUTH_PASSWORD_REQUIRE_LOWERCASE: boolean;
   AUTH_PASSWORD_REQUIRE_NUMBERS: boolean;
   AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS: boolean;
+  RATE_LIMIT_ENABLED: boolean;
+  RATE_LIMIT_DEFAULT_LIMIT: number;
+  RATE_LIMIT_DEFAULT_WINDOW_MS: number;
+  RATE_LIMIT_USER_LIMIT: number;
+  RATE_LIMIT_USER_WINDOW_MS: number;
+  RATE_LIMIT_IP_LIMIT: number;
+  RATE_LIMIT_IP_WINDOW_MS: number;
+  RATE_LIMIT_ROUTE_LIMIT: number;
+  RATE_LIMIT_ROUTE_WINDOW_MS: number;
 }
 
 export const loadConfiguration = (): AppConfig => {
@@ -172,6 +201,17 @@ export const loadConfiguration = (): AppConfig => {
         requireNumbers: validatedConfig.AUTH_PASSWORD_REQUIRE_NUMBERS,
         requireSpecialChars: validatedConfig.AUTH_PASSWORD_REQUIRE_SPECIAL_CHARS,
       },
+    },
+    rateLimit: {
+      enabled: validatedConfig.RATE_LIMIT_ENABLED,
+      defaultLimit: validatedConfig.RATE_LIMIT_DEFAULT_LIMIT,
+      defaultWindowMs: validatedConfig.RATE_LIMIT_DEFAULT_WINDOW_MS,
+      userLimit: validatedConfig.RATE_LIMIT_USER_LIMIT,
+      userWindowMs: validatedConfig.RATE_LIMIT_USER_WINDOW_MS,
+      ipLimit: validatedConfig.RATE_LIMIT_IP_LIMIT,
+      ipWindowMs: validatedConfig.RATE_LIMIT_IP_WINDOW_MS,
+      routeLimit: validatedConfig.RATE_LIMIT_ROUTE_LIMIT,
+      routeWindowMs: validatedConfig.RATE_LIMIT_ROUTE_WINDOW_MS,
     },
   };
 };
