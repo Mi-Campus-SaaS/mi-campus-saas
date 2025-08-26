@@ -20,17 +20,66 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          config-path: .gitleaks.toml
-          fail-on: true
-          format: sarif
-          output-file: gitleaks-report.sarif
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        run: |
+          # Try to use the licensed version first, fallback to open source
+          if [ -n "${{ secrets.GITLEAKS_LICENSE }}" ]; then
+            echo "Using licensed Gitleaks..."
+            # Install Gitleaks licensed version
+            curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks-action/master/install.sh | sh -s -- -b /usr/local/bin
+            export GITLEAKS_LICENSE="${{ secrets.GITLEAKS_LICENSE }}"
+            
+            gitleaks detect \
+              --config .gitleaks.toml \
+              --report-format json \
+              --report-path gitleaks-report.json \
+              --verbose
+          else
+            echo "Using open source Gitleaks..."
+            # Install Gitleaks from GitHub releases (open source version)
+            GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name')
+            echo "Installing Gitleaks version: $GITLEAKS_VERSION"
+            
+            # Download and install Gitleaks
+            wget -O gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz"
+            tar -xzf gitleaks.tar.gz
+            chmod +x gitleaks
+            sudo mv gitleaks /usr/local/bin/
+            
+            gitleaks detect \
+              --config .gitleaks.toml \
+              --report-format json \
+              --report-path gitleaks-report.json \
+              --verbose
+          fi
+          
+          # Check if any secrets were found
+          if [ -s gitleaks-report.json ]; then
+            echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The following secrets were detected:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Parse and display findings
+            jq -r '.findings[] | "- **\(.rule_id)**: \(.description) in \(.file)"' gitleaks-report.json >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please review and remove any actual secrets from the codebase." >> $GITHUB_STEP_SUMMARY
+            echo "For test/example values, update the allowlist in `.gitleaks.toml`." >> $GITHUB_STEP_SUMMARY
+            
+            # Exit with error if secrets found
+            exit 1
+          else
+            echo "## ✅ No Secrets Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The secret scan completed successfully with no issues detected." >> $GITHUB_STEP_SUMMARY
+          fi
+      - name: Upload Scan Report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          sarif_file: gitleaks-report.sarif
+          name: gitleaks-report
+          path: gitleaks-report.json
+          if-no-files-found: ignore
 
   dependency-audit:
     name: Dependency Audit (Yarn Audit)
