@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, UseInterceptors, Param, ParseUUIDPipe } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { Roles } from '../common/roles.decorator';
@@ -7,6 +7,7 @@ import { RolesGuard } from '../common/roles.guard';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
 import { StudentWithGpa } from './dto/student-with-gpa.dto';
+import { StudentDetailDto } from './dto/student-detail.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CacheInterceptor, HttpCache } from '../common/cache.interceptor';
 
@@ -31,6 +32,22 @@ export class StudentsController {
   @Get()
   findAll(@Query() query: PaginationQueryDto): Promise<PaginatedResponse<StudentWithGpa>> {
     return this.studentsService.findAll(query);
+  }
+
+  @ApiOperation({
+    summary: 'Get student by ID',
+    description: 'Retrieve a single student with GPA snapshots and trend data. Requires ADMIN or TEACHER role.',
+  })
+  @ApiResponse({ status: 200, description: 'Student retrieved successfully', type: StudentDetailDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Student not found' })
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @UseInterceptors(CacheInterceptor)
+  @HttpCache({ maxAge: 300 }) // Cache for 5 minutes
+  @Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<StudentDetailDto> {
+    return this.studentsService.findOne(id);
   }
 
   @ApiOperation({ summary: 'Create student', description: 'Create a new student. Requires ADMIN role.' })

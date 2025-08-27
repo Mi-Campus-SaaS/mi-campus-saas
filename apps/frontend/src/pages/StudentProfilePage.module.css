@@ -1,0 +1,37 @@
+.card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* Chart container styles */
+.chartContainer {
+  position: relative;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+}
+
+.dark .chartContainer {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+/* GPA trend bar styles */
+.gpaBar {
+  transition: all 0.2s ease-in-out;
+}
+
+.gpaBar:hover {
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .chartContainer {
+    height: 8rem;
+  }
+}

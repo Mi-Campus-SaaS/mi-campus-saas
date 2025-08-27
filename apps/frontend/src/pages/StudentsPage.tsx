@@ -7,7 +7,7 @@ import type { Student } from '../types/api';
 import { Skeleton } from '../components/Skeleton';
 import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { queryKeys } from '../api/queryKeys';
-import { Plus, Edit, Trash2, Users } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, Eye } from 'lucide-react';
 import styles from './StudentsPage.module.css';
 
 const StudentsPage: React.FC = () => {
@@ -131,14 +131,29 @@ const StudentsPage: React.FC = () => {
                     }
                   >
                     <div className="flex-1">
-                      <span className={`font-medium ${styles.studentName}`}>
+                      <button
+                        onClick={() => (window.location.href = `./students/${s.id}`)}
+                        className={`font-medium text-left hover:text-blue-600 transition-colors ${styles.studentName}`}
+                      >
                         {s.firstName} {s.lastName}
-                      </span>
+                      </button>
                       <span className={`text-sm ml-4 ${styles.studentGpa}`}>
                         {t('gpa')}: {typeof s.gpa === 'number' ? s.gpa.toFixed(2) : '-'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
+                      <FeatureGate feature="students.view">
+                        <FeatureButton
+                          feature="students.view"
+                          onClick={() => (window.location.href = `./students/${s.id}`)}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                        >
+                          <Eye className="w-3 h-3" />
+                          {t('view')}
+                        </FeatureButton>
+                      </FeatureGate>
                       <FeatureGate feature="students.edit">
                         <FeatureButton
                           feature="students.edit"
