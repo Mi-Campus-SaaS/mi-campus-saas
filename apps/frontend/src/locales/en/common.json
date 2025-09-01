@@ -99,5 +99,9 @@
   "current_user": "Current user",
   "available_features": "Available features",
   "test": "Test",
-  "available_features_list": "Available Features List"
+  "available_features_list": "Available Features List",
+  "preview": "Preview",
+  "preview_error": "Failed to load preview",
+  "close": "Close",
+  "no_materials": "No materials available"
 }

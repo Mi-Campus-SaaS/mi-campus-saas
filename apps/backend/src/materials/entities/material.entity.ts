@@ -35,5 +35,8 @@ export class Material extends TimestampedEntity {
   @Column({ type: 'int', nullable: true })
   size?: number;
 
+  @Column({ type: 'int', default: 0 })
+  downloadCount!: number;
+
   // createdAt/updatedAt/deletedAt inherited
 }

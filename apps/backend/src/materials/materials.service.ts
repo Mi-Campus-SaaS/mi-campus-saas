@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { sniffMimeFromFile } from '../common/upload.util';
 import { StorageService } from '../common/storage/storage.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,31 +31,60 @@ export class MaterialsService {
     return { data: rows, total, page, limit };
   }
 
-  async saveUpload(classId: string, title: string, description: string | undefined, file: Express.Multer.File) {
-    const sniffed = sniffMimeFromFile(file.path);
-    if (sniffed !== 'unknown' && sniffed !== file.mimetype) {
-      throw new BadRequestException('File content type does not match declared type');
-    }
-    // local path used only when not using s3; StorageService handles the mode
-    // In s3 mode, persist file to bucket and store key; in local, return key
-    const uploaded = await this.storage.uploadFromLocalTemp(file.path, file.filename, file.mimetype);
-    const entity = this.materialsRepo.create({
+  async saveUpload(
+    classId: string,
+    title: string,
+    description: string | undefined,
+    file: Express.Multer.File,
+    uploaderId: string,
+  ) {
+    const mimeType = sniffMimeFromFile(file.path);
+    const material = this.materialsRepo.create({
       classEntity: { id: classId } as ClassEntity,
+      uploader: { id: uploaderId },
       title,
       description,
-      filePath: uploaded.key,
+      filePath: file.filename,
       originalName: file.originalname,
-      mimeType: file.mimetype,
+      mimeType,
       size: file.size,
     });
-    return this.materialsRepo.save(entity);
+    return this.materialsRepo.save(material);
   }
 
   async getSignedUrlForMaterial(classId: string, materialId: string): Promise<string> {
-    const material = await this.materialsRepo.findOne({ where: { id: materialId }, relations: { classEntity: true } });
-    if (!material || (material.classEntity && material.classEntity.id !== classId)) {
-      throw new NotFoundException('Material not found');
-    }
+    const material = await this.materialsRepo.findOne({
+      where: { id: materialId, classEntity: { id: classId } as ClassEntity },
+    });
+    if (!material) throw new NotFoundException('Material not found');
     return this.storage.getSignedUrl(material.filePath);
+  }
+
+  async incrementDownloadCount(classId: string, materialId: string) {
+    const material = await this.materialsRepo.findOne({
+      where: { id: materialId, classEntity: { id: classId } as ClassEntity },
+    });
+    if (!material) throw new NotFoundException('Material not found');
+
+    material.downloadCount += 1;
+    await this.materialsRepo.save(material);
+
+    return {
+      filePath: material.filePath,
+      originalName: material.originalName,
+      mimeType: material.mimeType,
+    };
+  }
+
+  async getMaterial(classId: string, materialId: string) {
+    const material = await this.materialsRepo.findOne({
+      where: { id: materialId, classEntity: { id: classId } as ClassEntity },
+    });
+    if (!material) throw new NotFoundException('Material not found');
+
+    return {
+      filePath: material.filePath,
+      mimeType: material.mimeType,
+    };
   }
 }

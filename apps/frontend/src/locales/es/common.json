@@ -96,5 +96,9 @@
   "current_user": "Usuario actual",
   "available_features": "Características disponibles",
   "test": "Probar",
-  "available_features_list": "Lista de Características Disponibles"
+  "available_features_list": "Lista de Características Disponibles",
+  "preview": "Vista previa",
+  "preview_error": "Error al cargar la vista previa",
+  "close": "Cerrar",
+  "no_materials": "No hay materiales disponibles"
 }

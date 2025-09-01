@@ -9,6 +9,7 @@ export type ClassMaterial = {
   originalName?: string | null;
   mimeType?: string | null;
   size?: number | null;
+  downloadCount: number;
   createdAt?: string | Date | null;
 };
 
@@ -34,6 +35,28 @@ export async function uploadClassMaterial(
   form.append('file', input.file);
   const res = await api.post<ClassMaterial>(`/classes/${classId}/materials`, form, {
     headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+}
+
+export function getMaterialDownloadUrl(classId: string, materialId: string): string {
+  return `/api/classes/${classId}/materials/${materialId}/download`;
+}
+
+export function getMaterialPreviewUrl(classId: string, materialId: string): string {
+  return `/api/classes/${classId}/materials/${materialId}/preview`;
+}
+
+export async function getMaterialPreviewBlob(classId: string, materialId: string): Promise<Blob> {
+  const res = await api.get(`/classes/${classId}/materials/${materialId}/preview`, {
+    responseType: 'blob',
+  });
+  return res.data;
+}
+
+export async function getMaterialDownloadBlob(classId: string, materialId: string): Promise<Blob> {
+  const res = await api.get(`/classes/${classId}/materials/${materialId}/download`, {
+    responseType: 'blob',
   });
   return res.data;
 }

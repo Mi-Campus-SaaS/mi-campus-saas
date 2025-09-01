@@ -9,6 +9,8 @@ import {
   UseInterceptors,
   ParseUUIDPipe,
   Query,
+  Res,
+  Req,
 } from '@nestjs/common';
 import { MaterialsService } from './materials.service';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
@@ -31,6 +33,7 @@ import {
   isAllowedExtension,
   extensionToMime,
 } from '../common/upload.util';
+import type { Response, Request } from 'express';
 
 const MATERIALS_LIMIT = Number(process.env.MATERIALS_THROTTLE_LIMIT ?? 20);
 const MATERIALS_TTL = Number(process.env.MATERIALS_THROTTLE_TTL_SECONDS ?? 60);
@@ -103,8 +106,14 @@ export class MaterialsController {
     @Param('id', ParseUUIDPipe) classId: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UploadMaterialDto,
+    @Req() req: Request,
   ) {
-    return this.materialsService.saveUpload(classId, body.title, body.description, file);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const uploaderId = (req as any).user?.id;
+    if (!uploaderId || typeof uploaderId !== 'string') {
+      throw new Error('Invalid uploader ID');
+    }
+    return this.materialsService.saveUpload(classId, body.title, body.description, file, uploaderId);
   }
 
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
@@ -116,5 +125,45 @@ export class MaterialsController {
   ) {
     const url = await this.materialsService.getSignedUrlForMaterial(classId, materialId);
     return { url };
+  }
+
+  @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
+  @Ownership({ type: 'classParam', key: 'id' })
+  @Get(':materialId/download')
+  async download(
+    @Param('id', ParseUUIDPipe) classId: string,
+    @Param('materialId', ParseUUIDPipe) materialId: string,
+    @Res() res: Response,
+  ) {
+    const { filePath, originalName, mimeType } = await this.materialsService.incrementDownloadCount(
+      classId,
+      materialId,
+    );
+    const fullPath = join(process.cwd(), process.env.UPLOAD_DIR || 'uploads', filePath);
+
+    res.setHeader('Content-Disposition', `attachment; filename="${originalName || filePath}"`);
+    if (mimeType) {
+      res.setHeader('Content-Type', mimeType);
+    }
+
+    return res.sendFile(fullPath);
+  }
+
+  @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)
+  @Ownership({ type: 'classParam', key: 'id' })
+  @Get(':materialId/preview')
+  async preview(
+    @Param('id', ParseUUIDPipe) classId: string,
+    @Param('materialId', ParseUUIDPipe) materialId: string,
+    @Res() res: Response,
+  ) {
+    const { filePath, mimeType } = await this.materialsService.getMaterial(classId, materialId);
+    const fullPath = join(process.cwd(), process.env.UPLOAD_DIR || 'uploads', filePath);
+
+    if (mimeType) {
+      res.setHeader('Content-Type', mimeType);
+    }
+
+    return res.sendFile(fullPath);
   }
 }

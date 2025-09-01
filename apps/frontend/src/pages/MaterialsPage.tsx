@@ -7,6 +7,7 @@ import { queryClient } from '../queryClient';
 import { useAuth } from '../auth/useAuth';
 import { uploadMaterialSchema } from '../validation/schemas';
 import { FileText } from 'lucide-react';
+import MaterialPreview from '../components/MaterialPreview';
 import styles from './MaterialsPage.module.css';
 
 const MaterialsPage: React.FC = () => {
@@ -138,27 +139,14 @@ const MaterialsPage: React.FC = () => {
         </div>
       )}
 
-      <div className="space-y-3">
-        {materials.map((m: ClassMaterial) => (
-          <div key={m.id} className="card rounded-lg shadow-sm p-4 flex items-center justify-between">
-            <div>
-              <div className={`font-medium ${styles.materialTitle}`}>{m.title}</div>
-              {m.description && <div className={`text-sm ${styles.materialDescription}`}>{m.description}</div>}
-              <div className={`text-xs ${styles.materialInfo}`}>
-                {m.originalName || m.filePath}
-                {m.size ? ` • ${(m.size / 1024).toFixed(1)} KB` : ''}
-              </div>
-            </div>
-            <a
-              className="text-blue-600 dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300"
-              href={`/files/${m.filePath.replace(/^.*uploads[\\/]/, '')}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t('download')}
-            </a>
-          </div>
-        ))}
+      <div className="space-y-4">
+        {materials.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">{t('no_materials')}</div>
+        ) : (
+          materials.map((material: ClassMaterial) => (
+            <MaterialPreview key={material.id} material={material} classId={classId} />
+          ))
+        )}
       </div>
     </div>
   );
