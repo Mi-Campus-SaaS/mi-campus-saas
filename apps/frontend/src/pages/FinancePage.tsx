@@ -9,9 +9,11 @@ import { Skeleton } from '../components/Skeleton';
 import { createFeeSchema, recordPaymentSchema } from '../validation/schemas';
 import styles from './FinancePage.module.css';
 import { DollarSign } from 'lucide-react';
+import { formatCurrency, formatDate } from '../utils/format';
+import { openFinancePdf } from '../utils/financePdf';
 
 const FinancePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [studentId, setStudentId] = useState('');
   const studentsQ = useQuery<Paginated<Student>>({
     queryKey: ['students'],
@@ -89,11 +91,50 @@ const FinancePage: React.FC = () => {
     amount?: string;
   }>({});
 
+  const locale = useMemo(() => {
+    const lang = i18n.language || 'es';
+    if (lang.startsWith('es')) return 'es-ES';
+    if (lang.startsWith('en')) return 'en-US';
+    return lang;
+  }, [i18n.language]);
+
+  const currency = 'USD';
+
+  const selectedStudent = useMemo(() => {
+    if (!studentId) return null;
+    const list = studentsQ.data?.data || [];
+    return list.find((s) => s.id === studentId) || null;
+  }, [studentId, studentsQ.data]);
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <DollarSign className={`w-6 h-6 ${styles.icon}`} />
         <h1 className={`text-xl font-semibold ${styles.title}`}>{t('finance')}</h1>
+        <div className="ml-auto">
+          <button
+            type="button"
+            className="border px-3 py-2 rounded hover-surface disabled:opacity-50"
+            disabled={!studentId}
+            onClick={() => {
+              openFinancePdf({
+                student: {
+                  id: selectedStudent?.id || studentId,
+                  name: selectedStudent
+                    ? `${selectedStudent.firstName} ${selectedStudent.lastName}`
+                    : studentSearch || studentId,
+                },
+                invoices: feesQ.data?.data || [],
+                payments: paymentsQ.data?.data || [],
+                currency,
+                locale,
+                schoolName: 'MI Campus',
+              });
+            }}
+          >
+            {t('export_pdf')}
+          </button>
+        </div>
       </div>
 
       <div className="card rounded-lg shadow-sm p-4">
@@ -255,10 +296,10 @@ const FinancePage: React.FC = () => {
                 >
                   <div>
                     <div className={`font-medium ${styles.feeAmount}`}>
-                      ${f.amount.toFixed(2)} ({f.status})
+                      {formatCurrency(f.amount, locale, currency)} ({f.status})
                     </div>
                     <div className={`text-sm ${styles.feeDueDate}`}>
-                      {`${t('due')}:`} {new Date(f.dueDate).toLocaleDateString()}
+                      {`${t('due')}:`} {formatDate(f.dueDate, locale)}
                     </div>
                   </div>
                   <div className={`text-xs ${styles.feeStatus}`}>{f.id}</div>
@@ -377,8 +418,10 @@ const FinancePage: React.FC = () => {
                   className={`border rounded p-3 flex items-center justify-between ${styles.input} ${styles.hoverBg}`}
                 >
                   <div>
-                    <div className={`font-medium ${styles.paymentAmount}`}>${p.amount.toFixed(2)}</div>
-                    <div className={`text-sm ${styles.paymentDate}`}>{new Date(p.paidAt).toLocaleString()}</div>
+                    <div className={`font-medium ${styles.paymentAmount}`}>
+                      {formatCurrency(p.amount, locale, currency)}
+                    </div>
+                    <div className={`text-sm ${styles.paymentDate}`}>{formatDate(p.paidAt, locale)}</div>
                   </div>
                   <div className={`text-xs ${styles.paymentMethod}`}>{p.reference}</div>
                 </li>
