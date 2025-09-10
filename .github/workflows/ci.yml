@@ -53,27 +53,33 @@ jobs:
 
       - name: Evaluate Gitleaks Findings
         run: |
-          # Check if any secrets were found
-          if [ -s gitleaks-report.json ]; then
-            echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "The following secrets were detected:" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # Parse and display findings
-            jq -r '.findings[] | "- **\(.rule_id)**: \(.description) in \(.file)"' gitleaks-report.json >> $GITHUB_STEP_SUMMARY
-            
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Please review and remove any actual secrets from the codebase." >> $GITHUB_STEP_SUMMARY
-            echo "For test/example values, update the allowlist in `.gitleaks.toml`." >> $GITHUB_STEP_SUMMARY
-            
-            # Exit with error if secrets found
-            exit 1
+          # Determine report structure and count findings
+          TYPE=$(jq -r 'type' gitleaks-report.json || echo "null")
+          COUNT=0
+          if [ "$TYPE" = "array" ]; then
+            COUNT=$(jq 'length' gitleaks-report.json)
+            if [ "$COUNT" -gt 0 ]; then
+              echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "The following secrets were detected:" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              jq -r '.[] | "- **\(.RuleID // .rule_id // \"rule\")**: \(.Description // .description // \"secret\") in \(.File // .file // \"unknown\")"' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
+              exit 1
+            fi
           else
-            echo "## ✅ No Secrets Found" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "The secret scan completed successfully with no issues detected." >> $GITHUB_STEP_SUMMARY
+            COUNT=$(jq '(.findings // .leaks // []) | length' gitleaks-report.json 2>/dev/null || echo 0)
+            if [ "$COUNT" -gt 0 ]; then
+              echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "The following secrets were detected:" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              jq -r '(.findings // .leaks)[] | "- **\(.RuleID // .rule_id // \"rule\")**: \(.Description // .description // \"secret\") in \(.File // .file // \"unknown\")"' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
+              exit 1
+            fi
           fi
+          echo "## ✅ No Secrets Found" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The secret scan completed successfully with no issues detected." >> $GITHUB_STEP_SUMMARY
       - name: Run Yarn Audit (Dependency Scanning)
         run: yarn audit --level high --json > yarn-audit-report.json || true
       - name: Check for High/Critical Vulnerabilities
