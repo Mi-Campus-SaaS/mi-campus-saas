@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClassSession } from '../classes/entities/class-session.entity';
@@ -22,8 +22,15 @@ export class ScheduleService {
     private readonly cache: InMemoryCacheService,
   ) {}
 
-  getDemoSchedule(): ScheduleItem[] {
-    return [
+  private getDemoKey(): string {
+    return 'schedule:demo';
+  }
+
+  private seedDemoIfMissing(): ScheduleItem[] {
+    const key = this.getDemoKey();
+    const existing = this.cache.get<ScheduleItem[]>(key);
+    if (existing && Array.isArray(existing) && existing.length > 0) return existing;
+    const seeded: ScheduleItem[] = [
       {
         id: '1',
         time: '08:00',
@@ -79,6 +86,32 @@ export class ScheduleService {
         duration: 60,
       },
     ];
+    this.cache.set(key, seeded, 24 * 60 * 60 * 1000);
+    return seeded;
+  }
+
+  getDemoSchedule(): ScheduleItem[] {
+    return this.seedDemoIfMissing();
+  }
+
+  reorderDemo(input: { ids: string[]; day?: string }): ScheduleItem[] {
+    const { ids } = input;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw new BadRequestException('ids is required');
+    }
+    const key = this.getDemoKey();
+    const current = this.seedDemoIfMissing();
+    const idToItem = new Map(current.map((it) => [it.id, it]));
+    // Validate all ids exist
+    for (const id of ids) {
+      if (!idToItem.has(id)) throw new BadRequestException(`Unknown id: ${id}`);
+    }
+    if (ids.length !== current.length) {
+      throw new BadRequestException('ids length mismatch');
+    }
+    const reordered = ids.map((id) => idToItem.get(id)!);
+    this.cache.set(key, reordered, 24 * 60 * 60 * 1000);
+    return reordered;
   }
 
   async forStudent(studentId: string) {

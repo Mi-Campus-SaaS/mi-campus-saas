@@ -104,5 +104,9 @@
   "preview": "Preview",
   "preview_error": "Failed to load preview",
   "close": "Close",
-  "no_materials": "No materials available"
+  "no_materials": "No materials available",
+  "schedule_updated": "Schedule updated",
+  "schedule_update_failed": "Failed to update schedule",
+  "undo": "Undo",
+  "undo_success": "Undone"
 }

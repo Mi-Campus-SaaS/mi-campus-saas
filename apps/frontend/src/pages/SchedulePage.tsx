@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, Wifi, WifiOff, Clock, MapPin, User } from 'lucide-react';
 import { api } from '../api/client';
 import { queryKeys } from '../api/queryKeys';
 import styles from './SchedulePage.module.css';
+import { toast } from 'sonner';
 
 interface ScheduleItem {
   id: string;
@@ -33,12 +34,98 @@ const SchedulePage: React.FC = () => {
     };
   }, []);
 
-  const { data, isLoading, error } = useQuery({
+  const queryClient = useQueryClient();
+  const [savedOrder, setSavedOrder] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('scheduleDemoOrder');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as unknown;
+      if (Array.isArray(parsed) && parsed.every((x): x is string => typeof x === 'string')) {
+        return parsed;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
+  const { data, isLoading, error } = useQuery<ScheduleItem[]>({
     queryKey: queryKeys.schedule.all,
     queryFn: async () => (await api.get('/schedule/student/demo')).data,
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 30, // 30 minutes for offline access
   });
+
+  const items = useMemo(() => {
+    const base = Array.isArray(data) ? [...data] : [];
+    if (!savedOrder || savedOrder.length === 0) return base;
+    const ids = new Set(base.map((i) => i.id));
+    // Only apply saved order if it matches current items set
+    const sameSet = savedOrder.length === base.length && savedOrder.every((id) => ids.has(id));
+    if (!sameSet) return base;
+    const byId = new Map(base.map((i) => [i.id, i] as const));
+    return savedOrder.map((id) => byId.get(id)!).filter(Boolean);
+  }, [data, savedOrder]);
+
+  const mutation = useMutation<ScheduleItem[], unknown, string[], { previous?: ScheduleItem[] }>({
+    mutationFn: async (ids: string[]) => {
+      const res = await api.patch<ScheduleItem[]>('/schedule/student/demo/reorder', { ids });
+      return res.data;
+    },
+    onMutate: async (newOrder: string[]) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.schedule.all });
+      const previous = queryClient.getQueryData<ScheduleItem[] | undefined>(queryKeys.schedule.all);
+      const reordered = (previous ?? [])
+        .slice()
+        .sort((a: ScheduleItem, b: ScheduleItem) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+      queryClient.setQueryData(queryKeys.schedule.all, reordered);
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.schedule.all, context.previous);
+      }
+    },
+    onSuccess: (serverOrder) => {
+      queryClient.setQueryData(queryKeys.schedule.all, serverOrder);
+    },
+  });
+
+  function handleReorder(fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) return;
+    const next = items.slice();
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    const ids = next.map((i) => i.id);
+    setSavedOrder(ids);
+    try {
+      localStorage.setItem('scheduleDemoOrder', JSON.stringify(ids));
+    } catch {
+      // ignore
+    }
+    const undo = () => {
+      queryClient.setQueryData(queryKeys.schedule.all, items);
+      toast.success(t('undo_success'));
+      try {
+        localStorage.setItem('scheduleDemoOrder', JSON.stringify(items.map((i) => i.id)));
+      } catch {
+        // ignore
+      }
+    };
+    // optimistic update is handled in onMutate, but we also set immediately for snappy UI
+    queryClient.setQueryData(queryKeys.schedule.all, next);
+    const tId = toast.loading(t('saving'));
+    mutation.mutate(ids, {
+      onSuccess: () => {
+        toast.success(t('schedule_updated'), { id: tId, action: { label: t('undo'), onClick: undo } });
+      },
+      onError: () => {
+        toast.error(t('schedule_update_failed'), { id: tId });
+      },
+      onSettled: () => {
+        toast.dismiss(tId);
+      },
+    });
+  }
 
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');
@@ -117,11 +204,27 @@ const SchedulePage: React.FC = () => {
         <div className="p-4">
           {data ? (
             <div className="space-y-4">
-              {Array.isArray(data) && data.length > 0 ? (
-                data.map((item: ScheduleItem) => (
-                  <div
+              {items.length > 0 ? (
+                items.map((item: ScheduleItem, index: number) => (
+                  <button
                     key={item.id}
-                    className={`flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors ${styles.scheduleItem}`}
+                    type="button"
+                    className={`w-full text-left flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors ${styles.scheduleItem}`}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('text/plain', String(index));
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const from = Number(e.dataTransfer.getData('text/plain'));
+                      const to = index;
+                      if (!Number.isNaN(from)) handleReorder(from, to);
+                    }}
                   >
                     <div className="flex-shrink-0 w-20 text-center">
                       <div className={`text-sm font-medium ${styles.timeText}`}>{formatTime(item.time)}</div>
@@ -142,7 +245,7 @@ const SchedulePage: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))
               ) : (
                 <div className={`text-center py-8 ${styles.emptyStateText}`}>

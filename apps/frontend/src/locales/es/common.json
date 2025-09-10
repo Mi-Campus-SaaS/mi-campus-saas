@@ -101,5 +101,9 @@
   "preview": "Vista previa",
   "preview_error": "Error al cargar la vista previa",
   "close": "Cerrar",
-  "no_materials": "No hay materiales disponibles"
+  "no_materials": "No hay materiales disponibles",
+  "schedule_updated": "Horario actualizado",
+  "schedule_update_failed": "Error al actualizar el horario",
+  "undo": "Deshacer",
+  "undo_success": "Deshecho"
 }
