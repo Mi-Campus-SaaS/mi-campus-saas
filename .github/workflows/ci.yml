@@ -31,39 +31,28 @@ jobs:
         run: corepack prepare yarn@1.22.22 --activate
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Run Gitleaks (Secret Scanning)
+      - name: Install Gitleaks
         run: |
-          # Try to use the licensed version first, fallback to open source
-          if [ -n "${{ secrets.GITLEAKS_LICENSE }}" ]; then
-            echo "Using licensed Gitleaks..."
-            # Install Gitleaks licensed version
-            curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks-action/master/install.sh | sh -s -- -b /usr/local/bin
-            export GITLEAKS_LICENSE="${{ secrets.GITLEAKS_LICENSE }}"
-            
-            gitleaks detect \
-              --config .gitleaks.toml \
-              --report-format json \
-              --report-path gitleaks-report.json \
-              --verbose
-          else
-            echo "Using open source Gitleaks..."
-            # Install Gitleaks from GitHub releases (open source version)
-            GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name')
-            echo "Installing Gitleaks version: $GITLEAKS_VERSION"
-            
-            # Download and install Gitleaks
-            wget -O gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz"
-            tar -xzf gitleaks.tar.gz
-            chmod +x gitleaks
-            sudo mv gitleaks /usr/local/bin/
-            
-            gitleaks detect \
-              --config .gitleaks.toml \
-              --report-format json \
-              --report-path gitleaks-report.json \
-              --verbose
-          fi
-          
+          # Install Gitleaks from GitHub releases (open source version)
+          set -e
+          VER=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          echo "Installing Gitleaks v$VER"
+          curl -sSL -o gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_linux_x64.tar.gz"
+          tar -xzf gitleaks.tgz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Run Gitleaks (Secret Scanning)
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        run: |
+          # Run scan; do not fail step (we'll fail explicitly after parsing)
+          gitleaks detect --config .gitleaks.toml --report-format json --report-path gitleaks-report.json --verbose || true
+          # Ensure report file exists for artifact upload
+          if [ ! -f gitleaks-report.json ]; then echo '{"findings":[]}' > gitleaks-report.json; fi
+
+      - name: Evaluate Gitleaks Findings
+        run: |
           # Check if any secrets were found
           if [ -s gitleaks-report.json ]; then
             echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
