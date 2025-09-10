@@ -49,11 +49,11 @@ jobs:
           # Run scan; do not fail step (we'll fail explicitly after parsing)
           gitleaks detect --config .gitleaks.toml --report-format json --report-path gitleaks-report.json --verbose || true
           # Ensure report file exists for artifact upload
-          if [ ! -f gitleaks-report.json ]; then echo '{"findings":[]}' > gitleaks-report.json; fi
+          if [ ! -f gitleaks-report.json ]; then echo '[]' > gitleaks-report.json; fi
 
       - name: Evaluate Gitleaks Findings
         run: |
-          # Determine report structure and count findings
+          # Determine report structure and count findings; avoid complex quoting in jq
           TYPE=$(jq -r 'type' gitleaks-report.json || echo "null")
           COUNT=0
           if [ "$TYPE" = "array" ]; then
@@ -61,9 +61,9 @@ jobs:
             if [ "$COUNT" -gt 0 ]; then
               echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "The following secrets were detected:" >> $GITHUB_STEP_SUMMARY
+              echo "The following secrets were detected (showing up to 10):" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              jq -r '.[] | "- **\(.RuleID // .rule_id // \"rule\")**: \(.Description // .description // \"secret\") in \(.File // .file // \"unknown\")"' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
+              jq -r '.[0:10][] | "- " + ((.RuleID // .rule_id // "rule")|tostring) + " in " + ((.File // .file // "unknown")|tostring)' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
               exit 1
             fi
           else
@@ -71,9 +71,9 @@ jobs:
             if [ "$COUNT" -gt 0 ]; then
               echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "The following secrets were detected:" >> $GITHUB_STEP_SUMMARY
+              echo "The following secrets were detected (showing up to 10):" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              jq -r '(.findings // .leaks)[] | "- **\(.RuleID // .rule_id // \"rule\")**: \(.Description // .description // \"secret\") in \(.File // .file // \"unknown\")"' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
+              jq -r '(.findings // .leaks)[0:10][] | "- " + ((.RuleID // .rule_id // "rule")|tostring) + " in " + ((.File // .file // "unknown")|tostring)' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
               exit 1
             fi
           fi
