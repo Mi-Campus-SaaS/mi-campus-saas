@@ -1,6 +1,6 @@
 title = "MI Campus Gitleaks Config"
 
-[[allowlist]]
+[allowlist]
 description = "Global allowlist for non-sensitive files and test patterns"
 files = [
   'tests?/.*',
