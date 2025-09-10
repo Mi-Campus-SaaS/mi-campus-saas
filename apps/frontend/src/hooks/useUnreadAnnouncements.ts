@@ -31,7 +31,8 @@ export function useUnreadAnnouncements(): { count: number; markSeenNow: () => vo
   const { data } = useQuery({
     queryKey: ['announcements'],
     queryFn: () => listAnnouncements(),
-    refetchInterval: 30_000,
+    // Realtime hook will invalidate; this is a graceful fallback
+    refetchInterval: 60_000,
     enabled: Boolean(userId),
     staleTime: 15_000,
   });

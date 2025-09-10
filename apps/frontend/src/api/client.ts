@@ -10,6 +10,19 @@ export function setAuthToken(token?: string) {
   else delete api.defaults.headers.common['Authorization'];
 }
 
+// Build an SSE URL with auth token appended as query param for simplicity.
+export function buildSseUrl(path: string): string {
+  const baseStr = api.defaults.baseURL || import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const url = new URL(baseStr);
+  const pathPart = path.startsWith('/') ? path.slice(1) : path;
+  const basePath = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
+  url.pathname = `${basePath}/${pathPart}`.replace(/\/+/g, '/');
+  const authHeader = api.defaults.headers.common['Authorization'] as string | undefined;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined;
+  if (token) url.searchParams.set('access_token', token);
+  return url.toString();
+}
+
 type StoredAuth = {
   access_token: string;
   refresh_token: string;

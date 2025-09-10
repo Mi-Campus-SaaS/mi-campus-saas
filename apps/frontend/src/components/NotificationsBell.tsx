@@ -2,9 +2,11 @@ import React from 'react';
 import { Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useUnreadAnnouncements } from '../hooks/useUnreadAnnouncements';
+import { useAnnouncementsRealtime } from '../hooks/useAnnouncementsRealtime';
 
 const NotificationsBell: React.FC<{ count?: number }> = ({ count: propCount }) => {
   const { t } = useTranslation();
+  useAnnouncementsRealtime();
   const { count, markSeenNow } = useUnreadAnnouncements();
   const effectiveCount = typeof propCount === 'number' ? propCount : count;
   const label = effectiveCount > 0 ? t('notifications_unread', { count: effectiveCount }) : t('notifications');

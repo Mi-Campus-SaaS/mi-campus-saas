@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { Subject } from 'rxjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Announcement } from './entities/announcement.entity';
@@ -8,6 +9,11 @@ import { HttpCacheService } from '../common/http-cache.service';
 
 @Injectable()
 export class AnnouncementsService {
+  private readonly events$ = new Subject<{
+    type: 'created' | 'updated' | 'deleted' | 'published';
+    id: string;
+    at: number;
+  }>();
   constructor(
     @InjectRepository(Announcement)
     private readonly announcementsRepo: Repository<Announcement>,
@@ -25,7 +31,8 @@ export class AnnouncementsService {
     }
 
     // Invalidate list caches
-    this.httpCache.invalidateByPrefix('http-cache:announcements');
+    this.httpCache.invalidateByPrefix('http-cache:/api/announcements');
+    this.events$.next({ type: 'created', id: saved.id, at: Date.now() });
     return saved;
   }
 
@@ -63,7 +70,8 @@ export class AnnouncementsService {
     }
 
     // Invalidate list caches
-    this.httpCache.invalidateByPrefix('http-cache:announcements');
+    this.httpCache.invalidateByPrefix('http-cache:/api/announcements');
+    this.events$.next({ type: 'updated', id, at: Date.now() });
     return updated;
   }
 
@@ -73,7 +81,12 @@ export class AnnouncementsService {
       await this.queueService.cancelScheduledAnnouncement(id);
     }
     await this.announcementsRepo.softRemove(existing);
-    this.httpCache.invalidateByPrefix('http-cache:announcements');
+    this.httpCache.invalidateByPrefix('http-cache:/api/announcements');
+    this.events$.next({ type: 'deleted', id, at: Date.now() });
+  }
+
+  getEventsStream() {
+    return this.events$.asObservable();
   }
 
   async getQueueMetrics() {

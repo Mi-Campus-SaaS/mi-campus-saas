@@ -6,12 +6,13 @@ import { Request } from 'express';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private authService: AuthService) {
-    super();
+  constructor(private readonly authService: AuthService) {
+    super({ passReqToCallback: true });
   }
 
-  async validate(username: string, password: string, req: Request) {
-    const ip = req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress || 'unknown';
+  async validate(req: Request, username: string, password: string) {
+    const forwarded = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim();
+    const ip = forwarded || req.ip || req.socket?.remoteAddress || 'unknown';
     const user = await this.authService.validateUser(username, password, ip);
     if (!user) {
       throw new UnauthorizedException();
