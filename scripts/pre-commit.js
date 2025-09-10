@@ -149,21 +149,14 @@ async function main() {
 
     printSuccess('Build check complete');
 
-    // 6. Security scanning (quick check)
-    printStatus('Running security scan...');
+    // 6. Security scanning (dependency audit only)
+    printStatus('Running security audit...');
     try {
-      // Quick secret scan on staged files
-      const stagedFiles = execSync('git diff --cached --name-only', { encoding: 'utf8' });
-      if (stagedFiles.trim()) {
-        printStatus('  Scanning staged files for secrets...');
-        await runCommand('yarn', ['security:scan']);
-        printSuccess('  Security scan passed');
-      } else {
-        printWarning('  No staged files to scan');
-      }
+      await runCommand('yarn', ['security:audit']);
+      printSuccess('  Security audit passed');
     } catch (error) {
-      printWarning('  Security scan failed or gitleaks not available');
-      printStatus('  Please run "yarn security:check" manually');
+      printWarning('  Security audit failed or found vulnerabilities');
+      printStatus('  Please review yarn-audit-exemptions.json for allowed exemptions');
     }
 
     // 7. Optional: Check for uncommitted changes

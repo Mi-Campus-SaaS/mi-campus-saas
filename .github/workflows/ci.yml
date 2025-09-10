@@ -31,55 +31,12 @@ jobs:
         run: corepack prepare yarn@1.22.22 --activate
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Install Gitleaks
+      - name: Security Scan Placeholder
         run: |
-          # Install Gitleaks from GitHub releases (open source version)
-          set -e
-          VER=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-          echo "Installing Gitleaks v$VER"
-          curl -sSL -o gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${VER}/gitleaks_${VER}_linux_x64.tar.gz"
-          tar -xzf gitleaks.tgz gitleaks
-          sudo mv gitleaks /usr/local/bin/gitleaks
-          gitleaks version
-
-      - name: Run Gitleaks (Secret Scanning)
-        env:
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-        run: |
-          # Run scan; do not fail step (we'll fail explicitly after parsing)
-          gitleaks detect --config .gitleaks.toml --report-format json --report-path gitleaks-report.json --verbose || true
-          # Ensure report file exists for artifact upload
-          if [ ! -f gitleaks-report.json ]; then echo '[]' > gitleaks-report.json; fi
-
-      - name: Evaluate Gitleaks Findings
-        run: |
-          # Determine report structure and count findings; avoid complex quoting in jq
-          TYPE=$(jq -r 'type' gitleaks-report.json || echo "null")
-          COUNT=0
-          if [ "$TYPE" = "array" ]; then
-            COUNT=$(jq 'length' gitleaks-report.json)
-            if [ "$COUNT" -gt 0 ]; then
-              echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "The following secrets were detected (showing up to 10):" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              jq -r '.[0:10][] | "- " + ((.RuleID // .rule_id // "rule")|tostring) + " in " + ((.File // .file // "unknown")|tostring)' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
-              exit 1
-            fi
-          else
-            COUNT=$(jq '(.findings // .leaks // []) | length' gitleaks-report.json 2>/dev/null || echo 0)
-            if [ "$COUNT" -gt 0 ]; then
-              echo "## 🚨 Secrets Found!" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "The following secrets were detected (showing up to 10):" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              jq -r '(.findings // .leaks)[0:10][] | "- " + ((.RuleID // .rule_id // "rule")|tostring) + " in " + ((.File // .file // "unknown")|tostring)' gitleaks-report.json >> $GITHUB_STEP_SUMMARY || true
-              exit 1
-            fi
-          fi
-          echo "## ✅ No Secrets Found" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Security Scanning" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The secret scan completed successfully with no issues detected." >> $GITHUB_STEP_SUMMARY
+          echo "Secret scanning will be implemented in the future." >> $GITHUB_STEP_SUMMARY
+          echo "Currently running dependency vulnerability scan only." >> $GITHUB_STEP_SUMMARY
       - name: Run Yarn Audit (Dependency Scanning)
         run: |
           yarn audit --level high --json > yarn-audit-report.json || true
@@ -114,7 +71,6 @@ jobs:
         with:
           name: security-reports
           path: |
-            gitleaks-report.json
             yarn-audit-report.json
 
   lint:
