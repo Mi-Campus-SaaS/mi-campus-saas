@@ -2,23 +2,64 @@
 
 :root {
   color-scheme: light;
-  --bg: #ffffff;
-  --fg: #111827; /* gray-900 */
-  --card-bg: #ffffff;
-  --card-border: #e5e7eb; /* gray-200 */
-  --muted: #6b7280; /* gray-500 */
+
+  /* Colors - primitives */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-primary-500: #3b82f6; /* blue-500 */
+
+  /* Typography */
+  --font-family-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+
+  /* Spacing scale */
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-12: 3rem; /* 48px */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Semantic aliases (light) */
+  --bg: var(--color-white);
+  --fg: var(--color-gray-900);
+  --card-bg: var(--color-white);
+  --card-border: var(--color-gray-200);
+  --muted: var(--color-gray-500);
   --nav-bg: rgba(255, 255, 255, 0.7);
-  --hover-bg: #f9fafb; /* gray-50 */
+  --hover-bg: var(--color-gray-50);
 }
 .dark {
   color-scheme: dark;
-  --bg: #111827; /* gray-900 */
-  --fg: #f3f4f6; /* gray-100 */
-  --card-bg: #1f2937; /* gray-800 */
-  --card-border: #374151; /* gray-700 */
-  --muted: #9ca3af; /* gray-400 */
-  --nav-bg: rgba(17, 24, 39, 0.7); /* gray-900 with alpha */
-  --hover-bg: #1f2937; /* gray-800 */
+  /* Semantic aliases (dark) */
+  --bg: var(--color-gray-900);
+  --fg: var(--color-gray-100);
+  --card-bg: var(--color-gray-800);
+  --card-border: var(--color-gray-700);
+  --muted: var(--color-gray-400);
+  --nav-bg: rgba(17, 24, 39, 0.7);
+  --hover-bg: var(--color-gray-800);
 }
 
 html,
@@ -28,17 +69,7 @@ body,
 }
 body {
   margin: 0;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Helvetica,
-    Arial,
-    'Apple Color Emoji',
-    'Segoe UI Emoji';
+  font-family: var(--font-family-sans);
   background-color: var(--bg);
   color: var(--fg);
 }
@@ -46,7 +77,7 @@ body {
 .card {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
 }
 .muted {
   color: var(--muted);
@@ -59,7 +90,7 @@ body {
 .dropdown {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
 }
 .hover-surface:hover {
   background-color: var(--hover-bg);
