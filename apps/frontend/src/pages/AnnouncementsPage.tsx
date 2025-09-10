@@ -7,6 +7,10 @@ import { queryClient } from '../queryClient';
 
 import { FeatureGate, FeatureButton } from '../components/FeatureGate';
 import { createAnnouncementSchema } from '../validation/schemas';
+import { useZodForm } from '../hooks/useZodForm';
+import Form from '../components/forms/Form';
+import Field from '../components/forms/Field';
+import { TextField, DateTimeField } from '../components/forms/inputs';
 import { Plus, Edit, Trash2, Megaphone } from 'lucide-react';
 import styles from './AnnouncementsPage.module.css';
 
@@ -46,14 +50,8 @@ const AnnouncementsPage: React.FC = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['announcements'] }),
   });
 
-  const [newContent, setNewContent] = useState('');
-  const [newPublishAt, setNewPublishAt] = useState<string>('');
-  const [errors, setErrors] = useState<{
-    content?: string;
-    publishAt?: string;
-  }>({});
-
-  const canCreate = useMemo(() => newContent.trim().length > 0, [newContent]);
+  const createForm = useZodForm(createAnnouncementSchema, { content: '', publishAt: '' });
+  const canCreate = useMemo(() => createForm.values.content.trim().length > 0, [createForm.values.content]);
 
   return (
     <div className="p-6 space-y-6">
@@ -100,55 +98,42 @@ const AnnouncementsPage: React.FC = () => {
 
       <FeatureGate feature="announcements.create">
         <div className="card rounded-lg shadow-sm p-4">
-          <form
+          <Form
             className="flex flex-wrap items-end gap-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const result = createAnnouncementSchema.safeParse({
-                content: newContent,
-                publishAt: newPublishAt || undefined,
-              });
-              if (!result.success) {
-                const fieldErrors: { content?: string; publishAt?: string } = {};
-                for (const issue of result.error.issues) {
-                  if (issue.path[0] === 'content') fieldErrors.content = t(issue.message);
-                  if (issue.path[0] === 'publishAt') fieldErrors.publishAt = t(issue.message);
-                }
-                setErrors(fieldErrors);
-                return;
-              }
-              setErrors({});
-              createMut.mutate({
-                content: newContent.trim(),
-                publishAt: newPublishAt || undefined,
-              });
-              setNewContent('');
-              setNewPublishAt('');
-            }}
+            onSubmit={createForm.handleSubmit((data) => {
+              createMut.mutate({ content: data.content.trim(), publishAt: data.publishAt || undefined });
+              createForm.setValues({ content: '', publishAt: '' });
+            })}
           >
             <div className="flex-1 min-w-[240px]">
-              <label className={`block text-sm mb-1 ${styles.label}`}>{t('content')}</label>
-              <input
-                className={`border rounded p-2 w-full ${styles.input}`}
-                value={newContent}
-                onChange={(e) => setNewContent(e.target.value)}
-                placeholder={t('content')}
-                aria-label={t('content')}
-                required
-              />
-              {errors.content && <div className="text-xs text-red-600 dark:text-red-400">{errors.content}</div>}
+              <Field
+                id="content"
+                label={t('content')}
+                error={createForm.errors.content && t(createForm.errors.content)}
+              >
+                <TextField
+                  id="content"
+                  className={styles.input}
+                  value={createForm.values.content}
+                  onChange={(v) => createForm.setField('content', v)}
+                  placeholder={t('content')}
+                />
+              </Field>
             </div>
             <div>
-              <label className={`block text-sm mb-1 ${styles.label}`}>{t('publish_at')}</label>
-              <input
-                type="datetime-local"
-                className={`border rounded p-2 ${styles.input}`}
-                value={newPublishAt}
-                onChange={(e) => setNewPublishAt(e.target.value)}
-                placeholder={t('publish_at')}
-                aria-label={t('publish_at')}
-              />
-              {errors.publishAt && <div className="text-xs text-red-600 dark:text-red-400">{errors.publishAt}</div>}
+              <Field
+                id="publishAt"
+                label={t('publish_at')}
+                error={createForm.errors.publishAt && t(createForm.errors.publishAt)}
+              >
+                <DateTimeField
+                  id="publishAt"
+                  className={styles.input}
+                  value={createForm.values.publishAt as string}
+                  onChange={(v) => createForm.setField('publishAt', v)}
+                  placeholder={t('publish_at')}
+                />
+              </Field>
             </div>
             <button
               disabled={!canCreate || createMut.isPending}
@@ -157,7 +142,7 @@ const AnnouncementsPage: React.FC = () => {
             >
               {t('create')}
             </button>
-          </form>
+          </Form>
         </div>
       </FeatureGate>
 

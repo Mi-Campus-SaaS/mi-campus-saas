@@ -105,5 +105,19 @@
   "schedule_updated": "Horario actualizado",
   "schedule_update_failed": "Error al actualizar el horario",
   "undo": "Deshacer",
-  "undo_success": "Deshecho"
+  "undo_success": "Deshecho",
+  "validation.uuid": "Identificador inválido",
+  "validation.date": "Fecha inválida",
+  "validation.number": "Número inválido",
+  "validation.positive": "Debe ser positivo",
+  "validation.username_required": "El usuario es obligatorio",
+  "validation.username_max": "El usuario es demasiado largo",
+  "validation.password_required": "La contraseña es obligatoria",
+  "validation.password_max": "La contraseña es demasiado larga",
+  "validation.content_required": "El contenido es obligatorio",
+  "validation.content_max": "El contenido es demasiado largo",
+  "validation.title_required": "El título es obligatorio",
+  "validation.title_max": "El título es demasiado largo",
+  "validation.description_max": "La descripción es demasiado larga",
+  "validation.file_required": "El archivo es obligatorio"
 }

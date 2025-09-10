@@ -108,5 +108,19 @@
   "schedule_updated": "Schedule updated",
   "schedule_update_failed": "Failed to update schedule",
   "undo": "Undo",
-  "undo_success": "Undone"
+  "undo_success": "Undone",
+  "validation.uuid": "Invalid identifier",
+  "validation.date": "Invalid date",
+  "validation.number": "Invalid number",
+  "validation.positive": "Must be positive",
+  "validation.username_required": "Username is required",
+  "validation.username_max": "Username is too long",
+  "validation.password_required": "Password is required",
+  "validation.password_max": "Password is too long",
+  "validation.content_required": "Content is required",
+  "validation.content_max": "Content is too long",
+  "validation.title_required": "Title is required",
+  "validation.title_max": "Title is too long",
+  "validation.description_max": "Description is too long",
+  "validation.file_required": "File is required"
 }

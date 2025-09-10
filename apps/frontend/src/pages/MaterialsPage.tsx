@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -6,6 +6,10 @@ import { listClassMaterials, uploadClassMaterial, type ClassMaterial, type Pagin
 import { queryClient } from '../queryClient';
 import { useAuth } from '../auth/useAuth';
 import { uploadMaterialSchema } from '../validation/schemas';
+import { useZodForm } from '../hooks/useZodForm';
+import Form, { ErrorSummary } from '../components/forms/Form';
+import Field from '../components/forms/Field';
+import { FileField, TextField } from '../components/forms/inputs';
 import { FileText } from 'lucide-react';
 import MaterialPreview from '../components/MaterialPreview';
 import styles from './MaterialsPage.module.css';
@@ -21,12 +25,9 @@ const MaterialsPage: React.FC = () => {
     enabled: Boolean(classId),
   });
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<{ title?: string; description?: string; file?: string }>({});
+  const form = useZodForm(uploadMaterialSchema, { title: '', description: '', file: undefined as unknown as File });
 
-  const canUpload = useMemo(() => Boolean(title.trim() && file), [title, file]);
+  // validation handled by useZodForm and button disabled from values
 
   const uploadMut = useMutation({
     mutationFn: (vars: { title: string; description?: string; file: File }) => uploadClassMaterial(classId, vars),
@@ -55,73 +56,67 @@ const MaterialsPage: React.FC = () => {
 
       {user && (user.role === 'admin' || user.role === 'teacher') && (
         <div className="card rounded-lg shadow-sm p-4">
-          <form
+          <Form
+            onSubmit={form.handleSubmit((data) => {
+              if (!data.file) return;
+              uploadMut.mutate({
+                title: data.title.trim(),
+                description: data.description || undefined,
+                file: data.file,
+              });
+              form.setValues({ title: '', description: '', file: undefined as unknown as File });
+            })}
             className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const parsed = uploadMaterialSchema.safeParse({ title, description: description || undefined, file });
-              if (!parsed.success) {
-                const errs: { title?: string; description?: string; file?: string } = {};
-                for (const issue of parsed.error.issues) {
-                  if (issue.path[0] === 'title') errs.title = t(issue.message);
-                  if (issue.path[0] === 'description') errs.description = t(issue.message);
-                  if (issue.path[0] === 'file') errs.file = t(issue.message);
-                }
-                setErrors(errs);
-                return;
-              }
-              setErrors({});
-              if (!file) return;
-              uploadMut.mutate({ title: title.trim(), description: description || undefined, file });
-              setTitle('');
-              setDescription('');
-              setFile(null);
-            }}
           >
-            <div>
-              <label className={`block text-sm mb-1 ${styles.label}`}>{t('title')}</label>
-              <input
-                className={`border rounded p-2 w-full ${styles.input}`}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={t('title')}
-                aria-label={t('title')}
-                required
+            <div className="md:col-span-3 space-y-3">
+              <ErrorSummary
+                errors={{
+                  title: form.errors.title && t(form.errors.title),
+                  description: form.errors.description && t(form.errors.description),
+                  file: form.errors.file && t(form.errors.file),
+                }}
               />
-              {errors.title && <div className="text-xs text-red-600 dark:text-red-400">{errors.title}</div>}
-            </div>
-            <div>
-              <label className={`block text-sm mb-1 ${styles.label}`}>{t('description')}</label>
-              <input
-                className={`border rounded p-2 w-full ${styles.input}`}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder={t('description')}
-                aria-label={t('description')}
-              />
-              {errors.description && <div className="text-xs text-red-600 dark:text-red-400">{errors.description}</div>}
-            </div>
-            <div>
-              <label className={`block text-sm mb-1 ${styles.label}`}>{t('file')}</label>
-              <input
-                type="file"
-                className={`border rounded p-2 w-full ${styles.input}`}
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                aria-label={t('file')}
-                required
-              />
-              {errors.file && <div className="text-xs text-red-600 dark:text-red-400">{errors.file}</div>}
+              <Field id="title" label={t('title')} error={form.errors.title && t(form.errors.title)}>
+                <TextField
+                  id="title"
+                  value={form.values.title}
+                  onChange={(v) => form.setField('title', v)}
+                  placeholder={t('title')}
+                  className={styles.input}
+                />
+              </Field>
+              <Field
+                id="description"
+                label={t('description')}
+                error={form.errors.description && t(form.errors.description)}
+              >
+                <TextField
+                  id="description"
+                  value={form.values.description as string}
+                  onChange={(v) => form.setField('description', v)}
+                  placeholder={t('description')}
+                  className={styles.input}
+                />
+              </Field>
+              <Field id="file" label={t('file')} error={form.errors.file && t(form.errors.file)}>
+                <FileField
+                  id="file"
+                  onChange={(f) => form.setField('file', f as unknown as File)}
+                  className={styles.input}
+                  placeholder={t('file')}
+                />
+              </Field>
             </div>
             <div>
               <button
-                disabled={!canUpload || uploadMut.isPending}
+                disabled={uploadMut.isPending || !form.values.title || !form.values.file}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
               >
                 {t('upload')}
               </button>
             </div>
-          </form>
+          </Form>
         </div>
       )}
 

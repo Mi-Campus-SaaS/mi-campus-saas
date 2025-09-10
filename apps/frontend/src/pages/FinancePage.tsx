@@ -7,6 +7,10 @@ import type { Paginated, Student } from '../types/api';
 import { queryClient } from '../queryClient';
 import { Skeleton } from '../components/Skeleton';
 import { createFeeSchema, recordPaymentSchema } from '../validation/schemas';
+import { useZodForm } from '../hooks/useZodForm';
+import Form from '../components/forms/Form';
+import Field from '../components/forms/Field';
+import { NumberField, TextField, DateField } from '../components/forms/inputs';
 import styles from './FinancePage.module.css';
 import { DollarSign } from 'lucide-react';
 import { formatCurrency, formatDate } from '../utils/format';
@@ -44,52 +48,36 @@ const FinancePage: React.FC = () => {
     enabled: !!studentId,
   });
 
-  const [amount, setAmount] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const canCreate = useMemo(() => Number(amount) > 0 && !!studentId && !!dueDate, [amount, studentId, dueDate]);
+  const feeForm = useZodForm(createFeeSchema, { studentId: '', amount: 0, dueDate: '', status: 'pending' });
   const createMut = useMutation({
     mutationFn: () =>
       createFee({
         studentId,
-        amount: Number(amount),
-        dueDate,
+        amount: feeForm.values.amount,
+        dueDate: feeForm.values.dueDate,
         status: 'pending',
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fees', studentId] });
-      setAmount('');
-      setDueDate('');
+      feeForm.setValues({ studentId: '', amount: 0, dueDate: '', status: 'pending' });
     },
   });
 
-  const [payInvoiceId, setPayInvoiceId] = useState('');
-  const [payAmount, setPayAmount] = useState('');
-  const [reference, setReference] = useState('');
-  const canPay = useMemo(() => Number(payAmount) > 0 && !!payInvoiceId, [payAmount, payInvoiceId]);
+  const payForm = useZodForm(recordPaymentSchema, { invoiceId: '', amount: 0, reference: '' });
   const payMut = useMutation({
     mutationFn: () =>
       recordPayment({
-        invoiceId: payInvoiceId,
-        amount: Number(payAmount),
-        reference: reference || undefined,
+        invoiceId: payForm.values.invoiceId,
+        amount: payForm.values.amount,
+        reference: payForm.values.reference || undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fees', studentId] });
       queryClient.invalidateQueries({ queryKey: ['payments', studentId] });
-      setPayInvoiceId('');
-      setPayAmount('');
-      setReference('');
+      payForm.setValues({ invoiceId: '', amount: 0, reference: '' });
     },
   });
-  const [feeErrors, setFeeErrors] = useState<{
-    amount?: string;
-    dueDate?: string;
-    studentId?: string;
-  }>({});
-  const [payErrors, setPayErrors] = useState<{
-    invoiceId?: string;
-    amount?: string;
-  }>({});
+  // Validation errors are provided by useZodForm (feeForm.errors, payForm.errors)
 
   const locale = useMemo(() => {
     const lang = i18n.language || 'es';
@@ -190,82 +178,49 @@ const FinancePage: React.FC = () => {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="card rounded-lg shadow-sm p-4">
           <h2 className={`font-semibold mb-4 ${styles.sectionTitle}`}>{t('fees')}</h2>
-          <form
+          <Form
             className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const parse = createFeeSchema
-                .pick({
-                  studentId: true,
-                  amount: true,
-                  dueDate: true,
-                  status: true,
-                })
-                .safeParse({
-                  studentId,
-                  amount: Number(amount),
-                  dueDate,
-                  status: 'pending',
-                });
-              if (!parse.success) {
-                const errs: {
-                  amount?: string;
-                  dueDate?: string;
-                  studentId?: string;
-                } = {};
-                for (const issue of parse.error.issues) {
-                  if (issue.path[0] === 'studentId') errs.studentId = t(issue.message);
-                  if (issue.path[0] === 'amount') errs.amount = t(issue.message);
-                  if (issue.path[0] === 'dueDate') errs.dueDate = t(issue.message);
-                }
-                setFeeErrors(errs);
-                return;
-              }
-              setFeeErrors({});
+            onSubmit={feeForm.handleSubmit(() => {
+              if (!studentId) return;
               createMut.mutate();
-            }}
+            })}
           >
-            <div>
-              <label htmlFor="feeAmount" className={`block text-sm mb-1 ${styles.label}`}>
-                {t('amount')}
-              </label>
-              <input
+            <Field id="feeAmount" label={t('amount')} error={feeForm.errors.amount && t(feeForm.errors.amount)}>
+              <NumberField
                 id="feeAmount"
-                className={`border rounded p-2 w-full ${styles.input}`}
-                type="number"
-                min="0"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                className={styles.input}
+                value={feeForm.values.amount}
+                onChange={(v) => feeForm.setField('amount', Number(v))}
                 placeholder={t('amount')}
-                aria-label={t('amount')}
+                min={0}
+                step={0.01}
               />
-              {feeErrors.amount && <div className="text-xs text-red-600 dark:text-red-400">{feeErrors.amount}</div>}
-            </div>
+            </Field>
             <div>
               <label htmlFor="feeDue" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('due_date')}
               </label>
-              <input
+              <DateField
                 id="feeDue"
-                className={`border rounded p-2 w-full ${styles.input}`}
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                aria-label={t('due_date')}
+                className={styles.input}
+                value={feeForm.values.dueDate}
+                onChange={(v) => feeForm.setField('dueDate', v)}
+                placeholder={t('due_date')}
               />
-              {feeErrors.dueDate && <div className="text-xs text-red-600 dark:text-red-400">{feeErrors.dueDate}</div>}
+              {feeForm.errors.dueDate && (
+                <div className="text-xs text-red-600 dark:text-red-400">{t(feeForm.errors.dueDate)}</div>
+              )}
             </div>
             <div>
               <button
-                disabled={!canCreate || createMut.isPending}
+                disabled={createMut.isPending || !studentId || feeForm.values.amount <= 0 || !feeForm.values.dueDate}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
               >
                 {t('create_fee')}
               </button>
             </div>
-          </form>
+          </Form>
 
           {feesQ.isError && (
             <div className="mb-3 p-3 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 flex items-center justify-between">
@@ -311,27 +266,11 @@ const FinancePage: React.FC = () => {
 
         <div className="card rounded-lg shadow-sm p-4">
           <h2 className={`font-semibold mb-4 ${styles.sectionTitle}`}>{t('payments')}</h2>
-          <form
+          <Form
             className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end mb-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const parsed = recordPaymentSchema.safeParse({
-                invoiceId: payInvoiceId,
-                amount: Number(payAmount),
-                reference,
-              });
-              if (!parsed.success) {
-                const errs: { invoiceId?: string; amount?: string } = {};
-                for (const issue of parsed.error.issues) {
-                  if (issue.path[0] === 'invoiceId') errs.invoiceId = t(issue.message);
-                  if (issue.path[0] === 'amount') errs.amount = t(issue.message);
-                }
-                setPayErrors(errs);
-                return;
-              }
-              setPayErrors({});
+            onSubmit={payForm.handleSubmit(() => {
               payMut.mutate();
-            }}
+            })}
           >
             <div className="md:col-span-2">
               <label htmlFor="invoiceId" className={`block text-sm mb-1 ${styles.label}`}>
@@ -340,55 +279,54 @@ const FinancePage: React.FC = () => {
               <input
                 id="invoiceId"
                 className={`border rounded p-2 w-full ${styles.input}`}
-                value={payInvoiceId}
-                onChange={(e) => setPayInvoiceId(e.target.value)}
+                value={payForm.values.invoiceId}
+                onChange={(e) => payForm.setField('invoiceId', e.target.value)}
                 placeholder={t('invoice_id')}
                 aria-label={t('invoice_id')}
               />
-              {payErrors.invoiceId && (
-                <div className="text-xs text-red-600 dark:text-red-400">{payErrors.invoiceId}</div>
+              {payForm.errors.invoiceId && (
+                <div className="text-xs text-red-600 dark:text-red-400">{t(payForm.errors.invoiceId)}</div>
               )}
             </div>
             <div>
               <label htmlFor="payAmount" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('amount')}
               </label>
-              <input
+              <NumberField
                 id="payAmount"
-                className={`border rounded p-2 w-full ${styles.input}`}
-                type="number"
-                min="0"
-                step="0.01"
-                value={payAmount}
-                onChange={(e) => setPayAmount(e.target.value)}
+                className={styles.input}
+                value={payForm.values.amount}
+                onChange={(v) => payForm.setField('amount', Number(v))}
                 placeholder={t('amount')}
-                aria-label={t('amount')}
+                min={0}
+                step={0.01}
               />
-              {payErrors.amount && <div className="text-xs text-red-600 dark:text-red-400">{payErrors.amount}</div>}
+              {payForm.errors.amount && (
+                <div className="text-xs text-red-600 dark:text-red-400">{t(payForm.errors.amount)}</div>
+              )}
             </div>
             <div>
               <label htmlFor="payRef" className={`block text-sm mb-1 ${styles.label}`}>
                 {t('reference')}
               </label>
-              <input
+              <TextField
                 id="payRef"
-                className={`border rounded p-2 w-full ${styles.input}`}
-                value={reference}
-                onChange={(e) => setReference(e.target.value)}
+                className={styles.input}
+                value={payForm.values.reference}
+                onChange={(v) => payForm.setField('reference', v)}
                 placeholder={t('reference')}
-                aria-label={t('reference')}
               />
             </div>
             <div>
               <button
-                disabled={!canPay || payMut.isPending}
+                disabled={payMut.isPending || !payForm.values.invoiceId || payForm.values.amount <= 0}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
               >
                 {t('record_payment')}
               </button>
             </div>
-          </form>
+          </Form>
 
           {paymentsQ.isError && (
             <div className="mb-3 p-3 border border-red-200 dark:border-red-800 rounded bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 flex items-center justify-between">

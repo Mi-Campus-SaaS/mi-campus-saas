@@ -1,35 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../auth/useAuth';
 import { useTranslation } from 'react-i18next';
 import { loginSchema } from '../validation/schemas';
 import { LogIn } from 'lucide-react';
 import styles from './LoginPage.module.css';
+import { useZodForm } from '../hooks/useZodForm';
+import Field from '../components/forms/Field';
+import { PasswordField, TextField } from '../components/forms/inputs';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const { login } = useAuth();
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
-  const [errors, setErrors] = useState<{
-    username?: string;
-    password?: string;
-  }>({});
+  const form = useZodForm(loginSchema, { username: 'admin', password: 'admin123' });
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = loginSchema.safeParse({ username, password });
-    if (!result.success) {
-      const fieldErrors: { username?: string; password?: string } = {};
-      for (const issue of result.error.issues) {
-        if (issue.path[0] === 'username') fieldErrors.username = t(issue.message);
-        if (issue.path[0] === 'password') fieldErrors.password = t(issue.message);
-      }
-      setErrors(fieldErrors);
-      return;
-    }
-    setErrors({});
-    await login(username, password);
-  };
+  const onSubmit = form.handleSubmit(async (data) => {
+    await login(data.username, data.password);
+  });
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-6 ${styles.container}`}>
@@ -40,36 +26,25 @@ const LoginPage: React.FC = () => {
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className={`block text-sm mb-1 ${styles.label}`}>
-              {t('username')}
-            </label>
-            <input
+          <Field id="username" label={t('username')} error={form.errors.username && t(form.errors.username)}>
+            <TextField
               id="username"
-              className={`border rounded p-2 w-full ${styles.input}`}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={form.values.username}
+              onChange={(v) => form.setField('username', v)}
               placeholder={t('username')}
-              aria-label={t('username')}
+              className={styles.input}
             />
-            {errors.username && <div className="text-xs text-red-600 dark:text-red-400">{errors.username}</div>}
-          </div>
+          </Field>
 
-          <div>
-            <label htmlFor="password" className={`block text-sm mb-1 ${styles.label}`}>
-              {t('password')}
-            </label>
-            <input
+          <Field id="password" label={t('password')} error={form.errors.password && t(form.errors.password)}>
+            <PasswordField
               id="password"
-              className={`border rounded p-2 w-full ${styles.input}`}
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.values.password}
+              onChange={(v) => form.setField('password', v)}
               placeholder={t('password')}
-              aria-label={t('password')}
+              className={styles.input}
             />
-            {errors.password && <div className="text-xs text-red-600 dark:text-red-400">{errors.password}</div>}
-          </div>
+          </Field>
 
           <button className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700" type="submit">
             {t('login')}

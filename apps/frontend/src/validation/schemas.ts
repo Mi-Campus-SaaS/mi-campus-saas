@@ -28,6 +28,7 @@ export const createAnnouncementSchema = z.object({
     .string()
     .min(1, { message: 'validation.content_required' })
     .max(1000, { message: 'validation.content_max' }),
+  classId: uuid.optional(),
   publishAt: z
     .string()
     .optional()
