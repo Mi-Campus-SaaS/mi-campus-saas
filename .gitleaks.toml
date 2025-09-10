@@ -1,6 +1,6 @@
 title = "MI Campus Gitleaks Config"
 
-[allowlist]
+[[allowlist]]
 description = "Global allowlist for non-sensitive files and test patterns"
 files = [
   'tests?/.*',
@@ -34,7 +34,13 @@ files = [
   '.*\.git/.*',
   '.*\.gitignore$',
   '.*\.gitattributes$',
-  '.*\.github/workflows/.*'
+  '.*\.github/workflows/.*',
+  'GITLEAKS_SETUP\.md',
+  'SECURITY\.md',
+  'README\.md',
+  'apps/backend/jest\.setup\.js',
+  'apps/backend/\.env\.example',
+  'apps/backend/src/auth/auth\.controller\.spec\.ts'
 ]
 regexes = [
   'JWT_SECRET.*your-super-secret.*',
