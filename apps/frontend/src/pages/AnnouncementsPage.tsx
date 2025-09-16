@@ -26,13 +26,12 @@ const AnnouncementsPage: React.FC = () => {
     staleTime: 0,
     select: (list: Announcement[]) => {
       const now = Date.now();
-      const filtered = list.filter((a) => {
+      return list.filter((a) => {
         const isPublished = new Date(a.publishAt).getTime() <= now;
         if (!showScheduled && !isPublished) return false;
         if (search && !a.content.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       });
-      return filtered;
     },
   });
 

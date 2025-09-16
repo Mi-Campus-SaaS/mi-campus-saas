@@ -12,6 +12,31 @@ export type Student = {
   firstName: string;
   lastName: string;
   gpa?: number;
+  enrollmentStatus?: string;
+  schoolLevel?: 'primary' | 'secondary';
+  currentYear?: number;
+  birthDate?: string;
+  courses?: Course[];
+  recentGrades?: Grade[];
+};
+
+export type Course = {
+  id: string;
+  subjectName: string;
+  gradeLevel: string;
+  teacher?: {
+    firstName: string;
+    lastName: string;
+  };
+};
+
+export type Grade = {
+  id: string;
+  assignmentName: string;
+  score: number;
+  maxScore: number;
+  date: string;
+  courseName: string;
 };
 
 export type Paginated<T> = {

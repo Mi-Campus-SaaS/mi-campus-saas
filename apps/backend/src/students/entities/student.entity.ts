@@ -20,6 +20,15 @@ export class Student extends TimestampedEntity {
   @Column({ nullable: true })
   enrollmentStatus?: string;
 
+  @Column({ nullable: true })
+  schoolLevel?: 'primary' | 'secondary';
+
+  @Column({ nullable: true })
+  currentYear?: number; // 1-6 for primary, 1-6/7 for secondary
+
+  @Column({ nullable: true })
+  birthDate?: Date;
+
   @OneToOne(() => User, (user) => user.student, { onDelete: 'SET NULL' })
   @JoinColumn()
   user?: User | null;

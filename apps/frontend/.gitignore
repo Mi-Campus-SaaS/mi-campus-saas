@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# SonarLint
+sonarlint-report.html
+sonarlint-report.json

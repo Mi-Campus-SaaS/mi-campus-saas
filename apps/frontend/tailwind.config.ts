@@ -1,5 +1,9 @@
 import type { Config } from 'tailwindcss';
 
+// Constants for repeated strings
+const LINE_HEIGHT_NORMAL = 'var(--line-height-normal)';
+const LINE_HEIGHT_TIGHT = 'var(--line-height-tight)';
+
 export default {
   darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -27,15 +31,15 @@ export default {
         '12': 'var(--space-12)',
       },
       fontSize: {
-        xs: ['var(--font-size-xs)', { lineHeight: 'var(--line-height-normal)' }],
-        sm: ['var(--font-size-sm)', { lineHeight: 'var(--line-height-normal)' }],
-        base: ['var(--font-size-md)', { lineHeight: 'var(--line-height-normal)' }],
-        lg: ['var(--font-size-lg)', { lineHeight: 'var(--line-height-tight)' }],
-        xl: ['var(--font-size-xl)', { lineHeight: 'var(--line-height-tight)' }],
+        xs: ['var(--font-size-xs)', { lineHeight: LINE_HEIGHT_NORMAL }],
+        sm: ['var(--font-size-sm)', { lineHeight: LINE_HEIGHT_NORMAL }],
+        base: ['var(--font-size-md)', { lineHeight: LINE_HEIGHT_NORMAL }],
+        lg: ['var(--font-size-lg)', { lineHeight: LINE_HEIGHT_TIGHT }],
+        xl: ['var(--font-size-xl)', { lineHeight: LINE_HEIGHT_TIGHT }],
       },
       lineHeight: {
-        tight: 'var(--line-height-tight)',
-        normal: 'var(--line-height-normal)',
+        tight: LINE_HEIGHT_TIGHT,
+        normal: LINE_HEIGHT_NORMAL,
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

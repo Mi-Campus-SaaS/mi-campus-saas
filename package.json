@@ -25,6 +25,10 @@
     "ci:budgets": "yarn budgets:bundle && yarn budgets:perf",
     "ci:visual": "yarn test:visual",
     "security:audit": "yarn audit --level high",
+    "sonar:frontend": "yarn --cwd apps/frontend lint:sonar",
+    "sonar:backend": "yarn --cwd apps/backend lint:sonar",
+    "sonar:all": "yarn sonar:frontend && yarn sonar:backend",
+    "sonar:console": "yarn --cwd apps/frontend lint:sonar:console && yarn --cwd apps/backend lint:sonar:console",
     "prepare": "husky"
   },
   "devDependencies": {

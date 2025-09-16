@@ -77,3 +77,7 @@ node_modules/
 gitleaks-report.json
 yarn-audit-report.json
 *.sarif
+
+# SonarLint
+sonarlint-report.html
+sonarlint-report.json
