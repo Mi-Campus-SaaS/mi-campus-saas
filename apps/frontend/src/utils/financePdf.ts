@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate } from './format';
+import { formatCurrency, formatDate, formatDateTime } from './format';
 
 export type FinancePdfInvoice = {
   id: string;
@@ -104,7 +104,7 @@ export function generateFinanceHtml(data: FinancePdfData): string {
             <img src="${location.origin}/icon-192.png" alt="${brandName} logo" />
             <div class="name">${brandName}</div>
           </div>
-          <div class="muted">${new Date().toLocaleString(locale)}</div>
+          <div class="muted">${formatDateTime(new Date(), locale)}</div>
         </div>
         <h1 class="title">Finance Summary</h1>
         <div class="muted">Student: ${escapeHtml(student.name)} · ID: ${escapeHtml(student.id)}</div>

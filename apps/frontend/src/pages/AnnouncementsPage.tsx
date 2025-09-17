@@ -13,11 +13,19 @@ import Field from '../components/forms/Field';
 import { TextField, DateTimeField } from '../components/forms/inputs';
 import { Plus, Edit, Trash2, Megaphone } from 'lucide-react';
 import styles from './AnnouncementsPage.module.css';
+import { formatDateTime } from '../utils/format';
 
 const AnnouncementsPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showScheduled, setShowScheduled] = useState(false);
   const [search, setSearch] = useState('');
+
+  const locale = useMemo(() => {
+    const lang = i18n.language || 'es';
+    if (lang.startsWith('es')) return 'es-ES';
+    if (lang.startsWith('en')) return 'en-US';
+    return lang;
+  }, [i18n.language]);
 
   const { data } = useQuery({
     queryKey: ['announcements'],
@@ -148,7 +156,7 @@ const AnnouncementsPage: React.FC = () => {
       <div className="space-y-3">
         {data?.map((a) => (
           <div key={a.id} className="card rounded-lg shadow-sm p-4 space-y-2">
-            <div className={`text-sm ${styles.timestamp}`}>{new Date(a.publishAt).toLocaleString()}</div>
+            <div className={`text-sm ${styles.timestamp}`}>{formatDateTime(a.publishAt, locale)}</div>
             <div className={`font-medium ${styles.content}`}>{a.content}</div>
             <div className="flex gap-2">
               <FeatureGate feature="announcements.edit">

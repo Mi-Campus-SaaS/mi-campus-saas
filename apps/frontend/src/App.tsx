@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/LoginPage';
@@ -14,9 +14,15 @@ import MaterialsPage from './pages/MaterialsPage';
 import AttendancePage from './pages/AttendancePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
+import TimeTestPage from './pages/TimeTestPage';
+import { useTranslation } from 'react-i18next';
 
 const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    if (locale && i18n.language !== locale) i18n.changeLanguage(locale);
+  }, [i18n, locale]);
   if (!['es', 'en'].includes(locale)) return <Navigate to="/es" replace />;
   return (
     <div className="min-h-screen">
@@ -41,6 +47,8 @@ const LocaleWrapper: React.FC = () => {
           <Route element={<RequireRole roles={['admin', 'parent']} />}>
             <Route path="finance" element={<FinancePage />} />
           </Route>
+          {/* Testing route (not linked in UI) */}
+          <Route path="time-test" element={<TimeTestPage />} />
         </Routes>
       </ErrorBoundary>
       <PWAInstallPrompt />

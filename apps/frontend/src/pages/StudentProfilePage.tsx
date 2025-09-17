@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -6,10 +6,18 @@ import { getStudent } from '../api/students';
 import { queryKeys } from '../api/queryKeys';
 import { Skeleton } from '../components/Skeleton';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { formatDate } from '../utils/format';
 
 const StudentProfilePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { studentId } = useParams<{ studentId: string }>();
+
+  const locale = useMemo(() => {
+    const lang = i18n.language || 'es';
+    if (lang.startsWith('es')) return 'es-ES';
+    if (lang.startsWith('en')) return 'en-US';
+    return lang;
+  }, [i18n.language]);
 
   const {
     data: student,
@@ -42,9 +50,7 @@ const StudentProfilePage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
+  const fmt = (value: string | Date) => formatDate(value, locale);
 
   if (isLoading) {
     return (
@@ -113,7 +119,7 @@ const StudentProfilePage: React.FC = () => {
                             height: `${Math.max((point.gpa / 4) * 100, 10)}%`,
                           }}
                         />
-                        <span className="text-xs mt-1 muted">{formatDate(point.date)}</span>
+                        <span className="text-xs mt-1 muted">{fmt(point.date)}</span>
                         <span className="text-xs font-medium">{point.gpa.toFixed(2)}</span>
                       </div>
                     ))}
@@ -136,11 +142,11 @@ const StudentProfilePage: React.FC = () => {
               </div>
               <div>
                 <span className="text-sm muted">{t('enrollment_date')}</span>
-                <p>{formatDate(student.createdAt)}</p>
+                <p>{fmt(student.createdAt)}</p>
               </div>
               <div>
                 <span className="text-sm muted">{t('last_updated')}</span>
-                <p>{student.updatedAt ? formatDate(student.updatedAt) : t('not_available')}</p>
+                <p>{student.updatedAt ? fmt(student.updatedAt) : t('not_available')}</p>
               </div>
             </div>
           </div>
