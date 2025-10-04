@@ -16,6 +16,11 @@ import { Announcement } from '../announcements/entities/announcement.entity';
 import { FeeInvoice } from '../finance/entities/fee.entity';
 import { Payment } from '../finance/entities/payment.entity';
 import { UserRole } from '../common/roles.enum';
+import { TwoFactorAuth } from '../auth/entities/two-factor-auth.entity';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
+import { VerificationToken } from '../auth/entities/verification-token.entity';
+import { Parent } from '../parents/entities/parent.entity';
+import { AuditEventEntity } from '../audit/audit.entity';
 
 dotenvConfig();
 
@@ -35,6 +40,11 @@ function createSeedDataSource(): DataSource {
     Announcement,
     FeeInvoice,
     Payment,
+    TwoFactorAuth,
+    RefreshToken,
+    VerificationToken,
+    Parent,
+    AuditEventEntity,
   ];
   const common: Pick<DataSourceOptions, 'entities'> = { entities };
 
