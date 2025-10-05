@@ -30,6 +30,7 @@ const NameCell = ({ row }: { row: StudentWithExtras }) => (
     <button
       onClick={() => (window.location.href = `./students/${row.id}`)}
       className="font-medium hover:text-blue-600 transition-colors"
+      aria-label={`View ${row.firstName} ${row.lastName} profile`}
     >
       {row.firstName} {row.lastName}
     </button>
@@ -108,8 +109,9 @@ const ActionsCell = ({ row, t }: { row: StudentWithExtras; t: (key: string) => s
         variant="outline"
         size="sm"
         className="flex items-center gap-1"
+        aria-label={`View ${row.firstName} ${row.lastName}`}
       >
-        <Eye className="w-3 h-3" />
+        <Eye className="w-3 h-3" aria-hidden="true" />
         {t('view')}
       </FeatureButton>
     </FeatureGate>
@@ -120,8 +122,9 @@ const ActionsCell = ({ row, t }: { row: StudentWithExtras; t: (key: string) => s
         variant="outline"
         size="sm"
         className="flex items-center gap-1"
+        aria-label={`Edit ${row.firstName} ${row.lastName}`}
       >
-        <Edit className="w-3 h-3" />
+        <Edit className="w-3 h-3" aria-hidden="true" />
         {t('edit')}
       </FeatureButton>
     </FeatureGate>
@@ -292,16 +295,20 @@ const StudentsPage: React.FC = () => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Users className={`w-6 h-6 ${styles.icon}`} />
+            <Users className={`w-6 h-6 ${styles.icon}`} aria-hidden="true" />
             <h1 className={`text-xl font-semibold ${styles.title}`}>{t('students')}</h1>
           </div>
         </div>
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div
+          className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+          role="alert"
+        >
           <div className="flex items-center justify-between">
             <span className="text-sm text-red-700 dark:text-red-400">{t('error_loading')}</span>
             <button
               className="px-3 py-1 border border-red-300 dark:border-red-600 rounded text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
               onClick={() => refetch()}
+              aria-label={t('retry_loading_students')}
             >
               {t('retry')}
             </button>
@@ -316,7 +323,7 @@ const StudentsPage: React.FC = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className={`w-6 h-6 ${styles.icon}`} />
+            <Users className={`w-6 h-6 ${styles.icon}`} aria-hidden="true" />
             <h1 className={`text-2xl font-bold ${styles.title}`}>{t('students')}</h1>
           </div>
           <FeatureGate feature="students.create">
@@ -324,8 +331,9 @@ const StudentsPage: React.FC = () => {
               feature="students.create"
               onClick={() => console.log('Create student')}
               className="flex items-center gap-2"
+              aria-label={t('create_student')}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4" aria-hidden="true" />
               {t('create')}
             </FeatureButton>
           </FeatureGate>
@@ -333,10 +341,10 @@ const StudentsPage: React.FC = () => {
         <p className={`text-muted-foreground mt-2 ${styles.subtitle}`}>{t('students_management_subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6" role="region" aria-label="Student statistics">
         <div className="card p-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full" aria-hidden="true"></div>
             <span className="font-medium">{t('total_students')}</span>
           </div>
           <div className="text-2xl font-bold mt-1">{enhancedStudents.length.toLocaleString()}</div>
@@ -344,7 +352,7 @@ const StudentsPage: React.FC = () => {
 
         <div className="card p-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full" aria-hidden="true"></div>
             <span className="font-medium">{t('primary_students')}</span>
           </div>
           <div className="text-2xl font-bold mt-1">
@@ -354,7 +362,7 @@ const StudentsPage: React.FC = () => {
 
         <div className="card p-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-purple-500 rounded-full" aria-hidden="true"></div>
             <span className="font-medium">{t('secondary_students')}</span>
           </div>
           <div className="text-2xl font-bold mt-1">
@@ -364,7 +372,7 @@ const StudentsPage: React.FC = () => {
 
         <div className="card p-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full" aria-hidden="true"></div>
             <span className="font-medium">{t('avg_gpa')}</span>
           </div>
           <div className="text-2xl font-bold mt-1">

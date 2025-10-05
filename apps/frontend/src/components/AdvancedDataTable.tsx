@@ -168,9 +168,13 @@ export function AdvancedDataTable<T = unknown>({
         <div className={styles.toolbarLeft}>
           {searchable && (
             <div className={styles.searchContainer}>
-              <Search className={styles.searchIcon} />
+              <label htmlFor="table-search" className="visually-hidden">
+                {searchPlaceholder || t('search')}
+              </label>
+              <Search className={styles.searchIcon} aria-hidden="true" />
               <input
-                type="text"
+                id="table-search"
+                type="search"
                 placeholder={searchPlaceholder || t('search')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -183,10 +187,12 @@ export function AdvancedDataTable<T = unknown>({
             <button
               className={`${styles.filterButton} ${showFilters ? 'active' : ''}`}
               onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
+              aria-label={t('filters')}
             >
-              <Filter className={styles.filterIcon} />
+              <Filter className={styles.filterIcon} aria-hidden="true" />
               {t('filters')}
-              {hasActiveFilters && <span className={styles.filterBadge} />}
+              {hasActiveFilters && <span className={styles.filterBadge} aria-label={t('filters_active')} />}
             </button>
           )}
         </div>
@@ -206,13 +212,13 @@ export function AdvancedDataTable<T = unknown>({
               title={t('refresh')}
               aria-label={t('refresh')}
             >
-              <RefreshCw className={`${styles.actionIcon} ${loading ? 'spinning' : ''}`} />
+              <RefreshCw className={`${styles.actionIcon} ${loading ? 'spinning' : ''}`} aria-hidden="true" />
             </button>
           )}
 
           {exportable && onExport && (
             <button className={styles.actionButton} onClick={handleExport} title={t('export')} aria-label={t('export')}>
-              <Download className={styles.actionIcon} />
+              <Download className={styles.actionIcon} aria-hidden="true" />
             </button>
           )}
         </div>
@@ -220,16 +226,17 @@ export function AdvancedDataTable<T = unknown>({
 
       {/* Filter Panel */}
       {showFilters && filterOptions.length > 0 && (
-        <div className={styles.filterPanel}>
+        <div className={styles.filterPanel} role="region" aria-label={t('filters')}>
           {filterOptions.map((filter) => (
             <div key={filter.key} className={styles.filterGroup}>
-              <label className={styles.filterLabel}>{filter.label}</label>
+              <label htmlFor={`filter-${filter.key}`} className={styles.filterLabel}>
+                {filter.label}
+              </label>
               <select
+                id={`filter-${filter.key}`}
                 value={filters[filter.key] || ''}
                 onChange={(e) => handleFilterChange(filter.key, e.target.value)}
                 className={styles.filterSelect}
-                title={filter.label}
-                aria-label={filter.label}
               >
                 <option value="">{t('all')}</option>
                 {filter.options.map((option) => (

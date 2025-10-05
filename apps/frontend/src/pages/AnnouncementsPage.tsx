@@ -64,7 +64,7 @@ const AnnouncementsPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Megaphone className={`w-6 h-6 ${styles.icon}`} />
+          <Megaphone className={`w-6 h-6 ${styles.icon}`} aria-hidden="true" />
           <h1 className={`text-xl font-semibold ${styles.title}`}>{t('announcements')}</h1>
         </div>
         <FeatureGate feature="announcements.create">
@@ -72,8 +72,9 @@ const AnnouncementsPage: React.FC = () => {
             feature="announcements.create"
             onClick={() => console.log('Create announcement')}
             className="flex items-center gap-2"
+            aria-label={t('create_announcement')}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             {t('create')}
           </FeatureButton>
         </FeatureGate>
@@ -82,17 +83,21 @@ const AnnouncementsPage: React.FC = () => {
       <div className="card rounded-lg shadow-sm p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px]">
-            <label className={`block text-sm mb-1 ${styles.label}`}>{t('search')}</label>
+            <label htmlFor="announcements-search" className={`block text-sm mb-1 ${styles.label}`}>
+              {t('search')}
+            </label>
             <input
+              id="announcements-search"
+              type="search"
               className={`border rounded p-2 w-full ${styles.input}`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('search')}
-              aria-label={t('search')}
             />
           </div>
           <label className={`inline-flex items-center gap-2 ${styles.label}`}>
             <input
+              id="show-scheduled"
               type="checkbox"
               checked={showScheduled}
               onChange={(e) => setShowScheduled(e.target.checked)}
@@ -177,8 +182,9 @@ const AnnouncementsPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   className="flex items-center gap-1"
+                  aria-label={`Edit announcement: ${a.content.substring(0, 50)}`}
                 >
-                  <Edit className="w-3 h-3" />
+                  <Edit className="w-3 h-3" aria-hidden="true" />
                   {t('edit')}
                 </FeatureButton>
               </FeatureGate>
@@ -192,8 +198,9 @@ const AnnouncementsPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   className={`flex items-center gap-1 ${styles.deleteButton}`}
+                  aria-label={`Delete announcement: ${a.content.substring(0, 50)}`}
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-3 h-3" aria-hidden="true" />
                   {t('delete')}
                 </FeatureButton>
               </FeatureGate>

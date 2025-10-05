@@ -12,7 +12,7 @@ const NotificationsBell: React.FC<{ count?: number }> = ({ count: propCount }) =
   const label = effectiveCount > 0 ? t('notifications_unread', { count: effectiveCount }) : t('notifications');
   return (
     <button type="button" className="relative" aria-label={label} title={label} onClick={markSeenNow}>
-      <Bell size={20} aria-hidden />
+      <Bell size={20} aria-hidden="true" />
       {effectiveCount > 0 && (
         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1" aria-live="polite">
           {effectiveCount}

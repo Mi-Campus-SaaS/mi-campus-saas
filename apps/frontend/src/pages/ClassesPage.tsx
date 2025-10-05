@@ -38,15 +38,19 @@ const ClassesPage: React.FC = () => {
     return (
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
-          <BookOpen className={`w-6 h-6 ${styles.icon}`} />
+          <BookOpen className={`w-6 h-6 ${styles.icon}`} aria-hidden="true" />
           <h1 className={`text-xl font-semibold ${styles.title}`}>{t('classes')}</h1>
         </div>
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div
+          className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+          role="alert"
+        >
           <div className="flex items-center justify-between">
             <span className="text-sm text-red-700 dark:text-red-400">{t('error_loading')}</span>
             <button
               className="px-3 py-1 border border-red-300 dark:border-red-600 rounded text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30"
               onClick={() => refetch()}
+              aria-label={t('retry_loading_classes')}
             >
               {t('retry')}
             </button>
@@ -59,7 +63,7 @@ const ClassesPage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <BookOpen className={`w-6 h-6 ${styles.icon}`} />
+        <BookOpen className={`w-6 h-6 ${styles.icon}`} aria-hidden="true" />
         <h1 className={`text-xl font-semibold ${styles.title}`}>{t('classes')}</h1>
       </div>
 

@@ -7,9 +7,20 @@ type CommonProps = {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  'aria-invalid'?: 'true' | 'false';
+  'aria-describedby'?: string;
 };
 
-export const TextField: React.FC<CommonProps> = ({ id, value, onChange, placeholder, disabled, className }) => (
+export const TextField: React.FC<CommonProps> = ({
+  id,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  className,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+}) => (
   <input
     id={id}
     className={`border rounded p-2 w-full ${className || ''}`}
@@ -17,11 +28,21 @@ export const TextField: React.FC<CommonProps> = ({ id, value, onChange, placehol
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
-    aria-label={placeholder}
+    {...(ariaInvalid === 'true' && { 'aria-invalid': 'true' })}
+    {...(ariaDescribedBy && { 'aria-describedby': ariaDescribedBy })}
   />
 );
 
-export const PasswordField: React.FC<CommonProps> = ({ id, value, onChange, placeholder, disabled, className }) => (
+export const PasswordField: React.FC<CommonProps> = ({
+  id,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  className,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+}) => (
   <input
     id={id}
     type="password"
@@ -30,7 +51,8 @@ export const PasswordField: React.FC<CommonProps> = ({ id, value, onChange, plac
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
-    aria-label={placeholder}
+    {...(ariaInvalid === 'true' && { 'aria-invalid': 'true' })}
+    {...(ariaDescribedBy && { 'aria-describedby': ariaDescribedBy })}
   />
 );
 
@@ -44,6 +66,8 @@ export const NumberField: React.FC<CommonProps & { min?: number; max?: number; s
   min,
   max,
   step,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
 }) => (
   <input
     id={id}
@@ -53,14 +77,24 @@ export const NumberField: React.FC<CommonProps & { min?: number; max?: number; s
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
-    aria-label={placeholder}
+    {...(ariaInvalid === 'true' && { 'aria-invalid': 'true' })}
+    {...(ariaDescribedBy && { 'aria-describedby': ariaDescribedBy })}
     min={min}
     max={max}
     step={step}
   />
 );
 
-export const DateField: React.FC<CommonProps> = ({ id, value, onChange, placeholder, disabled, className }) => (
+export const DateField: React.FC<CommonProps> = ({
+  id,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  className,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+}) => (
   <input
     id={id}
     type="date"
@@ -69,11 +103,21 @@ export const DateField: React.FC<CommonProps> = ({ id, value, onChange, placehol
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
-    aria-label={placeholder}
+    {...(ariaInvalid === 'true' && { 'aria-invalid': 'true' })}
+    {...(ariaDescribedBy && { 'aria-describedby': ariaDescribedBy })}
   />
 );
 
-export const DateTimeField: React.FC<CommonProps> = ({ id, value, onChange, placeholder, disabled, className }) => (
+export const DateTimeField: React.FC<CommonProps> = ({
+  id,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  className,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+}) => (
   <input
     id={id}
     type="datetime-local"
@@ -82,7 +126,8 @@ export const DateTimeField: React.FC<CommonProps> = ({ id, value, onChange, plac
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
-    aria-label={placeholder}
+    {...(ariaInvalid === 'true' && { 'aria-invalid': 'true' })}
+    {...(ariaDescribedBy && { 'aria-describedby': ariaDescribedBy })}
   />
 );
 

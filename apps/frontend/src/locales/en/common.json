@@ -147,5 +147,21 @@
   "birth_date": "Birth Date",
   "current_year": "Current Year",
   "school_level": "School Level",
-  "enrollment_status": "Enrollment Status"
+  "enrollment_status": "Enrollment Status",
+  "create_student": "Create new student",
+  "create_announcement": "Create new announcement",
+  "retry_loading_students": "Retry loading students",
+  "retry_loading_classes": "Retry loading classes",
+  "filters_active": "Active filters",
+  "all": "All",
+  "filters": "Filters",
+  "clear_filters": "Clear filters",
+  "refresh": "Refresh",
+  "export": "Export",
+  "no_data_available": "No data available",
+  "showing": "Showing",
+  "of": "of",
+  "items": "items",
+  "filtered_results": "Filtered results",
+  "skip_to_main_content": "Skip to main content"
 }

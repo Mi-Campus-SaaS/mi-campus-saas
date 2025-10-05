@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-6">
-        <Home className={`w-6 h-6 ${styles.icon}`} />
+        <Home className={`w-6 h-6 ${styles.icon}`} aria-hidden="true" />
         <h1 className={`text-xl font-semibold ${styles.title}`}>{t('dashboard')}</h1>
       </div>
 

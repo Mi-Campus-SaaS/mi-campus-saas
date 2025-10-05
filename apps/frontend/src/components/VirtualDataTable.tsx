@@ -247,11 +247,19 @@ export function VirtualDataTable<T = unknown>({
                 getColumnWidth(column) === 'auto' ? 'auto' : `${getColumnWidth(column)}px`,
             }} // Dynamic column width and CSS variables for virtualization - cannot be moved to CSS
             onClick={() => column.sortable && handleSort(column.key)}
+            aria-sort={
+              column.sortable && sortBy === column.key
+                ? sortDirection === 'asc'
+                  ? 'ascending'
+                  : 'descending'
+                : undefined
+            }
+            disabled={!column.sortable}
           >
             <div className="virtual-table-header-content">
               <span>{column.header}</span>
               {column.sortable && (
-                <div className="virtual-table-sort-icons">
+                <div className="virtual-table-sort-icons" aria-hidden="true">
                   <ChevronUp
                     className={`virtual-table-sort-icon ${sortBy === column.key && sortDirection === 'asc' ? 'active' : ''}`}
                   />
@@ -265,7 +273,7 @@ export function VirtualDataTable<T = unknown>({
               <button
                 type="button"
                 className={`virtual-table-resize-handle ${isResizing === column.key ? 'resizing' : ''}`}
-                aria-label="Resize column"
+                aria-label={`Resize ${column.header} column`}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   handleResizeStart(column.key);
@@ -294,7 +302,7 @@ export function VirtualDataTable<T = unknown>({
                   }
                 }}
               >
-                <GripVertical className="virtual-table-resize-icon" />
+                <GripVertical className="virtual-table-resize-icon" aria-hidden="true" />
               </button>
             )}
           </button>

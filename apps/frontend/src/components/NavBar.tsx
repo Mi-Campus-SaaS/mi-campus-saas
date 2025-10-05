@@ -103,15 +103,17 @@ const NavBar: React.FC = () => {
           className="inline-flex items-center gap-2 px-2 py-1 rounded border border-base hover-surface"
           onClick={() => setIsDark((d) => !d)}
           aria-label={themeAria}
+          aria-pressed={isDark}
           title={themeLabel}
         >
-          {isDark ? <Sun size={16} aria-hidden /> : <Moon size={16} aria-hidden />}
+          {isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
           <span className="text-xs">{themeLabel}</span>
         </button>
         <button
           className="px-2"
           onClick={() => changeLang('es')}
           aria-label={t('switch_to_spanish')}
+          aria-current={i18n.language === 'es' ? 'true' : undefined}
           title={t('spanish')}
         >
           {t('spanish')}
@@ -120,6 +122,7 @@ const NavBar: React.FC = () => {
           className="px-2"
           onClick={() => changeLang('en')}
           aria-label={t('switch_to_english')}
+          aria-current={i18n.language === 'en' ? 'true' : undefined}
           title={t('english')}
         >
           {t('english')}

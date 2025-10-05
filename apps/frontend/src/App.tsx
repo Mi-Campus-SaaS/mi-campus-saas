@@ -19,38 +19,44 @@ import { useTranslation } from 'react-i18next';
 
 const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   useEffect(() => {
     if (locale && i18n.language !== locale) i18n.changeLanguage(locale);
+    document.documentElement.lang = locale;
   }, [i18n, locale]);
   if (!['es', 'en'].includes(locale)) return <Navigate to="/es" replace />;
   return (
     <div className="min-h-screen">
+      <a href="#main-content" className="skip-link">
+        {t('skip_to_main_content')}
+      </a>
       <NavBar />
-      <ErrorBoundary>
-        <Routes>
-          <Route index element={<Dashboard />} />
-          <Route path="login" element={<LoginPage />} />
-          {/* public */}
-          {/* protected by role */}
-          <Route element={<RequireRole roles={['admin', 'teacher', 'parent', 'student']} />}>
-            <Route path="announcements" element={<AnnouncementsPage />} />
-            <Route path="schedule" element={<SchedulePage />} />
-          </Route>
-          <Route element={<RequireRole roles={['admin', 'teacher']} />}>
-            <Route path="students" element={<StudentsPage />} />
-            <Route path="students/:studentId" element={<StudentProfilePage />} />
-            <Route path="classes" element={<ClassesPage />} />
-            <Route path="classes/:classId/materials" element={<MaterialsPage />} />
-            <Route path="classes/:classId/sessions/:sessionId/attendance" element={<AttendancePage />} />
-          </Route>
-          <Route element={<RequireRole roles={['admin', 'parent']} />}>
-            <Route path="finance" element={<FinancePage />} />
-          </Route>
-          {/* Testing route (not linked in UI) */}
-          <Route path="time-test" element={<TimeTestPage />} />
-        </Routes>
-      </ErrorBoundary>
+      <main id="main-content">
+        <ErrorBoundary>
+          <Routes>
+            <Route index element={<Dashboard />} />
+            <Route path="login" element={<LoginPage />} />
+            {/* public */}
+            {/* protected by role */}
+            <Route element={<RequireRole roles={['admin', 'teacher', 'parent', 'student']} />}>
+              <Route path="announcements" element={<AnnouncementsPage />} />
+              <Route path="schedule" element={<SchedulePage />} />
+            </Route>
+            <Route element={<RequireRole roles={['admin', 'teacher']} />}>
+              <Route path="students" element={<StudentsPage />} />
+              <Route path="students/:studentId" element={<StudentProfilePage />} />
+              <Route path="classes" element={<ClassesPage />} />
+              <Route path="classes/:classId/materials" element={<MaterialsPage />} />
+              <Route path="classes/:classId/sessions/:sessionId/attendance" element={<AttendancePage />} />
+            </Route>
+            <Route element={<RequireRole roles={['admin', 'parent']} />}>
+              <Route path="finance" element={<FinancePage />} />
+            </Route>
+            {/* Testing route (not linked in UI) */}
+            <Route path="time-test" element={<TimeTestPage />} />
+          </Routes>
+        </ErrorBoundary>
+      </main>
       <PWAInstallPrompt />
     </div>
   );
