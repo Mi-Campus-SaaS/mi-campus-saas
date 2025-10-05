@@ -52,8 +52,8 @@ const LoginPage: React.FC = () => {
             />
           </Field>
 
-          <button 
-            className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
             disabled={isSubmitting}
             {...(isSubmitting && { 'aria-busy': 'true' })}
