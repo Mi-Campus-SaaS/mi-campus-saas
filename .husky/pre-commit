@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 
-# Run lint-staged first (for staged files only)
+# Run lint-staged (lint and format staged files only)
 npx lint-staged
 
-# Run full pre-commit checks
-yarn pre-commit
+# Note: Full checks (tests, builds, type-checking) run in CI/CD
+# To run full checks manually before commit: yarn pre-commit
+# To run without tests: yarn pre-commit:fast
