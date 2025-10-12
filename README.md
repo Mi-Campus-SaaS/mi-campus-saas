@@ -110,10 +110,14 @@ Security Features
 
 Testing
 
-- Unit tests (backend): `yarn --cwd apps/backend test`
+- **Unit tests (backend)**: `yarn --cwd apps/backend test`
   - Uses ts-jest; editor integration configured via root `jest.config.js`
-- E2E-lite examples (supertest) included under `apps/backend/src/**/*.spec.ts`
-- Lint on commit: Husky + lint-staged auto-run and block commits on errors
+- **E2E tests**: `yarn test:e2e` (Playwright)
+- **Load tests** (k6): See [tests/load/README.md](tests/load/README.md)
+  - Smoke test: `yarn load:smoke` (quick validation)
+  - Baseline: `yarn load:baseline` (performance baseline)
+  - Individual suites: `yarn load:auth`, `yarn load:students`, `yarn load:grades`
+- **Lint on commit**: Husky + lint-staged auto-run and block commits on errors
 
 Local dev flow
 

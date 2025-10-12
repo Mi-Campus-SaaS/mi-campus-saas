@@ -1,0 +1,205 @@
+name: Load Testing
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'baseline'
+        type: choice
+        options:
+          - smoke
+          - baseline
+          - auth
+          - students
+          - grades
+          - all
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/backend/**'
+      - 'tests/load/**'
+      - '.github/workflows/load-test.yml'
+
+env:
+  NODE_VERSION: '20'
+  API_BASE_URL: http://localhost:3000/api
+  TEST_USERNAME: admin
+  TEST_PASSWORD: Admin123!
+
+jobs:
+  load-test:
+    name: Run k6 Load Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mi_campus_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Setup backend environment
+        run: |
+          cd apps/backend
+          cat > .env << EOF
+          NODE_ENV=test
+          PORT=3000
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mi_campus_test
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          JWT_SECRET=test-secret-key-for-ci
+          JWT_REFRESH_SECRET=test-refresh-secret-key-for-ci
+          EOF
+
+      - name: Build backend
+        run: yarn --cwd apps/backend build
+
+      - name: Run migrations
+        run: yarn --cwd apps/backend migration:run
+
+      - name: Seed database
+        run: yarn --cwd apps/backend seed
+
+      - name: Start backend
+        run: |
+          yarn --cwd apps/backend start:prod &
+          echo "Waiting for backend to be ready..."
+          timeout 60 bash -c 'until curl -f http://localhost:3000/api/health; do sleep 2; done'
+        env:
+          NODE_ENV: production
+
+      - name: Run smoke test (PR only)
+        if: github.event_name == 'pull_request'
+        run: yarn load:smoke
+
+      - name: Run baseline test (scheduled)
+        if: github.event_name == 'schedule'
+        run: yarn load:baseline
+
+      - name: Run selected test (manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          case "${{ github.event.inputs.test_suite }}" in
+            smoke)
+              yarn load:smoke
+              ;;
+            baseline)
+              yarn load:baseline
+              ;;
+            auth)
+              yarn load:auth
+              ;;
+            students)
+              yarn load:students
+              ;;
+            grades)
+              yarn load:grades
+              ;;
+            all)
+              yarn load:smoke
+              yarn load:auth
+              yarn load:students
+              yarn load:grades
+              yarn load:baseline
+              ;;
+          esac
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-reports
+          path: tests/load/reports/
+          retention-days: 30
+
+      - name: Check thresholds
+        if: always()
+        run: |
+          if grep -q "✗" tests/load/reports/*.json; then
+            echo "::error::Load test thresholds failed"
+            exit 1
+          fi
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reports = fs.readdirSync('tests/load/reports');
+            const jsonReport = reports.find(f => f.endsWith('.json'));
+            
+            if (jsonReport) {
+              const data = JSON.parse(fs.readFileSync(`tests/load/reports/${jsonReport}`, 'utf8'));
+              const metrics = data.metrics;
+              
+              const comment = `
+              ## 🔥 Load Test Results (Smoke)
+              
+              | Metric | Value | Status |
+              |--------|-------|--------|
+              | HTTP Requests | ${metrics.http_reqs?.values?.count || 'N/A'} | ✅ |
+              | Error Rate | ${((metrics.http_req_failed?.values?.rate || 0) * 100).toFixed(2)}% | ${(metrics.http_req_failed?.values?.rate || 0) < 0.01 ? '✅' : '❌'} |
+              | Response Time (p95) | ${(metrics.http_req_duration?.values?.['p(95)'] || 0).toFixed(0)}ms | ${(metrics.http_req_duration?.values?.['p(95)'] || 0) < 500 ? '✅' : '❌'} |
+              | Response Time (p99) | ${(metrics.http_req_duration?.values?.['p(99)'] || 0).toFixed(0)}ms | ${(metrics.http_req_duration?.values?.['p(99)'] || 0) < 1000 ? '✅' : '❌'} |
+              
+              Full report available in workflow artifacts.
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: Cleanup
+        if: always()
+        run: |
+          pkill -f "node.*backend" || true
+
