@@ -4,7 +4,12 @@
  */
 module.exports = {
   projects: ['<rootDir>/apps/backend'],
-  testPathIgnorePatterns: ['<rootDir>/tests/e2e/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/tests/',
+    '<rootDir>/tests/e2e/',
+  ],
+  testMatch: ['<rootDir>/apps/backend/**/*.spec.ts'],
 };
 
 

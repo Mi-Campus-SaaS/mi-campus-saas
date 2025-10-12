@@ -39,6 +39,8 @@ test-results/
 playwright-report/
 cypress/videos/
 cypress/screenshots/
+test-output.txt
+test-*.txt
 
 # --- Lighthouse CI ---
 .lighthouseci/

@@ -14,6 +14,7 @@
     "dev:full": "yarn dev:docker && yarn dev",
     "build": "yarn --cwd apps/frontend build && yarn --cwd apps/backend build",
     "test": "yarn --cwd apps/backend test",
+    "test:api": "yarn --cwd apps/backend test:api",
     "test:e2e": "playwright test",
     "test:visual": "playwright test -g visual-regression",
     "lint": "yarn --cwd apps/frontend lint && yarn --cwd apps/backend lint && npx markdownlint --ignore apps/backend/README.md --ignore apps/frontend/FEATURE_FLAGS_README.md *.md .cursor/rules/*.mdc",

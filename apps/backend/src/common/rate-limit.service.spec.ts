@@ -1,17 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { RateLimitService } from './rate-limit.service';
-import Redis from 'ioredis';
 
-// Mock ioredis
-jest.mock('ioredis');
+const mockRedis = {
+  pipeline: jest.fn(),
+  quit: jest.fn().mockResolvedValue(undefined),
+  on: jest.fn(),
+};
+
+jest.mock('ioredis', () => {
+  return jest.fn().mockImplementation(() => mockRedis);
+});
 
 describe('RateLimitService', () => {
   let service: RateLimitService;
-  let mockRedis: jest.Mocked<Redis>;
 
   beforeEach(async () => {
-    // Clear all mocks
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -35,7 +39,6 @@ describe('RateLimitService', () => {
     }).compile();
 
     service = module.get<RateLimitService>(RateLimitService);
-    mockRedis = (service as any).redis;
   });
 
   afterEach(async () => {
@@ -62,7 +65,6 @@ describe('RateLimitService', () => {
   });
 
   it('should handle rate limit check with Redis error gracefully', async () => {
-    // Mock Redis pipeline to throw an error
     const mockPipeline = {
       zremrangebyscore: jest.fn().mockReturnThis(),
       zadd: jest.fn().mockReturnThis(),
@@ -70,7 +72,7 @@ describe('RateLimitService', () => {
       expire: jest.fn().mockReturnThis(),
       exec: jest.fn().mockRejectedValue(new Error('Redis connection failed')),
     };
-    mockRedis.pipeline = jest.fn().mockReturnValue(mockPipeline);
+    mockRedis.pipeline.mockReturnValue(mockPipeline);
 
     const result = await service.checkRateLimit('test-key', {
       limit: 10,
@@ -80,5 +82,33 @@ describe('RateLimitService', () => {
     expect(result.allowed).toBe(true);
     expect(result.remaining).toBe(10);
     expect(result.resetTime).toBeGreaterThan(Date.now());
+  });
+
+  it('should check rate limit successfully', async () => {
+    const mockPipeline = {
+      zremrangebyscore: jest.fn().mockReturnThis(),
+      zadd: jest.fn().mockReturnThis(),
+      zcard: jest.fn().mockReturnThis(),
+      expire: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([
+        [null, 0],
+        [null, 1],
+        [null, 5],
+        [null, 1],
+      ]),
+    };
+    mockRedis.pipeline.mockReturnValue(mockPipeline);
+
+    const result = await service.checkRateLimit('test-key', {
+      limit: 10,
+      windowMs: 60000,
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.remaining).toBe(5);
+    expect(mockPipeline.zremrangebyscore).toHaveBeenCalled();
+    expect(mockPipeline.zadd).toHaveBeenCalled();
+    expect(mockPipeline.zcard).toHaveBeenCalled();
+    expect(mockPipeline.expire).toHaveBeenCalled();
   });
 });

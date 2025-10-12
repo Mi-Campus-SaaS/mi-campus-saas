@@ -15,10 +15,10 @@ export class RefreshToken extends TimestampedEntity {
   @Column({ length: 64 })
   tokenHash!: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   expiresAt!: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   revokedAt?: Date | null;
 
   @Column({ type: 'text', nullable: true })
