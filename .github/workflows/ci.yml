@@ -211,6 +211,8 @@ jobs:
         run: corepack prepare yarn@1.22.22 --activate
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Run database migrations
+        run: yarn --cwd apps/backend migration:run
       - name: Seed database
         run: yarn --cwd apps/backend seed:dev
       - name: Install Playwright browsers
