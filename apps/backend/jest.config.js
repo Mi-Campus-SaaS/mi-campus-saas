@@ -1,6 +1,9 @@
 module.exports = {
   // Run tests serially by default to avoid database conflicts in E2E tests
   maxWorkers: 1,
+  // Force exit after tests complete (prevents hanging in CI)
+  // This is safe because we properly close connections in afterAll hooks
+  forceExit: true,
   projects: [
     {
       displayName: 'unit',
