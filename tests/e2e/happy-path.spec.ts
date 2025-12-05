@@ -14,6 +14,7 @@ test('health check', async ({ page, request }) => {
 
 test('login → create announcement → upload material → record payment', async ({ page, request }) => {
   // Try programmatic login first; if it fails, fall back to UI login
+  let loginSuccess = false
   try {
     const loginRes = await request.post('/api/auth/login', { data: { username: 'admin', password: 'admin123' } })
     if (loginRes.ok()) {
@@ -25,16 +26,51 @@ test('login → create announcement → upload material → record payment', asy
           user: data.user,
         }))
       }, [auth])
+      loginSuccess = true
+    } else {
+      console.log(`Login failed with status ${loginRes.status()}: ${await loginRes.text()}`)
     }
-  } catch {}
+  } catch (error) {
+    console.log(`Login error: ${error}`)
+  }
+  
   await page.goto('/es')
+  
+  // If login failed, try UI login
+  if (!loginSuccess) {
+    // Check if we're on the login page
+    await page.waitForLoadState('domcontentloaded')
+    const isLoginPage = page.url().includes('/login')
+    if (isLoginPage) {
+      await page.getByLabel(/usuario|username/i).fill('admin')
+      await page.getByLabel(/contraseña|password/i).fill('admin123')
+      await page.getByRole('button', { name: /iniciar sesión|login/i }).click()
+      // Wait for navigation away from login page
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 10000 })
+    }
+  }
+  
+  // Wait for auth context to initialize - check that we're not on login page
+  await page.waitForFunction(() => {
+    const auth = localStorage.getItem('auth')
+    return auth !== null
+  }, { timeout: 10000 }).catch(() => {
+    // If auth still not set, continue anyway - might be handled by UI login
+  })
 
   // Go to announcements and create one
   await page.goto('/es/announcements')
   // Wait for the page to be ready instead of networkidle (SSE keeps connection open)
   await page.waitForLoadState('domcontentloaded')
+  
+  // Check if we were redirected to login (auth failed)
+  const currentUrl = page.url()
+  if (currentUrl.includes('/login')) {
+    throw new Error('Redirected to login page - authentication failed. Check if backend is running with NODE_ENV=test or if admin user has 2FA enabled.')
+  }
+  
   // Wait for the announcements page heading to be visible
-  await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
+  await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 15000 })
   const content = `E2E announcement ${Date.now()}`
   // Create announcement via API for stability
   const token = await page.evaluate(() => {

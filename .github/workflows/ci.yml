@@ -218,6 +218,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
       - name: Start backend server
+        env:
+          NODE_ENV: test
         run: |
           cd apps/backend
           yarn start:dev &
