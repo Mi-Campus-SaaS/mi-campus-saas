@@ -165,12 +165,31 @@ jobs:
     runs-on: ubuntu-latest
     needs: [security-scan, lint, test-backend, typecheck-frontend]
     timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: micampus
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d micampus"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     env:
       # Backend configuration
       PORT: 8080
       JWT_SECRET: your-super-secret-jwt-key-at-least-32-characters-long-for-testing
       JWT_REFRESH_SECRET: your-super-secret-refresh-key-at-least-32-characters-long-for-testing
-      DATABASE_PATH: ./data/dev.sqlite
+      DB_TYPE: postgres
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: micampus
       UPLOAD_DIR: uploads
       OTEL_ENABLED: false
       CORS_ALLOWLIST: http://localhost:5173,http://localhost:8080
