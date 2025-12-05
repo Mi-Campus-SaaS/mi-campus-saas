@@ -217,14 +217,25 @@ jobs:
         run: yarn --cwd apps/backend seed:dev
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+      - name: Create uploads directory
+        run: mkdir -p uploads
       - name: Start backend server
         env:
           NODE_ENV: test
         run: |
           cd apps/backend
           yarn start:dev &
-          sleep 10
-          curl -f http://localhost:8080/api/healthz || exit 1
+          # Wait for server to be ready with retries
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/api/healthz > /dev/null 2>&1; then
+              echo "Server is ready"
+              exit 0
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 1
+          done
+          echo "Server failed to start"
+          exit 1
       - name: Start frontend server
         run: |
           cd apps/frontend
