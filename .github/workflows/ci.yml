@@ -28,7 +28,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Use Yarn 1.x (classic)
-        run: corepack prepare yarn@1.22.22 --activate
+        run: |
+          # Retry corepack prepare with exponential backoff
+          for i in {1..5}; do
+            if corepack prepare yarn@1.22.22 --activate; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in $((i * 2)) seconds..."
+            sleep $((i * 2))
+          done
+          # Fallback: install yarn via npm if corepack fails
+          echo "Corepack failed, installing yarn via npm as fallback"
+          npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Security Scan Placeholder
@@ -88,7 +99,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Use Yarn 1.x (classic)
-        run: corepack prepare yarn@1.22.22 --activate
+        run: |
+          # Retry corepack prepare with exponential backoff
+          for i in {1..5}; do
+            if corepack prepare yarn@1.22.22 --activate; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in $((i * 2)) seconds..."
+            sleep $((i * 2))
+          done
+          # Fallback: install yarn via npm if corepack fails
+          echo "Corepack failed, installing yarn via npm as fallback"
+          npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run lint
@@ -124,7 +146,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Use Yarn 1.x (classic)
-        run: corepack prepare yarn@1.22.22 --activate
+        run: |
+          # Retry corepack prepare with exponential backoff
+          for i in {1..5}; do
+            if corepack prepare yarn@1.22.22 --activate; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in $((i * 2)) seconds..."
+            sleep $((i * 2))
+          done
+          # Fallback: install yarn via npm if corepack fails
+          echo "Corepack failed, installing yarn via npm as fallback"
+          npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run backend unit tests
@@ -154,7 +187,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Use Yarn 1.x (classic)
-        run: corepack prepare yarn@1.22.22 --activate
+        run: |
+          # Retry corepack prepare with exponential backoff
+          for i in {1..5}; do
+            if corepack prepare yarn@1.22.22 --activate; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in $((i * 2)) seconds..."
+            sleep $((i * 2))
+          done
+          # Fallback: install yarn via npm if corepack fails
+          echo "Corepack failed, installing yarn via npm as fallback"
+          npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Type check
@@ -208,7 +252,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Use Yarn 1.x (classic)
-        run: corepack prepare yarn@1.22.22 --activate
+        run: |
+          # Retry corepack prepare with exponential backoff
+          for i in {1..5}; do
+            if corepack prepare yarn@1.22.22 --activate; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in $((i * 2)) seconds..."
+            sleep $((i * 2))
+          done
+          # Fallback: install yarn via npm if corepack fails
+          echo "Corepack failed, installing yarn via npm as fallback"
+          npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run database migrations
@@ -284,7 +339,18 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Use Yarn 1.x (classic)
-        run: corepack prepare yarn@1.22.22 --activate
+        run: |
+          # Retry corepack prepare with exponential backoff
+          for i in {1..5}; do
+            if corepack prepare yarn@1.22.22 --activate; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in $((i * 2)) seconds..."
+            sleep $((i * 2))
+          done
+          # Fallback: install yarn via npm if corepack fails
+          echo "Corepack failed, installing yarn via npm as fallback"
+          npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Install Chrome dependencies (for Lighthouse)
