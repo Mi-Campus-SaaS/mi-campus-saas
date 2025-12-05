@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import { AuditLogger } from '../common/audit.logger';
 import { AccountLockoutService } from './account-lockout.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
@@ -92,10 +92,14 @@ export class AuthService {
     const regex = /^(\d+)([smhdw])$/i;
     const match = regex.exec(expiry);
     if (!match) return 0;
-    const value = parseInt(match[1], 10);
+    const value = Number.parseInt(match[1], 10);
     const unit = match[2].toLowerCase();
     const multipliers: Record<string, number> = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000, w: 604_800_000 };
-    return value * multipliers[unit];
+    const multiplier = multipliers[unit];
+    if (multiplier === undefined) {
+      throw new BadRequestException(`Invalid expiry unit: ${unit}. Supported units: s, m, h, d, w`);
+    }
+    return value * multiplier;
   }
 
   async login(user: User, ip?: string | null) {
@@ -104,7 +108,10 @@ export class AuthService {
     const requires2fa = user.role === UserRole.ADMIN;
     const twoFactorStatus = await this.twoFactorAuthService.get2faStatus(user);
 
-    if (requires2fa && twoFactorStatus.isEnabled) {
+    if (requires2fa) {
+      if (!twoFactorStatus.isEnabled) {
+        throw new UnauthorizedException('2FA enrollment is required for admin accounts. Please enable 2FA first.');
+      }
       return {
         requires2fa: true,
         user: {

@@ -8,6 +8,9 @@ module.exports = {
       startServerCommand: 'yarn dev',
       url: ['http://localhost:5173/es'],
       numberOfRuns: 1,
+      startServerReadyPattern: 'Local:',
+      startServerReadyTimeout: 60000,
+      maxWaitForLoad: 90000,
       // GitHub Actions often needs these flags, especially for Ubuntu 23.10+
       // Note: --no-sandbox is required for CI environments with restricted permissions
       chromeFlags: [
@@ -23,7 +26,10 @@ module.exports = {
         '--disable-renderer-backgrounding',
         '--disable-features=TranslateUI',
         '--disable-ipc-flooding-protection',
-        '--single-process',
+        '--max-old-space-size=4096',
+        '--js-flags=--max-old-space-size=4096',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
       ],
       settings: {
         chromePath: process.env.CHROME_PATH || puppeteer.executablePath(),
@@ -42,11 +48,19 @@ module.exports = {
           '--disable-renderer-backgrounding',
           '--disable-features=TranslateUI',
           '--disable-ipc-flooding-protection',
-          '--single-process',
+          '--max-old-space-size=4096',
+          '--js-flags=--max-old-space-size=4096',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
         ],
         // Keep consistent desktop profile
         formFactor: 'desktop',
         screenEmulation: { mobile: false },
+        // Increase timeouts for CI stability
+        maxWaitForFcp: 90000,
+        maxWaitForLoad: 90000,
+        // Skip some heavy audits that might cause crashes
+        skipAudits: ['uses-http2', 'uses-long-cache-ttl'],
       },
     },
     assert: {

@@ -17,7 +17,10 @@ const args = [
   '--disable-renderer-backgrounding',
   '--disable-features=TranslateUI',
   '--disable-ipc-flooding-protection',
-  '--single-process',
+  '--max-old-space-size=4096',
+  '--js-flags=--max-old-space-size=4096',
+  '--disable-web-security',
+  '--disable-features=VizDisplayCompositor',
   ...process.argv.slice(2),
 ];
 
