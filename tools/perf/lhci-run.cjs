@@ -17,8 +17,6 @@ function run() {
     CHROME_PATH: chromePath, 
     GOOGLE_CHROME_PATH: chromePath,
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false',
-    // Ensure Chrome flags are passed via environment variable as fallback
-    CHROME_FLAGS: process.env.CHROME_FLAGS || '--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --headless=new',
   };
   const cmd = `lhci autorun --config=apps/frontend/lighthouserc.cjs`;
   const result = spawnSync(cmd, { stdio: 'inherit', env, shell: true });

@@ -27,6 +27,23 @@ module.exports = {
       ],
       settings: {
         chromePath: process.env.CHROME_PATH || puppeteer.executablePath(),
+        // GitHub Actions often needs these flags, especially for Ubuntu 23.10+
+        // Note: --no-sandbox is required for CI environments with restricted permissions
+        chromeFlags: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--headless=new',
+          '--disable-extensions',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-features=TranslateUI',
+          '--disable-ipc-flooding-protection',
+          '--single-process',
+        ],
         // Keep consistent desktop profile
         formFactor: 'desktop',
         screenEmulation: { mobile: false },

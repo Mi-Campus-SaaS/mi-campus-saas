@@ -49,14 +49,22 @@ test('login → create announcement → upload material → record payment', asy
       headers: { Authorization: `Bearer ${token}` },
     })
     expect(resp.ok()).toBeTruthy()
+    // Wait a moment for the backend to process
+    await page.waitForTimeout(500)
   }
   // Force refresh announcements list
-  await page.goto('/es')
   await page.goto('/es/announcements')
   await page.waitForLoadState('domcontentloaded')
-  // Wait for the announcement to appear in the list
-  await page.waitForTimeout(2000)
-  await expect(page.getByText(content)).toBeVisible({ timeout: 10000 })
+  // Wait for the announcements page heading to be visible
+  await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
+  // Wait for the announcements list to load (check for any announcement card or empty state)
+  await Promise.race([
+    page.waitForSelector('.card', { timeout: 5000 }).catch(() => null),
+    page.waitForSelector('text=/no hay|no announcements/i', { timeout: 5000 }).catch(() => null),
+    page.waitForTimeout(3000),
+  ])
+  // Now wait for our specific announcement to appear
+  await expect(page.getByText(content)).toBeVisible({ timeout: 15000 })
 
   // Navigate to classes and materials subpage of first class
   await page.getByRole('link', { name: /clases|classes/i }).click()
