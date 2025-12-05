@@ -224,7 +224,7 @@ jobs:
           cd apps/backend
           yarn start:dev &
           sleep 10
-          curl -f http://localhost:8080/api/health || exit 1
+          curl -f http://localhost:8080/api/healthz || exit 1
       - name: Start frontend server
         run: |
           cd apps/frontend
