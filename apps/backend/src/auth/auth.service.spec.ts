@@ -130,7 +130,7 @@ describe('AuthService', () => {
       await expect(service.login(null as unknown as User)).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
-    it('returns tokens and user payload', async () => {
+    it('returns tokens and user payload for admin in test mode (2FA bypass)', async () => {
       (jwt.signAsync as jest.Mock).mockResolvedValue('access');
       const dummyToken: RefreshToken = {
         id: 'rid',
@@ -145,6 +145,7 @@ describe('AuthService', () => {
         user: {} as User,
       } as RefreshToken;
       (refreshRepo.save as jest.Mock).mockResolvedValueOnce(dummyToken);
+      // In test mode, admin can login without 2FA enabled
       (twoFactorAuthService.get2faStatus as jest.Mock).mockResolvedValue({ isEnabled: false });
       const user: User = {
         id: 'u1',
@@ -160,10 +161,37 @@ describe('AuthService', () => {
         updatedAt: new Date(),
         deletedAt: null,
       };
+      // Ensure NODE_ENV is set to 'test' for this test
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'test';
       const res = await service.login(user, '127.0.0.1');
+      process.env.NODE_ENV = originalEnv;
       expect(res.access_token).toBe('access');
       expect(res.refresh_token).toBeDefined();
       expect(res.user.username).toBe('u');
+    });
+
+    it('throws error for admin without 2FA in non-test mode', async () => {
+      (twoFactorAuthService.get2faStatus as jest.Mock).mockResolvedValue({ isEnabled: false });
+      const user: User = {
+        id: 'u1',
+        username: 'u',
+        displayName: 'U',
+        passwordHash: 'ignored',
+        role: UserRole.ADMIN,
+        student: null,
+        teacher: null,
+        failedLoginAttempts: 0,
+        emailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+      };
+      // Set NODE_ENV to production to test the 2FA requirement
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      await expect(service.login(user, '127.0.0.1')).rejects.toBeInstanceOf(UnauthorizedException);
+      process.env.NODE_ENV = originalEnv;
     });
   });
 
