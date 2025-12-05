@@ -13,14 +13,15 @@ module.exports = {
         // Keep consistent desktop profile
         formFactor: 'desktop',
         screenEmulation: { mobile: false },
-        // GitHub Actions often needs these flags
+        // GitHub Actions often needs these flags, especially for Ubuntu 23.10+
+        // Note: --no-sandbox is required for CI environments with restricted permissions
         chromeFlags: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
-          '--headless=new',
           '--disable-dev-shm-usage',
           '--disable-gpu',
           '--disable-software-rasterizer',
+          '--headless=new',
           '--disable-extensions',
           '--disable-background-timer-throttling',
           '--disable-backgrounding-occluded-windows',
