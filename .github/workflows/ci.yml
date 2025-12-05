@@ -292,6 +292,8 @@ jobs:
             libasound2t64
       - name: Run bundle budgets
         run: yarn budgets:bundle
+      - name: Make Chrome launcher executable
+        run: chmod +x tools/perf/chrome-launcher.js || true
       - name: Run performance budgets
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'

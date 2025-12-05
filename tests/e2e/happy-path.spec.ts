@@ -40,29 +40,38 @@ test('login → create announcement → upload material → record payment', asy
   const token = await page.evaluate(() => {
     try { const a = localStorage.getItem('auth'); return a ? (JSON.parse(a).access_token as string) : '' } catch { return '' }
   })
-  const dt = new Date(Date.now() - 60_000)
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  const local = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`
+  // Use current time minus 1 minute to ensure it's published
+  const publishAt = new Date(Date.now() - 60_000).toISOString()
   if (token) {
     const resp = await request.post('/api/announcements', {
-      data: { content, publishAt: local },
+      data: { content, publishAt },
       headers: { Authorization: `Bearer ${token}` },
     })
     expect(resp.ok()).toBeTruthy()
-    // Wait a moment for the backend to process
-    await page.waitForTimeout(500)
+    const created = await resp.json()
+    expect(created).toHaveProperty('id')
+    // Verify it's in the API response
+    const listResp = await request.get('/api/announcements', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const list = await listResp.json()
+    const found = list.data?.find((a: any) => a.content === content)
+    expect(found).toBeTruthy()
   }
-  // Force refresh announcements list
+  // Navigate to announcements page
   await page.goto('/es/announcements')
   await page.waitForLoadState('domcontentloaded')
   // Wait for the announcements page heading to be visible
   await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
-  // Wait for the announcements list to load (check for any announcement card or empty state)
-  await Promise.race([
-    page.waitForSelector('.card', { timeout: 5000 }).catch(() => null),
-    page.waitForSelector('text=/no hay|no announcements/i', { timeout: 5000 }).catch(() => null),
-    page.waitForTimeout(3000),
-  ])
+  // Wait for React Query to fetch and render - wait for any card or the list container
+  await page.waitForFunction(
+    () => {
+      const cards = document.querySelectorAll('.card');
+      const listContainer = document.querySelector('.space-y-3');
+      return cards.length > 0 || (listContainer && listContainer.children.length >= 0);
+    },
+    { timeout: 10000 }
+  )
   // Now wait for our specific announcement to appear
   await expect(page.getByText(content)).toBeVisible({ timeout: 15000 })
 
