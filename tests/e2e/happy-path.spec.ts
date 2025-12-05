@@ -31,7 +31,10 @@ test('login → create announcement → upload material → record payment', asy
 
   // Go to announcements and create one
   await page.goto('/es/announcements')
-  await page.waitForLoadState('networkidle')
+  // Wait for the page to be ready instead of networkidle (SSE keeps connection open)
+  await page.waitForLoadState('domcontentloaded')
+  // Wait for the announcements page heading to be visible
+  await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
   const content = `E2E announcement ${Date.now()}`
   // Create announcement via API for stability
   const token = await page.evaluate(() => {
@@ -50,8 +53,8 @@ test('login → create announcement → upload material → record payment', asy
   // Force refresh announcements list
   await page.goto('/es')
   await page.goto('/es/announcements')
-  await page.waitForLoadState('networkidle')
-  // Wait a bit more for React Query to refetch
+  await page.waitForLoadState('domcontentloaded')
+  // Wait for the announcement to appear in the list
   await page.waitForTimeout(2000)
   await expect(page.getByText(content)).toBeVisible({ timeout: 10000 })
 

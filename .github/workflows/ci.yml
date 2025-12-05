@@ -296,6 +296,7 @@ jobs:
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'
           CHROME_PATH: $(node -e "console.log(require('puppeteer').executablePath())")
+          CHROME_FLAGS: '--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --headless=new'
         run: yarn budgets:perf
 
 
