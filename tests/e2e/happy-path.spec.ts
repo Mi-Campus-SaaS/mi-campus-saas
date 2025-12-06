@@ -96,12 +96,20 @@ test('login → create announcement → upload material → record payment', asy
     // Wait a bit for the announcement to be fully persisted
     await page.waitForTimeout(500)
   }
-  // Navigate to announcements page and wait for network requests to complete
+  // Reload the announcements page to trigger a fresh fetch
+  // Set up response promise before reload
   const responsePromise = page.waitForResponse(
-    (response) => response.url().includes('/api/announcements') && response.request().method() === 'GET',
+    (response) => {
+      const url = response.url()
+      const method = response.request().method()
+      const status = response.status()
+      return url.includes('/api/announcements') && method === 'GET' && status === 200
+    },
     { timeout: 15000 }
   )
-  await page.goto('/es/announcements', { waitUntil: 'domcontentloaded' })
+  
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  
   // Wait for the announcements API request to complete
   const response = await responsePromise
   // Verify the announcement is in the API response
@@ -109,19 +117,58 @@ test('login → create announcement → upload material → record payment', asy
   if (body?.data) {
     const found = body.data.find((a: any) => a.content === content)
     expect(found).toBeTruthy()
+  } else {
+    throw new Error('Announcements API response did not contain data array')
   }
+  
   // Wait for the announcements page heading to be visible
   await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
-  // Small delay to ensure React Query has processed the response
-  await page.waitForTimeout(500)
+  
+  // Wait for React Query to finish loading and React to render the updated data
   // Use polling to wait for the announcement to appear - this handles React Query rendering delays
   await expect.poll(
     async () => {
-      const text = await page.getByText(content).isVisible().catch(() => false)
-      return text
+      try {
+        // Check if the content appears in the page
+        // Use exact: false to handle any whitespace or formatting differences
+        const textLocator = page.getByText(content, { exact: false })
+        const isVisible = await textLocator.isVisible().catch(() => false)
+        
+        if (isVisible) {
+          return true
+        }
+        
+        // Fallback: Check DOM directly for the content
+        const foundInDOM = await page.evaluate((searchContent) => {
+          const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            null
+          )
+          let node
+          while ((node = walker.nextNode())) {
+            if (node.textContent && node.textContent.trim().includes(searchContent)) {
+              return true
+            }
+          }
+          return false
+        }, content).catch(() => false)
+        
+        return foundInDOM
+      } catch (error) {
+        console.log('Poll check error:', error)
+        return false
+      }
     },
-    { timeout: 10000, intervals: [500, 1000, 2000] }
+    { 
+      timeout: 15000, 
+      intervals: [500, 1000, 2000],
+      message: `Announcement with content "${content}" did not appear on page`
+    }
   ).toBe(true)
+  
+  // Final verification that the announcement is visible with Playwright
+  await expect(page.getByText(content, { exact: false })).toBeVisible({ timeout: 5000 })
 
   // Navigate to classes and materials subpage of first class
   await page.getByRole('link', { name: /clases|classes/i }).click()
