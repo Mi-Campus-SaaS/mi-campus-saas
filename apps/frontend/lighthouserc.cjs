@@ -1,5 +1,4 @@
 // Use Puppeteer's bundled Chromium so CI and local runs don't require system Chrome
-/* eslint-disable n/prefer-node-protocol */
 const puppeteer = require('puppeteer');
 const path = require('path');
 

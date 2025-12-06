@@ -24,7 +24,7 @@ const reactConfig = {
 }
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', '*.cjs', '**/*.cjs']),
   reactConfig,
   ...compat.extends(
     'plugin:react/recommended',
