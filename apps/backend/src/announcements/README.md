@@ -20,9 +20,9 @@ This module implements background job processing for scheduled announcements usi
 ### Job Flow
 
 1. **Creation**: When an announcement is created with a future `publishAt` date, it's automatically scheduled
-2. **Execution**: At the scheduled time, the job processor publishes the announcement
-3. **Retry**: Failed jobs are retried with exponential backoff
-4. **Cleanup**: Completed/failed jobs are automatically cleaned up
+1. **Execution**: At the scheduled time, the job processor publishes the announcement
+1. **Retry**: Failed jobs are retried with exponential backoff
+1. **Cleanup**: Completed/failed jobs are automatically cleaned up
 
 ## API Endpoints
 

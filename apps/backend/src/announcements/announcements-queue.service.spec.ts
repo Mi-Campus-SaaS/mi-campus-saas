@@ -82,10 +82,20 @@ describe('AnnouncementsQueueService', () => {
 
       await service.scheduleAnnouncement(pastAnnouncement);
 
-      expect(mockQueue.add).toHaveBeenCalledWith('publish-scheduled', {
-        announcementId: pastAnnouncement.id,
-        publishAt: pastAnnouncement.publishAt.toISOString(),
-      });
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'publish-scheduled',
+        {
+          announcementId: pastAnnouncement.id,
+          publishAt: pastAnnouncement.publishAt.toISOString(),
+        },
+        expect.objectContaining({
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+        }),
+      );
     });
   });
 
