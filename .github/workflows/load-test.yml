@@ -102,7 +102,7 @@ jobs:
         run: yarn --cwd apps/backend migration:run
 
       - name: Seed database
-        run: yarn --cwd apps/backend seed
+        run: yarn --cwd apps/backend seed:dev
 
       - name: Start backend
         run: |

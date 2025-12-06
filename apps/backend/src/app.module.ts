@@ -20,7 +20,8 @@ import { ClassesModule } from './classes/classes.module';
 import { ParentsModule } from './parents/parents.module';
 import { I18nModule, AcceptLanguageResolver, QueryResolver, HeaderResolver } from 'nestjs-i18n';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 import { LoggingMiddleware } from './common/logging.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -73,8 +74,14 @@ import { HealthModule } from './health/health.module';
             fallbackLanguage: 'es',
             loaderOptions: {
               // nest-cli.json copies i18n to dist/i18n/
-              // When running compiled code, __dirname is dist/src/, so go up one level
-              path: join(__dirname, '..', 'i18n'),
+              // When running compiled code, __dirname is dist/src/, so go up one level to dist/i18n
+              // Fall back to src/i18n if dist/i18n doesn't exist (development/watch mode)
+              path: (() => {
+                // Use resolve to get absolute paths
+                const distPath = resolve(__dirname, '..', 'i18n');
+                const srcPath = resolve(process.cwd(), 'apps', 'backend', 'src', 'i18n');
+                return existsSync(distPath) ? distPath : srcPath;
+              })(),
               watch: process.env.NODE_ENV === 'development',
             },
             resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
