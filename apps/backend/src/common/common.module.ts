@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OwnershipGuard } from './ownership.guard';
@@ -49,6 +49,6 @@ import { RateLimitModule } from './rate-limit.module';
 })
 export class CommonModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CspMiddleware).forRoutes('*');
+    consumer.apply(CspMiddleware).forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }

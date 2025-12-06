@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -74,11 +74,10 @@ import { HealthModule } from './health/health.module';
             fallbackLanguage: 'es',
             loaderOptions: {
               // nest-cli.json copies i18n to dist/i18n/
-              // When running compiled code, __dirname is dist/src/, so go up one level to dist/i18n
-              // Fall back to src/i18n if dist/i18n doesn't exist (development/watch mode)
+              // When running compiled code, check dist/i18n first, then fall back to src/i18n
               path: (() => {
-                // Use resolve to get absolute paths
-                const distPath = resolve(__dirname, '..', 'i18n');
+                // Build paths from project root to avoid __dirname issues
+                const distPath = resolve(process.cwd(), 'apps', 'backend', 'dist', 'i18n');
                 const srcPath = resolve(process.cwd(), 'apps', 'backend', 'src', 'i18n');
                 return existsSync(distPath) ? distPath : srcPath;
               })(),
@@ -108,6 +107,6 @@ import { HealthModule } from './health/health.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingMiddleware).forRoutes('*');
+    consumer.apply(LoggingMiddleware).forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }
