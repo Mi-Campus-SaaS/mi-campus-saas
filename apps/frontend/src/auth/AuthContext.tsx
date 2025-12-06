@@ -21,17 +21,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     const res = await api.post<
-      | { access_token: string; refresh_token: string; user: User }
-      | { requires2fa: true; user: User }
+      { access_token: string; refresh_token: string; user: User } | { requires2fa: true; user: User }
     >('/auth/login', {
       username,
       password,
     });
-    
+
     if ('requires2fa' in res.data && res.data.requires2fa) {
       return { requires2fa: true, user: res.data.user };
     }
-    
+
     const data = res.data as { access_token: string; refresh_token: string; user: User };
     setUser(data.user);
     setToken(data.access_token);

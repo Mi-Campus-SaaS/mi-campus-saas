@@ -27,7 +27,8 @@ const LoginPage: React.FC = () => {
       }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string; details?: string } } };
-      const errorMessage = axiosError.response?.data?.message || axiosError.response?.data?.details || t('login_failed') || 'Login failed';
+      const errorMessage =
+        axiosError.response?.data?.message || axiosError.response?.data?.details || t('login_failed') || 'Login failed';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -43,7 +44,11 @@ const LoginPage: React.FC = () => {
       await verify2fa(form.values.username, form.values.password, twoFactorCode);
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string; details?: string } } };
-      const errorMessage = axiosError.response?.data?.message || axiosError.response?.data?.details || t('verification_failed') || 'Verification failed';
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.response?.data?.details ||
+        t('verification_failed') ||
+        'Verification failed';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -58,11 +63,7 @@ const LoginPage: React.FC = () => {
           <h1 className={`text-2xl font-semibold ${styles.title}`}>{t('login')}</h1>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{error}</div>}
         {!requires2fa ? (
           <form onSubmit={onSubmit} className="space-y-4">
             <Field id="username" label={t('username')} error={form.errors.username && t(form.errors.username)}>

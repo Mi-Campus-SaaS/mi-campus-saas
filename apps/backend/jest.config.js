@@ -30,6 +30,7 @@ module.exports = {
       roots: ['<rootDir>/test'],
       moduleFileExtensions: ['ts', 'js', 'json'],
       setupFiles: ['<rootDir>/jest.setup.js'],
+      globalTeardown: '<rootDir>/jest.teardown.js',
       transform: {
         '^.+\\.(t|j)s$': [
           'ts-jest',

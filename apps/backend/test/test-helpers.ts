@@ -90,6 +90,14 @@ export async function resetDatabase(dataSource: DataSource): Promise<void> {
 
 export async function closeTestApp(app: any, dataSource: DataSource): Promise<void> {
   try {
+    if (app) {
+      await app.close();
+    }
+  } catch (error) {
+    console.warn('Error closing app:', error);
+  }
+
+  try {
     if (dataSource && dataSource.isInitialized) {
       await dataSource.destroy();
     }
@@ -97,11 +105,6 @@ export async function closeTestApp(app: any, dataSource: DataSource): Promise<vo
     console.warn('Error destroying dataSource:', error);
   }
 
-  try {
-    if (app) {
-      await app.close();
-    }
-  } catch (error) {
-    console.warn('Error closing app:', error);
-  }
+  // Give time for all async cleanup operations to complete
+  await new Promise((resolve) => setTimeout(resolve, 50));
 }

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -12,8 +12,9 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
 @Injectable()
-export class PasswordResetService implements OnModuleInit {
+export class PasswordResetService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PasswordResetService.name);
+  private cleanupInterval?: NodeJS.Timeout;
 
   constructor(
     @InjectRepository(VerificationToken)
@@ -154,7 +155,7 @@ export class PasswordResetService implements OnModuleInit {
     }
 
     // Set up periodic cleanup (every 6 hours)
-    setInterval(
+    this.cleanupInterval = setInterval(
       () => {
         this.cleanupExpiredTokens().catch((error) => {
           this.logger.error('Failed to cleanup expired tokens', error);
@@ -162,6 +163,13 @@ export class PasswordResetService implements OnModuleInit {
       },
       6 * 60 * 60 * 1000,
     );
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = undefined;
+    }
   }
 
   private async generatePasswordResetToken(userId: string): Promise<VerificationToken> {
