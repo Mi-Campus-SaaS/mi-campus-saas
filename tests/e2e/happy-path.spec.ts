@@ -97,16 +97,30 @@ test('login → create announcement → upload material → record payment', asy
     await page.waitForTimeout(500)
   }
   // Navigate to announcements page and wait for network requests to complete
+  const responsePromise = page.waitForResponse(
+    (response) => response.url().includes('/api/announcements') && response.request().method() === 'GET',
+    { timeout: 15000 }
+  )
   await page.goto('/es/announcements', { waitUntil: 'domcontentloaded' })
+  // Wait for the announcements API request to complete
+  const response = await responsePromise
+  // Verify the announcement is in the API response
+  const body = await response.json().catch(() => null)
+  if (body?.data) {
+    const found = body.data.find((a: any) => a.content === content)
+    expect(found).toBeTruthy()
+  }
   // Wait for the announcements page heading to be visible
   await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
-  // Use polling to wait for the announcement to appear - this handles React Query refetch delays
+  // Small delay to ensure React Query has processed the response
+  await page.waitForTimeout(500)
+  // Use polling to wait for the announcement to appear - this handles React Query rendering delays
   await expect.poll(
     async () => {
       const text = await page.getByText(content).isVisible().catch(() => false)
       return text
     },
-    { timeout: 25000, intervals: [500, 1000, 2000] }
+    { timeout: 10000, intervals: [500, 1000, 2000] }
   ).toBe(true)
 
   // Navigate to classes and materials subpage of first class
