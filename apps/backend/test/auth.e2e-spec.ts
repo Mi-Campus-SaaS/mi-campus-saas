@@ -86,7 +86,7 @@ describe('AuthController (e2e)', () => {
         })
         .expect(401);
 
-      expect(response.body.message).toBe('Unauthorized');
+      expect(response.body.message).toBe('Invalid credentials');
     });
 
     it('should fail with invalid password', async () => {

@@ -7,6 +7,8 @@ type CommonProps = {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  maxLength?: number;
+  autoFocus?: boolean;
   'aria-invalid'?: 'true' | 'false';
   'aria-describedby'?: string;
 };
@@ -18,6 +20,8 @@ export const TextField: React.FC<CommonProps> = ({
   placeholder,
   disabled,
   className,
+  maxLength,
+  autoFocus,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }) => (
@@ -28,6 +32,8 @@ export const TextField: React.FC<CommonProps> = ({
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     disabled={disabled}
+    maxLength={maxLength}
+    autoFocus={autoFocus}
     {...(ariaInvalid === 'true' && { 'aria-invalid': 'true' })}
     {...(ariaDescribedBy && { 'aria-describedby': ariaDescribedBy })}
   />
