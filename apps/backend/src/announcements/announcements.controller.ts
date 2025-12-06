@@ -66,25 +66,10 @@ export class AnnouncementsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER)
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    await this.announcementsService.remove(id);
-    return { status: 'ok' };
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get('queue/metrics')
   getQueueMetrics() {
     return this.announcementsService.getQueueMetrics();
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER)
-  @Get(':id/queue/status')
-  getJobStatus(@Param('id') id: string) {
-    return this.announcementsService.getJobStatus(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -101,6 +86,21 @@ export class AnnouncementsController {
   async clearFailedJobs() {
     const count = await this.announcementsService.clearFailedJobs();
     return { cleared: count };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Get(':id/queue/status')
+  getJobStatus(@Param('id') id: string) {
+    return this.announcementsService.getJobStatus(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    await this.announcementsService.remove(id);
+    return { status: 'ok' };
   }
 
   // Server-Sent Events stream for announcements changes

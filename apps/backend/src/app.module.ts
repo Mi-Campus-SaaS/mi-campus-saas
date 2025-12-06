@@ -58,7 +58,16 @@ import { HealthModule } from './health/health.module';
       serveRoot: '/files',
     }),
     ...(process.env.NODE_ENV === 'test'
-      ? []
+      ? [
+          I18nModule.forRoot({
+            fallbackLanguage: 'es',
+            loaderOptions: {
+              path: join(__dirname, 'i18n'),
+            },
+            resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
+            skipAsyncHook: true,
+          }),
+        ]
       : [
           I18nModule.forRoot({
             fallbackLanguage: 'es',
