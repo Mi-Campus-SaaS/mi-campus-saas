@@ -33,6 +33,7 @@ export class AnnouncementsController {
   constructor(
     private readonly announcementsService: AnnouncementsService,
     private readonly config: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -124,9 +125,8 @@ export class AnnouncementsController {
     if (!token) {
       throw new UnauthorizedException();
     }
-    const secret = this.config.get<string>('jwtSecret') ?? process.env.JWT_SECRET ?? 'dev_secret_change_me';
     try {
-      new JwtService({ secret }).verify(token);
+      this.jwtService.verify(token);
     } catch {
       throw new UnauthorizedException();
     }

@@ -5,7 +5,7 @@ import { AnnouncementsService } from './announcements.service';
 
 export interface PublishAnnouncementJob {
   announcementId: string;
-  publishAt: Date;
+  publishAt: string; // ISO string - Bull serializes to JSON, so Date becomes string
 }
 
 @Processor('announcements')
@@ -16,7 +16,8 @@ export class AnnouncementsProcessor {
 
   @Process('publish-scheduled')
   async handlePublishScheduled(job: Job<PublishAnnouncementJob>) {
-    const { announcementId, publishAt } = job.data;
+    const { announcementId, publishAt: publishAtStr } = job.data;
+    const publishAt = new Date(publishAtStr);
 
     this.logger.log(`Processing scheduled announcement ${announcementId} for ${publishAt.toISOString()}`);
 
@@ -28,7 +29,8 @@ export class AnnouncementsProcessor {
         return { status: 'not_found' };
       }
 
-      if (announcement.publishAt > new Date()) {
+      const announcementPublishAt = new Date(announcement.publishAt);
+      if (announcementPublishAt > new Date()) {
         this.logger.warn(`Announcement ${announcementId} publish time not reached yet`);
         return { status: 'too_early' };
       }

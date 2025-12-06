@@ -57,7 +57,7 @@ describe('AnnouncementsQueueService', () => {
         'publish-scheduled',
         {
           announcementId: mockAnnouncement.id,
-          publishAt: mockAnnouncement.publishAt,
+          publishAt: mockAnnouncement.publishAt.toISOString(),
         },
         expect.objectContaining({
           delay: expect.any(Number),
@@ -84,7 +84,7 @@ describe('AnnouncementsQueueService', () => {
 
       expect(mockQueue.add).toHaveBeenCalledWith('publish-scheduled', {
         announcementId: pastAnnouncement.id,
-        publishAt: pastAnnouncement.publishAt,
+        publishAt: pastAnnouncement.publishAt.toISOString(),
       });
     });
   });

@@ -26,7 +26,7 @@ export class AnnouncementsQueueService {
       this.logger.warn(`Announcement ${announcement.id} publish time is in the past, publishing immediately`);
       return this.announcementsQueue.add('publish-scheduled', {
         announcementId: announcement.id,
-        publishAt: announcement.publishAt,
+        publishAt: announcement.publishAt.toISOString(),
       });
     }
 
@@ -38,7 +38,7 @@ export class AnnouncementsQueueService {
       'publish-scheduled',
       {
         announcementId: announcement.id,
-        publishAt: announcement.publishAt,
+        publishAt: announcement.publishAt.toISOString(),
       },
       {
         delay,
