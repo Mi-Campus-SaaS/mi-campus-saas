@@ -65,10 +65,11 @@ import { HealthModule } from './health/health.module';
             loaderOptions: {
               // In production: compiled code is in dist/src/, i18n is copied to dist/i18n/
               // In development: code is in src/, i18n is in src/i18n/
-              // Use __dirname which points to dist/src/ in production or src/ in development
-              path: __dirname.includes('dist')
-                ? join(__dirname, '..', 'i18n') // Production: dist/src -> dist/i18n
-                : join(__dirname, 'i18n'), // Development: src -> src/i18n
+              // Use NODE_ENV to reliably detect production mode
+              path:
+                process.env.NODE_ENV === 'production'
+                  ? join(__dirname, '..', 'i18n') // Production: dist/src -> dist/i18n
+                  : join(__dirname, 'i18n'), // Development: src -> src/i18n
               watch: process.env.NODE_ENV === 'development',
             },
             resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],

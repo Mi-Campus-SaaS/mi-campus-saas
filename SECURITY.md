@@ -69,7 +69,7 @@ We use `yarn audit` to scan for known vulnerabilities in our dependencies.
    - Document the reason in this file
    - Review exemptions quarterly
 
-2. **Dependency Audit Exemptions**:
+1. **Dependency Audit Exemptions**:
    - Add to `yarn-audit-exemptions.json`
    - Include justification and timeline
    - Set expiration date
@@ -102,17 +102,17 @@ Both security scans run in our CI pipeline:
 If you discover a security vulnerability:
 
 1. **Do not** create a public issue
-2. **Do** contact the security team directly
-3. **Do** provide detailed information about the vulnerability
-4. **Do** include steps to reproduce if possible
+1. **Do** contact the security team directly
+1. **Do** provide detailed information about the vulnerability
+1. **Do** include steps to reproduce if possible
 
 ### Security Best Practices
 
 1. **Never commit secrets** to version control
-2. **Use environment variables** for sensitive configuration
-3. **Rotate secrets regularly** in production
-4. **Review dependencies** before adding new packages
-5. **Keep dependencies updated** to latest secure versions
+1. **Use environment variables** for sensitive configuration
+1. **Rotate secrets regularly** in production
+1. **Review dependencies** before adding new packages
+1. **Keep dependencies updated** to latest secure versions
 
 ### Monitoring
 

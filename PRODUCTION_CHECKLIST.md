@@ -187,10 +187,10 @@ pm2 restart mi-campus-backend
 ## 🔄 Post-Deployment
 
 1. **Health Check**: `GET /api/health`
-2. **Monitor Logs**: Check application logs
-3. **Database**: Verify migrations ran successfully
-4. **Redis**: Check queue processing
-5. **Telemetry**: Verify traces in Jaeger (if enabled)
+1. **Monitor Logs**: Check application logs
+1. **Database**: Verify migrations ran successfully
+1. **Redis**: Check queue processing
+1. **Telemetry**: Verify traces in Jaeger (if enabled)
 
 ## 📞 Rollback Plan
 

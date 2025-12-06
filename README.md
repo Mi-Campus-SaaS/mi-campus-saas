@@ -122,8 +122,8 @@ Testing
 Local dev flow
 
 1. Install dependencies: `yarn`
-2. **Option A - SQLite (simpler)**: Start backend: `yarn dev:backend` (ensure `.env` is set); seed: `yarn --cwd apps/backend seed:dev`
-3. **Option B - PostgreSQL (production-like)**: Start services: `docker-compose up -d`; start backend: `yarn dev:backend`
-4. Start frontend: `yarn dev:frontend`
-5. Login with default users and explore
-6. Before pushing: `yarn format && yarn lint && yarn --cwd apps/backend test`
+1. **Option A - SQLite (simpler)**: Start backend: `yarn dev:backend` (ensure `.env` is set); seed: `yarn --cwd apps/backend seed:dev`
+1. **Option B - PostgreSQL (production-like)**: Start services: `docker-compose up -d`; start backend: `yarn dev:backend`
+1. Start frontend: `yarn dev:frontend`
+1. Login with default users and explore
+1. Before pushing: `yarn format && yarn lint && yarn --cwd apps/backend test`

@@ -62,7 +62,7 @@ export class AnnouncementsService {
     const updated = await this.announcementsRepo.save(existing);
 
     // Handle scheduling changes
-    if (data.publishAt && data.publishAt !== oldPublishAt && this.queueService) {
+    if (data.publishAt && data.publishAt.getTime() !== oldPublishAt.getTime() && this.queueService) {
       await this.queueService.cancelScheduledAnnouncement(id);
       if (updated.publishAt > new Date()) {
         await this.queueService.scheduleAnnouncement(updated);

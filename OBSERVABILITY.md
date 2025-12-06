@@ -97,8 +97,8 @@ For production, configure the OTEL endpoint to point to your observability platf
 ### Traces not appearing
 
 1. Check OTEL collector logs: `docker-compose -f docker-compose.otel.yml logs otel-collector`
-2. Verify endpoints are accessible
-3. Check browser console for CORS errors
+1. Verify endpoints are accessible
+1. Check browser console for CORS errors
 
 ### Performance impact
 
