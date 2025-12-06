@@ -11,9 +11,6 @@ export class TwoFactorAuth extends TimestampedEntity {
   @JoinColumn()
   user!: User;
 
-  @Column()
-  userId!: string;
-
   @Column({ nullable: true })
   totpSecret?: string;
 

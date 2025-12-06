@@ -1,5 +1,5 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import type { Job } from 'bull';
 import { AnnouncementsService } from './announcements.service';
 
@@ -24,11 +24,6 @@ export class AnnouncementsProcessor {
     try {
       const announcement = await this.announcementsService.findById(announcementId);
 
-      if (!announcement) {
-        this.logger.warn(`Announcement ${announcementId} not found, removing job`);
-        return { status: 'not_found' };
-      }
-
       const announcementPublishAt = new Date(announcement.publishAt);
       if (announcementPublishAt > new Date()) {
         this.logger.warn(`Announcement ${announcementId} publish time not reached yet`);
@@ -50,6 +45,10 @@ export class AnnouncementsProcessor {
         publishedAt,
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        this.logger.warn(`Announcement ${announcementId} not found, removing job`);
+        return { status: 'not_found' };
+      }
       this.logger.error(`Failed to publish announcement ${announcementId}:`, error);
       throw error; // This will trigger retry
     }

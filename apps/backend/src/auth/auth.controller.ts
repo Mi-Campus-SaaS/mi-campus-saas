@@ -40,7 +40,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'User login', description: 'Authenticate user with username/email and password' })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Login successful',
     schema: { type: 'object', properties: { access_token: { type: 'string' }, refresh_token: { type: 'string' } } },
   })
