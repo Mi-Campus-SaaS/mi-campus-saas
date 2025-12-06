@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { Announcement } from './entities/announcement.entity';
 import { AnnouncementsQueueService, type JobStatus } from './announcements-queue.service';
 import { PaginationQueryDto, PaginatedResponse } from '../common/dto/pagination.dto';
@@ -37,7 +37,7 @@ export class AnnouncementsService {
   }
 
   async findById(id: string): Promise<Announcement> {
-    const found = await this.announcementsRepo.findOne({ where: { id } });
+    const found = await this.announcementsRepo.findOne({ where: { id, deletedAt: IsNull() } });
     if (!found) throw new NotFoundException('Announcement not found');
     return found;
   }
@@ -45,7 +45,7 @@ export class AnnouncementsService {
   async list(query: PaginationQueryDto): Promise<PaginatedResponse<Announcement>> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
-    const where = query.q ? { content: Like(`%${query.q}%`) } : {};
+    const where = query.q ? { content: Like(`%${query.q}%`), deletedAt: IsNull() } : { deletedAt: IsNull() };
     const [rows, total] = await this.announcementsRepo.findAndCount({
       where,
       order: { publishAt: (query.sortDir ?? 'desc').toUpperCase() as 'ASC' | 'DESC' },

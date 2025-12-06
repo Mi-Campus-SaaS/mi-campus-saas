@@ -45,6 +45,7 @@ export class AttendanceController {
   @Ownership({ type: 'classParam', key: 'classId' })
   @Get('classes/:classId/sessions/:sessionId/attendance')
   listBySession(
+    @Param('classId', ParseUUIDPipe) classId: string,
     @Param('sessionId', ParseUUIDPipe) sessionId: string,
     @Query() query: ListSessionAttendanceDto & PaginationQueryDto,
   ) {
