@@ -1,11 +1,11 @@
 name: CI
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   schedule:
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -274,22 +274,50 @@ jobs:
         run: npx playwright install --with-deps
       - name: Create uploads directory
         run: mkdir -p uploads
+      - name: Install curl (if needed)
+        run: |
+          if ! command -v curl &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y curl
+          fi
       - name: Start backend server
         env:
           NODE_ENV: test
         run: |
           cd apps/backend
-          yarn start:dev &
+          yarn start:dev > server.log 2>&1 &
+          SERVER_PID=$!
+          echo "Started backend server (PID: $SERVER_PID)"
           # Wait for server to be ready with retries
-          for i in {1..30}; do
-            if curl -f http://localhost:8080/api/healthz > /dev/null 2>&1; then
-              echo "Server is ready"
+          for i in {1..60}; do
+            # Check if process is still alive
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              echo "❌ Server process died"
+              echo "Server logs:"
+              cat server.log
+              exit 1
+            fi
+            # Check if port is listening
+            if command -v netstat &> /dev/null; then
+              PORT_LISTENING=$(netstat -tln 2>/dev/null | grep -c ":8080 " || echo "0")
+            elif command -v ss &> /dev/null; then
+              PORT_LISTENING=$(ss -tln 2>/dev/null | grep -c ":8080 " || echo "0")
+            else
+              PORT_LISTENING="unknown"
+            fi
+            # Try health check
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/healthz || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Server is ready and responding (HTTP $HTTP_CODE)"
               exit 0
             fi
-            echo "Waiting for server... ($i/30)"
+            echo "Waiting for server... ($i/60) [HTTP: $HTTP_CODE, Port listening: $PORT_LISTENING]"
             sleep 1
           done
-          echo "Server failed to start"
+          echo "❌ Server failed to start after 60 seconds"
+          echo "Server logs:"
+          tail -100 server.log
+          echo "Testing connection:"
+          curl -v http://localhost:8080/api/healthz || true
           exit 1
       - name: Start frontend server
         run: |
@@ -375,9 +403,7 @@ jobs:
         run: chmod +x tools/perf/chrome-launcher.js || true
       - name: Run performance budgets
         env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "false"
           CHROME_PATH: $(node -e "console.log(require('puppeteer').executablePath())")
-          CHROME_FLAGS: '--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --headless=new'
+          CHROME_FLAGS: "--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --headless=new"
         run: yarn budgets:perf
-
-
