@@ -93,7 +93,11 @@ export class AuthService {
   private parseExpiryToMs(expiry: string): number {
     const regex = /^(\d+)([smhdw])$/i;
     const match = regex.exec(expiry);
-    if (!match) return 0;
+    if (!match) {
+      throw new BadRequestException(
+        `Invalid expiry format: ${expiry}. Expected format: <number><unit> (e.g., 7d, 15m). Supported units: s, m, h, d, w`,
+      );
+    }
     const value = Number.parseInt(match[1], 10);
     const unit = match[2].toLowerCase();
     const multipliers: Record<string, number> = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000, w: 604_800_000 };
@@ -170,14 +174,13 @@ export class AuthService {
     if (token.tokenHash !== expectedHash) throw new UnauthorizedException('Token mismatch');
 
     // rotate: revoke current, create new
-    token.revokedAt = new Date();
-    token.revokedReason = 'rotated';
-    token.revokedByIp = ip ?? null;
-    await this.refreshTokenRepo.save(token);
-
     const user = token.user;
     const accessToken = await this.generateAccessToken(user);
     const { id: newId, token: newRefresh } = await this.issueRefreshToken(user, ip);
+
+    token.revokedAt = new Date();
+    token.revokedReason = 'rotated';
+    token.revokedByIp = ip ?? null;
     token.replacedByTokenId = newId;
     await this.refreshTokenRepo.save(token);
 

@@ -124,8 +124,8 @@ export class PasswordResetService implements OnModuleInit, OnModuleDestroy {
 
     // Reset failed login attempts and unlock account if locked
     user.failedLoginAttempts = 0;
-    user.lockedUntil = undefined;
-    user.lastFailedLoginAt = undefined;
+    user.lockedUntil = null;
+    user.lastFailedLoginAt = null;
 
     await this.usersService.update(user.id, user);
 

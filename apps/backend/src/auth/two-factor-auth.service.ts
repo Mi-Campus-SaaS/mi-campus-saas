@@ -30,7 +30,7 @@ export class TwoFactorAuthService {
   }
 
   async enrollUser(user: User): Promise<{ secret: string; qrCode: string; backupCodes: string[] }> {
-    const existing = await this.twoFactorAuthRepo.findOne({ where: { userId: user.id } });
+    const existing = await this.twoFactorAuthRepo.findOne({ where: { user: { id: user.id } } });
     if (existing?.isEnrolled) {
       throw new BadRequestException('2FA is already enrolled');
     }
@@ -39,7 +39,7 @@ export class TwoFactorAuthService {
     const backupCodes = this.generateBackupCodes();
 
     const twoFactorAuth = existing || new TwoFactorAuth();
-    twoFactorAuth.userId = user.id;
+    twoFactorAuth.user = user;
     twoFactorAuth.totpSecret = secret;
     twoFactorAuth.backupCodes = backupCodes;
     twoFactorAuth.isEnrolled = true;
@@ -122,7 +122,7 @@ export class TwoFactorAuthService {
   }
 
   private async getTwoFactorAuth(userId: string): Promise<TwoFactorAuth | null> {
-    return this.twoFactorAuthRepo.findOne({ where: { userId } });
+    return this.twoFactorAuthRepo.findOne({ where: { user: { id: userId } } });
   }
 
   private verifyTotp(secret: string, token: string): boolean {
