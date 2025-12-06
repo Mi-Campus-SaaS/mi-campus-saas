@@ -17,6 +17,25 @@ export class CorsService {
     const allowServerToServer = this.configService.get<boolean>('cors.allowServerToServer', false);
 
     return ((req: any, cb: any): void => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const url = (req.url || req.path || '') as string;
+      // Always allow health check endpoints regardless of origin
+      const isHealthEndpoint =
+        url.includes('/healthz') ||
+        url.includes('/readyz') ||
+        url.includes('/api/healthz') ||
+        url.includes('/api/readyz');
+
+      if (isHealthEndpoint) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+        return cb(null, {
+          origin: true,
+          credentials: true,
+          methods: ['GET', 'OPTIONS'],
+          allowedHeaders: ['Content-Type'],
+        });
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const origin = req.header('Origin') as string | undefined;
 
@@ -109,7 +128,7 @@ export class CorsService {
     let regexPattern = pattern.replace(/\*/g, '__WILDCARD__');
 
     // Escape special regex characters
-    regexPattern = regexPattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+    regexPattern = regexPattern.replace(/[.+?^${}()|[\]\\]/g, String.raw`\$&`);
 
     // Handle port wildcards specifically (e.g., localhost:__WILDCARD__)
     regexPattern = regexPattern.replace(/:__WILDCARD__(?=$|\/)/g, ':[0-9]+');

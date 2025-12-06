@@ -237,6 +237,7 @@ jobs:
       UPLOAD_DIR: uploads
       OTEL_ENABLED: false
       CORS_ALLOWLIST: http://localhost:5173,http://localhost:8080
+      CORS_ALLOW_SERVER_TO_SERVER: true
       # Frontend configuration
       VITE_API_URL: http://localhost:8080/api
       VITE_OTEL_ENDPOINT: http://localhost:4318/v1/traces
