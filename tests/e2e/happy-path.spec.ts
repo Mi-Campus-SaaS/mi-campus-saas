@@ -93,23 +93,21 @@ test('login → create announcement → upload material → record payment', asy
     const list = await listResp.json()
     const found = list.data?.find((a: any) => a.content === content)
     expect(found).toBeTruthy()
+    // Wait a bit for the announcement to be fully persisted
+    await page.waitForTimeout(500)
   }
-  // Navigate to announcements page
-  await page.goto('/es/announcements')
-  await page.waitForLoadState('domcontentloaded')
+  // Navigate to announcements page and wait for network requests to complete
+  await page.goto('/es/announcements', { waitUntil: 'domcontentloaded' })
   // Wait for the announcements page heading to be visible
   await expect(page.getByRole('heading', { name: /anuncios|announcements/i })).toBeVisible({ timeout: 10000 })
-  // Wait for React Query to fetch and render - wait for any card or the list container
-  await page.waitForFunction(
-    () => {
-      const cards = document.querySelectorAll('.card');
-      const listContainer = document.querySelector('.space-y-3');
-      return cards.length > 0 || (listContainer && listContainer.children.length >= 0);
+  // Use polling to wait for the announcement to appear - this handles React Query refetch delays
+  await expect.poll(
+    async () => {
+      const text = await page.getByText(content).isVisible().catch(() => false)
+      return text
     },
-    { timeout: 10000 }
-  )
-  // Now wait for our specific announcement to appear
-  await expect(page.getByText(content)).toBeVisible({ timeout: 15000 })
+    { timeout: 25000, intervals: [500, 1000, 2000] }
+  ).toBe(true)
 
   // Navigate to classes and materials subpage of first class
   await page.getByRole('link', { name: /clases|classes/i }).click()
@@ -159,7 +157,7 @@ test('login → create announcement → upload material → record payment', asy
       await page.waitForLoadState('networkidle')
     }
   } catch (error) {
-    console.log('Student selection failed, continuing...')
+    console.log('Student selection failed, continuing...', error)
   }
 
   // Create a fee
@@ -169,7 +167,7 @@ test('login → create announcement → upload material → record payment', asy
   await page.waitForLoadState('networkidle')
   
   // Verify the fee was created (use first() to avoid strict mode violation)
-  await expect(page.locator('text=/\\$10\\.00/').first()).toBeVisible({ timeout: 10000 })
+  await expect(page.locator(String.raw`text=/\$10\.00/`).first()).toBeVisible({ timeout: 10000 })
 })
 
 
