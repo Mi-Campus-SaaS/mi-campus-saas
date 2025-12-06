@@ -31,7 +31,7 @@ export class AnnouncementsService {
     }
 
     // Invalidate list caches
-    this.httpCache.invalidateByPrefix('http-cache:/api/announcements');
+    this.httpCache.invalidateByPrefix('http-cache:announcements');
     this.events$.next({ type: 'created', id: saved.id, at: Date.now() });
     return saved;
   }
@@ -70,7 +70,7 @@ export class AnnouncementsService {
     }
 
     // Invalidate list caches
-    this.httpCache.invalidateByPrefix('http-cache:/api/announcements');
+    this.httpCache.invalidateByPrefix('http-cache:announcements');
     this.events$.next({ type: 'updated', id, at: Date.now() });
     return updated;
   }
@@ -81,7 +81,7 @@ export class AnnouncementsService {
       await this.queueService.cancelScheduledAnnouncement(id);
     }
     await this.announcementsRepo.softRemove(existing);
-    this.httpCache.invalidateByPrefix('http-cache:/api/announcements');
+    this.httpCache.invalidateByPrefix('http-cache:announcements');
     this.events$.next({ type: 'deleted', id, at: Date.now() });
   }
 

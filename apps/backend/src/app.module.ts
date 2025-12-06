@@ -72,13 +72,9 @@ import { HealthModule } from './health/health.module';
           I18nModule.forRoot({
             fallbackLanguage: 'es',
             loaderOptions: {
-              // In production: compiled code is in dist/src/, i18n is copied to dist/i18n/
-              // In development: code is in src/, i18n is in src/i18n/
-              // Use NODE_ENV to reliably detect production mode
-              path:
-                process.env.NODE_ENV === 'production'
-                  ? join(__dirname, '..', 'i18n') // Production: dist/src -> dist/i18n
-                  : join(__dirname, 'i18n'), // Development: src -> src/i18n
+              // nest-cli.json copies i18n to dist/i18n/
+              // When running compiled code, __dirname is dist/src/, so go up one level
+              path: join(__dirname, '..', 'i18n'),
               watch: process.env.NODE_ENV === 'development',
             },
             resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
