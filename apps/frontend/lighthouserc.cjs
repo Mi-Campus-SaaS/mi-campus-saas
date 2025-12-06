@@ -1,15 +1,29 @@
 // Use Puppeteer's bundled Chromium so CI and local runs don't require system Chrome
+/* eslint-disable n/prefer-node-protocol */
 const puppeteer = require('puppeteer');
+const path = require('path');
+
+const isCI = !!process.env.CI;
 
 /** @type {import('@lhci/cli/src/index').LHCIConfig} */
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: 'yarn dev',
-      url: ['http://localhost:5173/es'],
-      numberOfRuns: 1,
-      startServerReadyPattern: 'Local:',
-      startServerReadyTimeout: 60000,
+      ...(isCI
+        ? {
+            startServerCommand: 'yarn --cwd apps/frontend preview --port 5173 --host',
+            url: ['http://localhost:5173/es'],
+            numberOfRuns: 1,
+            startServerReadyPattern: 'Local:',
+            startServerReadyTimeout: 60000,
+          }
+        : {
+            startServerCommand: 'yarn dev',
+            url: ['http://localhost:5173/es'],
+            numberOfRuns: 1,
+            startServerReadyPattern: 'Local:',
+            startServerReadyTimeout: 60000,
+          }),
       maxWaitForLoad: 90000,
       // GitHub Actions often needs these flags, especially for Ubuntu 23.10+
       // Note: --no-sandbox is required for CI environments with restricted permissions

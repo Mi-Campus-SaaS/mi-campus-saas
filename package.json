@@ -26,7 +26,7 @@
     "format": "yarn --cwd apps/frontend format && yarn --cwd apps/backend format && npx markdownlint --fix --ignore apps/backend/README.md --ignore apps/frontend/FEATURE_FLAGS_README.md *.md .cursor/rules/*.mdc",
     "pre-commit": "node scripts/pre-commit.js",
     "pre-commit:fast": "node scripts/pre-commit.js --skip-tests",
-    "budgets:bundle": "yarn --cwd apps/frontend build && size-limit",
+    "budgets:bundle": "yarn --cwd apps/frontend build && size-limit --config .size-limit.json",
     "budgets:perf": "node tools/perf/lhci-run.cjs",
     "ci:budgets": "yarn budgets:bundle && yarn budgets:perf",
     "ci:visual": "yarn test:visual",
