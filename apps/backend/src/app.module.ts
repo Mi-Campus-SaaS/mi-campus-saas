@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -65,9 +65,7 @@ import { HealthModule } from './health/health.module';
             loaderOptions: {
               // In production: compiled code is in dist/src/, i18n is copied to dist/i18n/
               // In development: code is in src/, i18n is in src/i18n/
-              // __dirname in compiled code: dist/src/ -> ../i18n = dist/i18n ✓
-              // __dirname in dev (ts-node): src/ -> ../i18n = i18n/ (wrong)
-              // So we check if __dirname contains 'dist' to determine environment
+              // Use __dirname which points to dist/src/ in production or src/ in development
               path: __dirname.includes('dist')
                 ? join(__dirname, '..', 'i18n') // Production: dist/src -> dist/i18n
                 : join(__dirname, 'i18n'), // Development: src -> src/i18n
@@ -97,6 +95,6 @@ import { HealthModule } from './health/health.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingMiddleware).forRoutes({ path: '/*path', method: RequestMethod.ALL });
+    consumer.apply(LoggingMiddleware).forRoutes('*');
   }
 }

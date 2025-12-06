@@ -101,6 +101,12 @@ export class RateLimitGuard implements CanActivate {
     if (typeof forwarded === 'string') {
       return forwarded.split(',')[0].trim();
     }
+    if (Array.isArray(forwarded) && forwarded.length > 0) {
+      const first = forwarded[0];
+      return typeof first === 'string'
+        ? first.split(',')[0].trim()
+        : request.ip || request.socket.remoteAddress || 'unknown';
+    }
     return request.ip || request.socket.remoteAddress || 'unknown';
   }
 

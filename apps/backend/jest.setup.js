@@ -9,7 +9,7 @@ process.env.PGHOST = process.env.PGHOST || 'localhost';
 process.env.PGPORT = process.env.PGPORT || '5432';
 process.env.PGUSER = process.env.PGUSER || 'postgres';
 process.env.PGPASSWORD = process.env.PGPASSWORD || 'postgres';
-process.env.PGDATABASE = process.env.PGDATABASE || 'micampus_test_e2e';
+process.env.PGDATABASE = process.env.PGDATABASE || 'micampus';
 delete process.env.DATABASE_URL;
 process.env.FRONTEND_URL = 'http://localhost:3000';
 process.env.UPLOAD_DIR = 'test-uploads';

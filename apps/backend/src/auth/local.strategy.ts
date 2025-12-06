@@ -11,7 +11,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(req: Request, username: string, password: string) {
-    const forwarded = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim();
+    const forwardedHeader = req.headers['x-forwarded-for'];
+    let forwarded: string | undefined;
+    if (typeof forwardedHeader === 'string') {
+      forwarded = forwardedHeader.split(',')[0]?.trim();
+    } else if (Array.isArray(forwardedHeader) && forwardedHeader.length > 0) {
+      forwarded = typeof forwardedHeader[0] === 'string' ? forwardedHeader[0].split(',')[0]?.trim() : undefined;
+    }
     const ip = forwarded || req.ip || req.socket?.remoteAddress || 'unknown';
     const user = await this.authService.validateUser(username, password, ip);
     if (!user) {
