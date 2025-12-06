@@ -161,8 +161,17 @@ export class EmailVerificationService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit(): Promise<void> {
-    // Clean up expired tokens on startup
-    await this.cleanupExpiredTokens();
+    // Clean up expired tokens on startup (with error handling for tests)
+    try {
+      await this.cleanupExpiredTokens();
+    } catch (error) {
+      // In test environment, database might not be ready yet
+      if (process.env.NODE_ENV === 'test') {
+        this.logger.warn('Skipping initial token cleanup - database not ready');
+      } else {
+        this.logger.error('Failed to cleanup expired tokens on startup', error);
+      }
+    }
 
     // Set up periodic cleanup (every 6 hours)
     this.cleanupInterval = setInterval(

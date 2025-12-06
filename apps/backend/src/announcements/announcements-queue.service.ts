@@ -24,10 +24,22 @@ export class AnnouncementsQueueService {
 
     if (delay <= 0) {
       this.logger.warn(`Announcement ${announcement.id} publish time is in the past, publishing immediately`);
-      return this.announcementsQueue.add('publish-scheduled', {
-        announcementId: announcement.id,
-        publishAt: announcement.publishAt.toISOString(),
-      });
+      return this.announcementsQueue.add(
+        'publish-scheduled',
+        {
+          announcementId: announcement.id,
+          publishAt: announcement.publishAt.toISOString(),
+        },
+        {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+          removeOnComplete: 100,
+          removeOnFail: 50,
+        },
+      );
     }
 
     this.logger.log(
