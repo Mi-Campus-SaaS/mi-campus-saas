@@ -1,5 +1,10 @@
 Mi Campus SaaS (Monorepo)
 
+Prerequisites
+
+- Node.js 20+ (installs the package manager binaries)
+- Yarn 1.22 (workspace root declares the exact version in `package.json`) — install with `npm install -g yarn` or enable Corepack if available (`corepack enable`)
+
 Commands
 
 - yarn dev: runs frontend (Vite) and backend (NestJS) together

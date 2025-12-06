@@ -20,7 +20,7 @@ import { ClassesModule } from './classes/classes.module';
 import { ParentsModule } from './parents/parents.module';
 import { I18nModule, AcceptLanguageResolver, QueryResolver, HeaderResolver } from 'nestjs-i18n';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { LoggingMiddleware } from './common/logging.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -28,6 +28,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { TelemetryModule } from './telemetry/telemetry.module';
 import { AuditModule } from './audit/audit.module';
 import { HealthModule } from './health/health.module';
+
+const resolveI18nPath = () => {
+  const distPath = join(__dirname, 'i18n');
+  const srcPath = join(__dirname, '..', 'src', 'i18n');
+
+  return existsSync(distPath) ? distPath : srcPath;
+};
 
 @Module({
   imports: [
@@ -63,7 +70,7 @@ import { HealthModule } from './health/health.module';
           I18nModule.forRoot({
             fallbackLanguage: 'es',
             loaderOptions: {
-              path: join(__dirname, 'i18n'),
+              path: resolveI18nPath(),
             },
             resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
             skipAsyncHook: true,
@@ -75,12 +82,7 @@ import { HealthModule } from './health/health.module';
             loaderOptions: {
               // nest-cli.json copies i18n to dist/i18n/
               // When running compiled code, check dist/i18n first, then fall back to src/i18n
-              path: (() => {
-                // Build paths from project root to avoid __dirname issues
-                const distPath = resolve(process.cwd(), 'apps', 'backend', 'dist', 'i18n');
-                const srcPath = resolve(process.cwd(), 'apps', 'backend', 'src', 'i18n');
-                return existsSync(distPath) ? distPath : srcPath;
-              })(),
+              path: resolveI18nPath(),
               watch: process.env.NODE_ENV === 'development',
             },
             resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
