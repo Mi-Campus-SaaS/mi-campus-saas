@@ -25,9 +25,11 @@ export class AnnouncementsProcessor {
       const announcement = await this.announcementsService.findById(announcementId);
 
       const announcementPublishAt = new Date(announcement.publishAt);
-      if (announcementPublishAt > new Date()) {
-        this.logger.warn(`Announcement ${announcementId} publish time not reached yet`);
-        return { status: 'too_early' };
+      const now = new Date();
+      if (announcementPublishAt > now) {
+        const delayMs = announcementPublishAt.getTime() - now.getTime();
+        this.logger.warn(`Announcement ${announcementId} publish time not reached, throwing to retry in ${delayMs}ms`);
+        throw new Error(`Publish time not reached, retry after ${delayMs}ms`);
       }
 
       this.logger.log(`Publishing announcement ${announcementId}: ${announcement.content.substring(0, 50)}...`);
