@@ -35,10 +35,9 @@ export class AnnouncementsProcessor {
 
       this.logger.log(`Publishing announcement ${announcementId}: ${announcement.content.substring(0, 50)}...`);
 
-      // Here you would implement the actual publishing logic
-      // For now, we'll just log it as published
+      const publishedAt = new Date();
       await this.announcementsService.update(announcementId, {
-        publishAt: new Date(), // Mark as published now
+        publishedAt, // Track when it was actually published, preserve original publishAt
       });
 
       this.logger.log(`Successfully published announcement ${announcementId}`);
@@ -46,7 +45,7 @@ export class AnnouncementsProcessor {
       return {
         status: 'published',
         announcementId,
-        publishedAt: new Date(),
+        publishedAt,
       };
     } catch (error) {
       this.logger.error(`Failed to publish announcement ${announcementId}:`, error);

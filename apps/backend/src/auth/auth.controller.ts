@@ -61,6 +61,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Verify 2FA and complete login', description: 'Complete login with 2FA code for admins' })
   @ApiResponse({ status: 200, description: 'Login successful with 2FA' })
   @ApiResponse({ status: 401, description: 'Invalid 2FA code' })
+  @UseGuards(AuthGuard('local'))
   @Post('verify-2fa')
   @HttpCode(200)
   @Throttle({

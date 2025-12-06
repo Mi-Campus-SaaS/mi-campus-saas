@@ -20,7 +20,7 @@ import { ClassesModule } from './classes/classes.module';
 import { ParentsModule } from './parents/parents.module';
 import { I18nModule, AcceptLanguageResolver, QueryResolver, HeaderResolver } from 'nestjs-i18n';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { join } from 'node:path';
 import { LoggingMiddleware } from './common/logging.middleware';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -41,31 +41,41 @@ import { HealthModule } from './health/health.module';
       ],
     }),
     TypeOrmModule.forRootAsync({ useFactory: createTypeOrmConfig }),
-    ...(process.env.NODE_ENV !== 'test'
-      ? [
+    ...(process.env.NODE_ENV === 'test'
+      ? []
+      : [
           BullModule.forRoot({
             redis: {
               host: process.env.REDIS_HOST || 'localhost',
-              port: parseInt(process.env.REDIS_PORT || '6379'),
+              port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
               password: process.env.REDIS_PASSWORD,
-              db: parseInt(process.env.REDIS_DB || '0'),
+              db: Number.parseInt(process.env.REDIS_DB || '0', 10),
             },
           }),
-        ]
-      : []),
+        ]),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
       serveRoot: '/files',
     }),
-    ...(process.env.NODE_ENV !== 'test'
-      ? [
+    ...(process.env.NODE_ENV === 'test'
+      ? []
+      : [
           I18nModule.forRoot({
             fallbackLanguage: 'es',
-            loaderOptions: { path: join(process.cwd(), 'src', 'i18n'), watch: true },
+            loaderOptions: {
+              // In production: compiled code is in dist/src/, i18n is copied to dist/i18n/
+              // In development: code is in src/, i18n is in src/i18n/
+              // __dirname in compiled code: dist/src/ -> ../i18n = dist/i18n ✓
+              // __dirname in dev (ts-node): src/ -> ../i18n = i18n/ (wrong)
+              // So we check if __dirname contains 'dist' to determine environment
+              path: __dirname.includes('dist')
+                ? join(__dirname, '..', 'i18n') // Production: dist/src -> dist/i18n
+                : join(__dirname, 'i18n'), // Development: src -> src/i18n
+              watch: process.env.NODE_ENV === 'development',
+            },
             resolvers: [{ use: QueryResolver, options: ['lang'] }, HeaderResolver, AcceptLanguageResolver],
           }),
-        ]
-      : []),
+        ]),
     UsersModule,
     AuthModule,
     StudentsModule,

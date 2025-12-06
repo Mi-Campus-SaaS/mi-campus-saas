@@ -96,10 +96,9 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('returns null when user not found', async () => {
+    it('throws UnauthorizedException when user not found', async () => {
       (users.findByUsername as jest.Mock).mockResolvedValue(null);
-      const res = await service.validateUser('user', 'pass');
-      expect(res).toBeNull();
+      await expect(service.validateUser('user', 'pass')).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
     it('returns user when password matches', async () => {
@@ -113,7 +112,7 @@ describe('AuthService', () => {
       expect(res?.username).toBe('u');
     });
 
-    it('returns null when password mismatch', async () => {
+    it('throws UnauthorizedException when password mismatch', async () => {
       const passwordHash = await bcrypt.hash('secret', 1);
       const user = { id: '1', username: 'u', passwordHash } as User;
       (users.findByUsername as jest.Mock).mockResolvedValue(user);

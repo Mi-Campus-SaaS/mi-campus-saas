@@ -19,9 +19,13 @@ export class Announcement extends TimestampedEntity {
 
   // createdAt inherited
 
-  // When the announcement becomes visible
+  // When the announcement is scheduled to become visible
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   publishAt!: Date;
+
+  // When the announcement was actually published (null if not yet published)
+  @Column('timestamp', { nullable: true })
+  publishedAt?: Date | null;
 
   // updatedAt/deletedAt inherited
 }

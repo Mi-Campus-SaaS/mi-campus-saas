@@ -7,7 +7,8 @@ export type User = { id: string; username: string; role: Role; displayName: stri
 export type AuthContextType = {
   user?: User | null;
   token?: string | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<{ requires2fa?: boolean; user?: User } | void>;
+  verify2fa: (username: string, password: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -15,6 +16,7 @@ export const defaultAuthContext: AuthContextType = {
   user: null,
   token: null,
   login: async () => {},
+  verify2fa: async () => {},
   logout: async () => {},
 };
 

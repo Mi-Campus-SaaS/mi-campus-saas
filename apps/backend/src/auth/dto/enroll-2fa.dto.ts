@@ -9,6 +9,16 @@ export class Enroll2faDto {
 }
 
 export class Verify2faDto {
+  @ApiProperty({ description: 'Username or email' })
+  @IsString()
+  @Length(1, 100)
+  username!: string;
+
+  @ApiProperty({ description: 'Password' })
+  @IsString()
+  @Length(1, 200)
+  password!: string;
+
   @ApiProperty({ description: 'TOTP code or backup code' })
   @IsString()
   @Length(6, 8)

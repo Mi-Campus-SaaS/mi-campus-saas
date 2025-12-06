@@ -2,7 +2,7 @@ import axios, { AxiosHeaders, type AxiosError, type AxiosRequestConfig } from 'a
 import { injectTraceHeaders } from '../telemetry/tracing';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 export function setAuthToken(token?: string) {
@@ -12,8 +12,9 @@ export function setAuthToken(token?: string) {
 
 // Build an SSE URL with auth token appended as query param for simplicity.
 export function buildSseUrl(path: string): string {
-  const baseStr = api.defaults.baseURL || import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-  const url = new URL(baseStr);
+  const baseStr = api.defaults.baseURL || import.meta.env.VITE_API_URL || '/api';
+  const baseUrl = baseStr.startsWith('http') ? baseStr : `${window.location.origin}${baseStr}`;
+  const url = new URL(baseUrl);
   const pathPart = path.startsWith('/') ? path.slice(1) : path;
   const basePath = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
   url.pathname = `${basePath}/${pathPart}`.replace(/\/+/g, '/');

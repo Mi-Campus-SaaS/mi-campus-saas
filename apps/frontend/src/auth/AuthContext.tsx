@@ -20,9 +20,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
-    const res = await api.post<{ access_token: string; refresh_token: string; user: User }>('/auth/login', {
+    const res = await api.post<
+      | { access_token: string; refresh_token: string; user: User }
+      | { requires2fa: true; user: User }
+    >('/auth/login', {
       username,
       password,
+    });
+    
+    if ('requires2fa' in res.data && res.data.requires2fa) {
+      return { requires2fa: true, user: res.data.user };
+    }
+    
+    const data = res.data as { access_token: string; refresh_token: string; user: User };
+    setUser(data.user);
+    setToken(data.access_token);
+    setAuthTokens({ accessToken: data.access_token, refreshToken: data.refresh_token, user: data.user });
+  };
+
+  const verify2fa = async (username: string, password: string, code: string) => {
+    const res = await api.post<{ access_token: string; refresh_token: string; user: User }>('/auth/verify-2fa', {
+      username,
+      password,
+      code,
     });
     setUser(res.data.user);
     setToken(res.data.access_token);
@@ -43,6 +63,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
   };
 
-  const value = useMemo(() => ({ user, token, login, logout }), [user, token]);
+  const value = useMemo(() => ({ user, token, login, verify2fa, logout }), [user, token]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

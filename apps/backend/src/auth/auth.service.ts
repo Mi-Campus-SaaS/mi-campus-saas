@@ -28,7 +28,9 @@ export class AuthService {
 
   async validateUser(username: string, pass: string, ip?: string): Promise<User | null> {
     const user = await this.usersService.findByUsername(username);
-    if (!user) return null;
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const isLocked = await this.lockoutService.checkAccountLocked(user);
     if (isLocked) {

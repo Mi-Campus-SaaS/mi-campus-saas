@@ -15,7 +15,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     const ip = forwarded || req.ip || req.socket?.remoteAddress || 'unknown';
     const user = await this.authService.validateUser(username, password, ip);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid credentials');
     }
     return user;
   }
