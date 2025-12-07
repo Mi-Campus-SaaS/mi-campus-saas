@@ -385,7 +385,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Install @types/react for JSX runtime
-        run: npm i --save-dev @types/react
+        run: npm i --save-dev @types/react --legacy-peer-deps
         working-directory: apps/frontend
       - name: Install Chrome dependencies (for Lighthouse)
         run: |
