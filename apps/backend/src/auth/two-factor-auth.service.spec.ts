@@ -92,10 +92,10 @@ describe('TwoFactorAuthService', () => {
 
       const result = await service.enrollUser(mockUser);
 
-      expect(twoFactorAuthRepo.findOne).toHaveBeenCalledWith({ where: { userId: mockUser.id } });
+      expect(twoFactorAuthRepo.findOne).toHaveBeenCalledWith({ where: { user: { id: mockUser.id } } });
       expect(twoFactorAuthRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: mockUser.id,
+          user: mockUser,
           totpSecret: mockSecret,
           backupCodes: expect.any(Array),
           isEnrolled: true,
