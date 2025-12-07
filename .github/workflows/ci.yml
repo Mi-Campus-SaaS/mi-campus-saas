@@ -384,6 +384,9 @@ jobs:
           npm install -g yarn@1.22.22
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Install @types/react for JSX runtime
+        run: npm i --save-dev @types/react
+        working-directory: apps/frontend
       - name: Install Chrome dependencies (for Lighthouse)
         run: |
           sudo apt-get update
