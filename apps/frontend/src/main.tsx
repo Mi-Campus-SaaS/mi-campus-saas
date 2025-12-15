@@ -10,11 +10,14 @@ import { AuthProvider } from './auth/AuthContext';
 import { queryClient } from './queryClient';
 import { Toaster } from 'sonner';
 import { initializeTracing } from './telemetry/tracing';
+import { initSentry } from './telemetry/sentry';
 
 // Initialize OpenTelemetry tracing
 if (import.meta.env.MODE !== 'test') {
   initializeTracing();
 }
+
+initSentry();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

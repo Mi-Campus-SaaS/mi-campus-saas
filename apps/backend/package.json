@@ -28,6 +28,7 @@
     "migration:revert": "yarn typeorm -d ormconfig.ts migration:revert"
   },
   "dependencies": {
+    "@sentry/node": "^10.30.0",
     "@opentelemetry/core": "^2.0.1",
     "@nestjs/bull": "^11.0.3",
     "@nestjs/common": "^11.0.1",

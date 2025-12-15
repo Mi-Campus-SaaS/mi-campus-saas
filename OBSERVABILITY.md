@@ -92,6 +92,52 @@ For production, configure the OTEL endpoint to point to your observability platf
 - **Zipkin**: `http://zipkin:9411/api/v2/spans`
 - **Cloud platforms**: AWS X-Ray, Google Cloud Trace, Azure Monitor
 
+## Sentry (Errors + Source Maps)
+
+This repo supports optional Sentry error reporting for both frontend and backend, with:
+
+- **Error capture**: React errors (ErrorBoundary) + backend unhandled exceptions / 5xx responses.
+- **PII scrubbing**: tokens/cookies/passwords/emails are filtered via `beforeSend`.
+- **Release tags**: `release` and `environment` are set from env vars.
+- **Source maps**: sourcemaps are generated and can be uploaded via Sentry CLI.
+
+### Environment variables
+
+#### Runtime (frontend)
+
+```bash
+VITE_SENTRY_DSN=
+VITE_SENTRY_ENVIRONMENT=development
+VITE_SENTRY_RELEASE=
+```
+
+#### Runtime (backend)
+
+```bash
+SENTRY_DSN=
+SENTRY_ENVIRONMENT=development
+SENTRY_RELEASE=
+```
+
+#### CI/CD (upload source maps)
+
+```bash
+SENTRY_AUTH_TOKEN=
+SENTRY_ORG=
+SENTRY_PROJECT_FRONTEND=
+SENTRY_PROJECT_BACKEND=
+SENTRY_RELEASE=
+```
+
+### Upload source maps
+
+After building, run:
+
+```bash
+yarn sentry:upload:frontend
+yarn sentry:upload:backend
+```
+
 ## Troubleshooting
 
 ### Traces not appearing

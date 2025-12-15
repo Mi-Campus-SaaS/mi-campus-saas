@@ -10,8 +10,9 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
+import { captureException } from '../telemetry/sentry';
 
 export type StandardErrorBody = {
   code: string;
@@ -105,9 +106,22 @@ export function buildStandardError(exception: unknown): { status: number; body: 
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
     const { status, body } = buildStandardError(exception);
+
+    if (status >= 500) {
+      const path = (request.originalUrl || request.url || '').split('?', 1)[0];
+      const userId =
+        typeof (request as unknown as { user?: unknown }).user === 'object' &&
+        (request as unknown as { user?: { id?: unknown } }).user?.id &&
+        typeof (request as unknown as { user?: { id?: unknown } }).user?.id === 'string'
+          ? (request as unknown as { user: { id: string } }).user.id
+          : undefined;
+
+      captureException(exception, { status, method: request.method, path, userId });
+    }
     if (response.headersSent || (response as unknown as { writableEnded?: boolean }).writableEnded) {
       return;
     }

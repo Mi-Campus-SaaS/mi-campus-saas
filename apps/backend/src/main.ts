@@ -8,8 +8,10 @@ import { initializeTracing } from './telemetry/tracing';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorsService } from './common/cors.service';
+import { initSentry } from './telemetry/sentry';
 
 async function bootstrap() {
+  initSentry();
   const app = await NestFactory.create(AppModule);
 
   // Initialize OpenTelemetry tracing

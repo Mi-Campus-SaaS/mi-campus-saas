@@ -29,9 +29,12 @@
     "sonar:backend": "yarn --cwd apps/backend lint:sonar",
     "sonar:all": "yarn sonar:frontend && yarn sonar:backend",
     "sonar:console": "yarn --cwd apps/frontend lint:sonar:console && yarn --cwd apps/backend lint:sonar:console",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sentry:upload:frontend": "node tools/sentry/upload-frontend-sourcemaps.mjs",
+    "sentry:upload:backend": "node tools/sentry/upload-backend-sourcemaps.mjs"
   },
   "devDependencies": {
+    "@sentry/cli": "^2.52.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
