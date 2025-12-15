@@ -29,5 +29,3 @@ export function persistLocale(locale: SupportedLocale): void {
 export function getPreferredLocale(fallback: SupportedLocale = 'es'): SupportedLocale {
   return readPersistedLocale() ?? fallback;
 }
-
-

@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "i18n:check": "node ../../tools/i18n/check-frontend.mjs",
+    "i18n:fix": "node ../../tools/i18n/fix-frontend.mjs",
     "lint:sonar": "eslint . --format html --output-file sonarlint-report.html",
     "lint:sonar:console": "eslint . --rule \"sonarjs/cognitive-complexity: error\" --rule \"sonarjs/no-duplicate-string: error\" --rule \"sonarjs/no-identical-functions: error\"",
     "lint:sonarjs": "eslint . --rule \"sonarjs/cognitive-complexity: error\" --rule \"sonarjs/no-duplicate-string: error\" --rule \"sonarjs/no-identical-functions: error\"",

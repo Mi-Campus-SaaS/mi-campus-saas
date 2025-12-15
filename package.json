@@ -31,7 +31,9 @@
     "sonar:console": "yarn --cwd apps/frontend lint:sonar:console && yarn --cwd apps/backend lint:sonar:console",
     "prepare": "husky",
     "sentry:upload:frontend": "node tools/sentry/upload-frontend-sourcemaps.mjs",
-    "sentry:upload:backend": "node tools/sentry/upload-backend-sourcemaps.mjs"
+    "sentry:upload:backend": "node tools/sentry/upload-backend-sourcemaps.mjs",
+    "i18n:check": "node tools/i18n/check-frontend.mjs",
+    "i18n:fix": "node tools/i18n/fix-frontend.mjs"
   },
   "devDependencies": {
     "@sentry/cli": "^2.52.0",

@@ -14,6 +14,8 @@ Commands
 - yarn test: run backend unit tests
 - yarn format: format backend code (run after implementations)
 - yarn lint: run linters for frontend and backend
+- yarn i18n:check: fail if frontend code uses missing translation keys (CI-safe)
+- yarn i18n:fix: add missing translation keys (and optionally prune unused)
 
 Backend setup
 

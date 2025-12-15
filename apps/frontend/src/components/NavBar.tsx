@@ -22,7 +22,9 @@ const NavBar: React.FC = () => {
     const currentPrefix = `/${locale}`;
     const nextPrefix = `/${lng}`;
     const { pathname, search, hash } = location;
-    const nextPathname = pathname.startsWith(currentPrefix) ? `${nextPrefix}${pathname.slice(currentPrefix.length)}` : nextPrefix;
+    const nextPathname = pathname.startsWith(currentPrefix)
+      ? `${nextPrefix}${pathname.slice(currentPrefix.length)}`
+      : nextPrefix;
     navigate(`${nextPathname}${search}${hash}`);
   };
 
