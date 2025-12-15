@@ -112,14 +112,8 @@ yarn build
 # Run all tests
 yarn test
 
-# Run E2E tests
-yarn test:e2e
-
 # Security audit
 yarn security:audit
-
-# Bundle size check
-yarn budgets:bundle
 
 # Lint check
 yarn lint

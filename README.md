@@ -117,7 +117,6 @@ Testing
 
 - **Unit tests (backend)**: `yarn --cwd apps/backend test`
   - Uses ts-jest; editor integration configured via root `jest.config.js`
-- **E2E tests**: `yarn test:e2e` (Playwright)
 - **Load tests** (k6): See [tests/load/README.md](tests/load/README.md)
   - Smoke test: `yarn load:smoke` (quick validation)
   - Baseline: `yarn load:baseline` (performance baseline)

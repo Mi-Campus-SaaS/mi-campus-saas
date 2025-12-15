@@ -13,11 +13,12 @@ export function setAuthToken(token?: string) {
 // Build an SSE URL with auth token appended as query param for simplicity.
 export function buildSseUrl(path: string): string {
   const baseStr = api.defaults.baseURL || import.meta.env.VITE_API_URL || '/api';
-  const baseUrl = baseStr.startsWith('http') ? baseStr : `${window.location.origin}${baseStr}`;
+  const origin = globalThis.location?.origin ?? 'http://localhost';
+  const baseUrl = baseStr.startsWith('http') ? baseStr : `${origin}${baseStr}`;
   const url = new URL(baseUrl);
   const pathPart = path.startsWith('/') ? path.slice(1) : path;
   const basePath = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
-  url.pathname = `${basePath}/${pathPart}`.replace(/\/+/g, '/');
+  url.pathname = `${basePath}/${pathPart}`.replaceAll(/\/+/g, '/');
   const authHeader = api.defaults.headers.common['Authorization'] as string | undefined;
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined;
   if (token) url.searchParams.set('access_token', token);
@@ -65,6 +66,14 @@ export function setLogoutHandler(handler: () => void) {
   logoutHandler = handler;
 }
 
+const NO_CACHE_HEADER_VALUE = 'no-cache';
+
+function applyNoCacheHeaders(headers: AxiosHeaders, method: string): void {
+  if (method !== 'get') return;
+  if (!headers.has('Cache-Control')) headers.set('Cache-Control', NO_CACHE_HEADER_VALUE);
+  if (!headers.has('Pragma')) headers.set('Pragma', NO_CACHE_HEADER_VALUE);
+}
+
 // Ensure Authorization header exists for requests early in app lifecycle
 api.interceptors.request.use((config) => {
   const saved = getStoredAuth();
@@ -72,29 +81,17 @@ api.interceptors.request.use((config) => {
 
   // Add trace headers to all requests
   const traceHeaders = injectTraceHeaders();
+  const method = (config.method ?? 'get').toLowerCase();
 
-  if (config.headers instanceof AxiosHeaders) {
-    if (!config.headers.has('Authorization') && token) {
-      config.headers.set('Authorization', `Bearer ${token}`);
-    }
-    Object.entries(traceHeaders).forEach(([key, value]) => {
-      config.headers.set(key, value);
-    });
-    return config;
+  const headers = config.headers instanceof AxiosHeaders ? config.headers : new AxiosHeaders(config.headers ?? {});
+  if (!headers.has('Authorization') && token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
-
-  if (!config.headers) {
-    const headers: Record<string, string> = { ...traceHeaders };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-    config.headers = new AxiosHeaders(headers);
-    return config;
-  }
-
-  const h = config.headers as unknown as Record<string, string>;
-  if (!('Authorization' in h) && token) h['Authorization'] = `Bearer ${token}`;
-  Object.assign(h, traceHeaders);
+  applyNoCacheHeaders(headers, method);
+  Object.entries(traceHeaders).forEach(([key, value]) => {
+    headers.set(key, value);
+  });
+  config.headers = headers;
   return config;
 });
 
@@ -139,10 +136,10 @@ api.interceptors.response.use(
           config._retry = true;
           if (config.headers instanceof AxiosHeaders) {
             config.headers.set('Authorization', `Bearer ${token}`);
-          } else if (!config.headers) {
-            config.headers = new AxiosHeaders({ Authorization: `Bearer ${token}` });
-          } else {
+          } else if (config.headers) {
             (config.headers as unknown as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+          } else {
+            config.headers = new AxiosHeaders({ Authorization: `Bearer ${token}` });
           }
         }
         return api.request(config!);
@@ -152,6 +149,6 @@ api.interceptors.response.use(
       }
     }
 
-    return Promise.reject(error);
+    throw error;
   },
 );

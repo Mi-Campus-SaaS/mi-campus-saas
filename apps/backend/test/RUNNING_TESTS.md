@@ -21,19 +21,16 @@ yarn test:api
 | ----------------- | --------------------------------- | ---------------------- |
 | `yarn test`       | Run all unit tests (excludes E2E) | Quick unit test run    |
 | `yarn test:api`   | Run all API contract tests        | Test all endpoints     |
-| `yarn test:e2e`   | Same as test:api                  | Test all endpoints     |
 | `yarn test:cov`   | Run all tests with coverage       | Check coverage metrics |
 | `yarn test:watch` | Run tests in watch mode           | During development     |
 
 ### From Project Root
 
-| Command         | Description                        |
-| --------------- | ---------------------------------- |
-| `yarn test`     | Run backend unit tests             |
-| `yarn test:api` | Run API contract tests             |
-| `yarn test:e2e` | Run Playwright E2E tests (browser) |
-
-⚠️ **Note**: `yarn test:e2e` from root runs **Playwright** tests, not API contract tests!
+| Command                            | Description                        |
+| ---------------------------------- | ---------------------------------- |
+| `yarn test`                        | Run backend unit tests             |
+| `yarn test:api`                    | Run API contract tests             |
+| `yarn --cwd apps/backend test:e2e` | Run backend E2E/API contract tests |
 
 ## Running Specific Tests
 
@@ -144,7 +141,7 @@ If Jest can't find E2E tests:
    testMatch: ['**/*.spec.ts', '**/*.e2e-spec.ts'];
    ```
 
-2. Verify test files exist:
+1. Verify test files exist:
 
    ```bash
    ls apps/backend/test/*.e2e-spec.ts
@@ -155,15 +152,15 @@ If Jest can't find E2E tests:
 E2E tests use SQLite in-memory database. If you see connection errors:
 
 1. Check `ormconfig.ts` configuration
-2. Ensure test data cleanup in `afterAll` hooks
-3. Use `--detectOpenHandles` flag to debug
+1. Ensure test data cleanup in `afterAll` hooks
+1. Use `--detectOpenHandles` flag to debug
 
 ### Port Already in Use
 
 If you get "port already in use" errors:
 
 1. Stop any running dev servers
-2. Kill processes using port 3000:
+1. Kill processes using port 3000:
 
    ```bash
    # Windows
@@ -184,7 +181,7 @@ If tests timeout:
    jest.setTimeout(30000); // 30 seconds
    ```
 
-2. Or run with longer timeout:
+1. Or run with longer timeout:
 
    ```bash
    yarn test:api --testTimeout=30000
@@ -209,13 +206,13 @@ NODE_OPTIONS=--max_old_space_size=4096 yarn test:api
    yarn --cwd apps/backend test:watch
    ```
 
-2. **Run specific tests** you're working on:
+1. **Run specific tests** you're working on:
 
    ```bash
    yarn --cwd apps/backend test auth -t "login"
    ```
 
-3. **Check coverage** for new code:
+1. **Check coverage** for new code:
 
    ```bash
    yarn --cwd apps/backend test:cov --collectCoverageFrom="src/auth/**/*.ts"
@@ -229,13 +226,13 @@ NODE_OPTIONS=--max_old_space_size=4096 yarn test:api
    yarn test:api
    ```
 
-2. **Check for linter errors**:
+1. **Check for linter errors**:
 
    ```bash
    yarn --cwd apps/backend lint
    ```
 
-3. **Verify coverage meets thresholds**:
+1. **Verify coverage meets thresholds**:
 
    ```bash
    yarn --cwd apps/backend test:cov
@@ -244,9 +241,9 @@ NODE_OPTIONS=--max_old_space_size=4096 yarn test:api
 ### In CI/CD
 
 1. **Run with coverage** for reporting
-2. **Use `--runInBand`** for better stability
-3. **Enable `--detectOpenHandles`** to catch leaks
-4. **Set appropriate timeout** for CI environment
+1. **Use `--runInBand`** for better stability
+1. **Enable `--detectOpenHandles`** to catch leaks
+1. **Set appropriate timeout** for CI environment
 
 ## Performance Tips
 
@@ -258,13 +255,13 @@ NODE_OPTIONS=--max_old_space_size=4096 yarn test:api
    yarn test:api --maxWorkers=4
    ```
 
-2. **Run in band for debugging**:
+1. **Run in band for debugging**:
 
    ```bash
    yarn test:api --runInBand
    ```
 
-3. **Skip slow tests during development**:
+1. **Skip slow tests during development**:
 
    ```typescript
    it.skip('slow test', async () => {
@@ -275,9 +272,9 @@ NODE_OPTIONS=--max_old_space_size=4096 yarn test:api
 ### Optimize Test Setup
 
 1. **Reuse test fixtures** where possible
-2. **Use beforeAll** for expensive setup
-3. **Clean up only what's necessary**
-4. **Use transactions** for database tests
+1. **Use beforeAll** for expensive setup
+1. **Clean up only what's necessary**
+1. **Use transactions** for database tests
 
 ## Example Workflow
 
