@@ -75,8 +75,11 @@ Services included:
 
 - **PostgreSQL**: Database (port 5432)
 - **Redis**: Caching (port 6379)
+- **MinIO**: S3-compatible object storage (ports 9000/9001)
 - **Jaeger**: Distributed tracing UI (port 16686)
 - **OTEL Collector**: OpenTelemetry data collection
+
+For local usage notes (including MinIO bucket init and backend S3 env vars), see [Local Docker stack](DOCKER_LOCAL_STACK.md).
 
 API Endpoints
 
