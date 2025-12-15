@@ -12,6 +12,7 @@ import { AuditLogger } from '../common/audit.logger';
 import { AccountLockoutService } from './account-lockout.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 import { UserRole } from '../common/roles.enum';
+import { getJwtAccessExpiresIn, getJwtSecret } from './jwt-options';
 
 @Injectable()
 export class AuthService {
@@ -66,9 +67,8 @@ export class AuthService {
   private async generateAccessToken(user: User): Promise<string> {
     const payload = { sub: user.id, username: user.username, role: user.role };
     return this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('jwtSecret') || process.env.JWT_SECRET,
-      expiresIn:
-        this.configService.get<string>('jwtAccessExpiresIn') || this.configService.get<string>('jwtExpiresIn') || '15m',
+      secret: getJwtSecret(this.configService),
+      expiresIn: getJwtAccessExpiresIn(this.configService),
     });
   }
 

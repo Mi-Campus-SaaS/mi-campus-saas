@@ -19,6 +19,7 @@ import { EmailVerificationService } from './email-verification.service';
 import { PasswordResetService } from './password-reset.service';
 import { CommonModule } from '../common/common.module';
 import { MailModule } from '../mail/mail.module';
+import { getJwtAccessExpiresIn, getJwtSecret } from './jwt-options';
 
 @Module({
   imports: [
@@ -31,9 +32,9 @@ import { MailModule } from '../mail/mail.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('jwtSecret') || process.env.JWT_SECRET,
+        secret: getJwtSecret(config),
         signOptions: {
-          expiresIn: config.get<string>('jwtAccessExpiresIn') || config.get<string>('jwtExpiresIn') || '15m',
+          expiresIn: getJwtAccessExpiresIn(config),
         },
       }),
     }),
