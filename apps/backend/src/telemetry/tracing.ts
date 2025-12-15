@@ -25,7 +25,12 @@ export function initializeTracing(configService: ConfigService) {
         headers: {},
       }),
     ),
-    instrumentations: [getNodeAutoInstrumentations()],
+    instrumentations: [
+      getNodeAutoInstrumentations({
+        // Enrich DB spans (safe: uses parameterized statements / placeholders)
+        '@opentelemetry/instrumentation-pg': { enhancedDatabaseReporting: true },
+      }),
+    ],
   });
 
   sdk.start();

@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bull';
 import type { Queue, Job } from 'bull';
 import { Announcement } from './entities/announcement.entity';
 import type { PublishAnnouncementJob } from './announcements.processor';
+import { runWithBullJobSpan, withOtelCarrier } from '../telemetry/queue-tracing';
 
 export interface JobStatus {
   status: string;
@@ -21,16 +22,51 @@ export class AnnouncementsQueueService {
 
   async scheduleAnnouncement(announcement: Announcement): Promise<Job<PublishAnnouncementJob>> {
     const delay = announcement.publishAt.getTime() - Date.now();
+    const jobName = 'publish-scheduled';
+    const queueName = 'announcements';
 
     if (delay <= 0) {
       this.logger.warn(`Announcement ${announcement.id} publish time is in the past, publishing immediately`);
-      return this.announcementsQueue.add(
-        'publish-scheduled',
-        {
-          announcementId: announcement.id,
-          publishAt: announcement.publishAt.toISOString(),
-        },
-        {
+      const data = withOtelCarrier({
+        announcementId: announcement.id,
+        publishAt: announcement.publishAt.toISOString(),
+      });
+      return runWithBullJobSpan({
+        queueName,
+        jobName,
+        jobId: undefined,
+        jobData: data,
+        operation: 'enqueue',
+        fn: async () =>
+          this.announcementsQueue.add(jobName, data, {
+            attempts: 3,
+            backoff: {
+              type: 'exponential',
+              delay: 2000,
+            },
+            removeOnComplete: 100,
+            removeOnFail: 50,
+          }),
+      });
+    }
+
+    this.logger.log(
+      `Scheduling announcement ${announcement.id} for ${announcement.publishAt.toISOString()} (${delay}ms delay)`,
+    );
+
+    const data = withOtelCarrier({
+      announcementId: announcement.id,
+      publishAt: announcement.publishAt.toISOString(),
+    });
+    return runWithBullJobSpan({
+      queueName,
+      jobName,
+      jobId: undefined,
+      jobData: data,
+      operation: 'enqueue',
+      fn: async () =>
+        this.announcementsQueue.add(jobName, data, {
+          delay,
           attempts: 3,
           backoff: {
             type: 'exponential',
@@ -38,31 +74,8 @@ export class AnnouncementsQueueService {
           },
           removeOnComplete: 100,
           removeOnFail: 50,
-        },
-      );
-    }
-
-    this.logger.log(
-      `Scheduling announcement ${announcement.id} for ${announcement.publishAt.toISOString()} (${delay}ms delay)`,
-    );
-
-    return this.announcementsQueue.add(
-      'publish-scheduled',
-      {
-        announcementId: announcement.id,
-        publishAt: announcement.publishAt.toISOString(),
-      },
-      {
-        delay,
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-        removeOnComplete: 100,
-        removeOnFail: 50,
-      },
-    );
+        }),
+    });
   }
 
   async cancelScheduledAnnouncement(announcementId: string): Promise<boolean> {
