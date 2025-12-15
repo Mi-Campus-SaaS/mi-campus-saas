@@ -51,6 +51,8 @@ describe('CorsService', () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: [
               'Content-Type',
+              'Cache-Control',
+              'cache-control',
               'Authorization',
               'X-Requested-With',
               'Idempotency-Key',
@@ -105,6 +107,8 @@ describe('CorsService', () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: [
               'Content-Type',
+              'Cache-Control',
+              'cache-control',
               'Authorization',
               'X-Requested-With',
               'Idempotency-Key',
@@ -137,6 +141,8 @@ describe('CorsService', () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: [
               'Content-Type',
+              'Cache-Control',
+              'cache-control',
               'Authorization',
               'X-Requested-With',
               'Idempotency-Key',
@@ -169,6 +175,8 @@ describe('CorsService', () => {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: [
               'Content-Type',
+              'Cache-Control',
+              'cache-control',
               'Authorization',
               'X-Requested-With',
               'Idempotency-Key',
@@ -213,6 +221,8 @@ describe('CorsService', () => {
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: [
           'Content-Type',
+          'Cache-Control',
+          'cache-control',
           'Authorization',
           'X-Requested-With',
           'Idempotency-Key',

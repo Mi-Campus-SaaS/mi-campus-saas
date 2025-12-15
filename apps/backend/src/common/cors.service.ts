@@ -32,7 +32,7 @@ export class CorsService {
           origin: true,
           credentials: true,
           methods: ['GET', 'OPTIONS'],
-          allowedHeaders: ['Content-Type'],
+          allowedHeaders: ['Content-Type', 'Cache-Control', 'cache-control'],
         });
       }
 
@@ -49,6 +49,8 @@ export class CorsService {
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: [
               'Content-Type',
+              'Cache-Control',
+              'cache-control',
               'Authorization',
               'X-Requested-With',
               'Idempotency-Key',
@@ -73,6 +75,8 @@ export class CorsService {
           methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
           allowedHeaders: [
             'Content-Type',
+            'Cache-Control',
+            'cache-control',
             'Authorization',
             'X-Requested-With',
             'Idempotency-Key',
@@ -125,16 +129,16 @@ export class CorsService {
    */
   private createRegexFromWildcard(pattern: string): RegExp {
     // Replace * with a placeholder first to avoid conflicts with regex escaping
-    let regexPattern = pattern.replace(/\*/g, '__WILDCARD__');
+    let regexPattern = pattern.replaceAll('*', '__WILDCARD__');
 
     // Escape special regex characters
-    regexPattern = regexPattern.replace(/[.+?^${}()|[\]\\]/g, String.raw`\$&`);
+    regexPattern = regexPattern.replaceAll(/[.+?^${}()|[\]\\]/g, String.raw`\$&`);
 
     // Handle port wildcards specifically (e.g., localhost:__WILDCARD__)
-    regexPattern = regexPattern.replace(/:__WILDCARD__(?=$|\/)/g, ':[0-9]+');
+    regexPattern = regexPattern.replaceAll(/:__WILDCARD__(?=$|\/)/g, ':[0-9]+');
 
     // Handle general wildcards (e.g., *.example.com, app-*.vercel.app)
-    regexPattern = regexPattern.replace(/__WILDCARD__/g, '[^/:]+');
+    regexPattern = regexPattern.replaceAll('__WILDCARD__', '[^/:]+');
 
     return new RegExp(`^${regexPattern}$`);
   }
@@ -149,6 +153,8 @@ export class CorsService {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: [
         'Content-Type',
+        'Cache-Control',
+        'cache-control',
         'Authorization',
         'X-Requested-With',
         'Idempotency-Key',
