@@ -16,15 +16,24 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import TimeTestPage from './pages/TimeTestPage';
 import { useTranslation } from 'react-i18next';
+import { getPreferredLocale, isSupportedLocale, persistLocale, type SupportedLocale } from './i18n/persistedLocale';
 
 const LocaleWrapper: React.FC = () => {
   const { locale = 'es' } = useParams();
   const { i18n, t } = useTranslation();
   useEffect(() => {
-    if (locale && i18n.language !== locale) i18n.changeLanguage(locale);
-    document.documentElement.lang = locale;
+    if (isSupportedLocale(locale)) {
+      persistLocale(locale);
+      if (i18n.language !== locale) i18n.changeLanguage(locale);
+      document.documentElement.lang = locale;
+      return;
+    }
+    document.documentElement.lang = getPreferredLocale();
   }, [i18n, locale]);
-  if (!['es', 'en'].includes(locale)) return <Navigate to="/es" replace />;
+  if (!isSupportedLocale(locale)) {
+    const target: SupportedLocale = getPreferredLocale();
+    return <Navigate to={`/${target}`} replace />;
+  }
   return (
     <div className="min-h-screen">
       <a href="#main-content" className="skip-link">
@@ -66,7 +75,7 @@ const App: React.FC = () => {
   return (
     <Routes>
       <Route path=":locale/*" element={<LocaleWrapper />} />
-      <Route path="*" element={<Navigate to="/es" replace />} />
+      <Route path="*" element={<Navigate to={`/${getPreferredLocale()}`} replace />} />
     </Routes>
   );
 };

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/useAuth';
+import { persistLocale, type SupportedLocale } from '../i18n/persistedLocale';
 
 import { FeatureGate } from './FeatureGate';
 import NotificationsBell from './NotificationsBell';
@@ -11,9 +12,18 @@ const NavBar: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const { locale = 'es' } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const changeLang = (lng: 'es' | 'en') => {
+  const changeLang = (lng: SupportedLocale) => {
+    persistLocale(lng);
     i18n.changeLanguage(lng);
+
+    const currentPrefix = `/${locale}`;
+    const nextPrefix = `/${lng}`;
+    const { pathname, search, hash } = location;
+    const nextPathname = pathname.startsWith(currentPrefix) ? `${nextPrefix}${pathname.slice(currentPrefix.length)}` : nextPrefix;
+    navigate(`${nextPathname}${search}${hash}`);
   };
 
   const [isDark, setIsDark] = React.useState<boolean>(() => {
@@ -113,7 +123,7 @@ const NavBar: React.FC = () => {
           className="px-2"
           onClick={() => changeLang('es')}
           aria-label={t('switch_to_spanish')}
-          aria-current={i18n.language === 'es' ? 'true' : undefined}
+          aria-current={locale === 'es' ? 'true' : undefined}
           title={t('spanish')}
         >
           {t('spanish')}
@@ -122,7 +132,7 @@ const NavBar: React.FC = () => {
           className="px-2"
           onClick={() => changeLang('en')}
           aria-label={t('switch_to_english')}
-          aria-current={i18n.language === 'en' ? 'true' : undefined}
+          aria-current={locale === 'en' ? 'true' : undefined}
           title={t('english')}
         >
           {t('english')}
