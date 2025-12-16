@@ -163,5 +163,11 @@
   "of": "de",
   "items": "elementos",
   "filtered_results": "Resultados filtrados",
-  "skip_to_main_content": "Saltar al contenido principal"
+  "skip_to_main_content": "Saltar al contenido principal",
+  "back": "Volver",
+  "login_failed": "Error al iniciar sesión",
+  "two_factor_code": "Código de autenticación de dos factores",
+  "two_factor_required": "Se requiere autenticación de dos factores",
+  "verification_failed": "Error en la verificación",
+  "verify": "Verificar"
 }

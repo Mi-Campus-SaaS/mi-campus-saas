@@ -163,5 +163,11 @@
   "of": "of",
   "items": "items",
   "filtered_results": "Filtered results",
-  "skip_to_main_content": "Skip to main content"
+  "skip_to_main_content": "Skip to main content",
+  "back": "Back",
+  "login_failed": "Login failed",
+  "two_factor_code": "Two-factor code",
+  "two_factor_required": "Two-factor authentication required",
+  "verification_failed": "Verification failed",
+  "verify": "Verify"
 }
