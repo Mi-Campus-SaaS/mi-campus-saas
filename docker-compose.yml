@@ -35,6 +35,39 @@ services:
       - micampus-pgdata:/var/lib/postgresql/data
     networks:
       - otel-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrations:
+    image: node:20-alpine
+    container_name: micampus-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    environment:
+      - NODE_ENV=production
+      - DB_TYPE=postgres
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - PGDATABASE=micampus
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        echo 'Installing dependencies...' &&
+        yarn install --frozen-lockfile &&
+        echo 'Running migrations...' &&
+        yarn --cwd apps/backend migration:run &&
+        echo 'Migrations completed successfully'
+      "
+    networks:
+      - otel-network
 
   redis:
     image: redis:7-alpine
