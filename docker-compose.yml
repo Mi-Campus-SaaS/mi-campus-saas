@@ -7,7 +7,7 @@ services:
     ports:
       - "14317:4317"   # OTLP gRPC receiver (host 14317)
       - "14318:4318"   # OTLP HTTP receiver (host 14318)
-      - "55679:55679" # zpages extension
+      - "5567:55679" # zpages extension
     networks:
       - otel-network
 
